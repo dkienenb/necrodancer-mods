@@ -1,0 +1,111 @@
+gungeon boss on x-4 and ND boss on x-5
+
+move levelgen into lib? doors in oubliette corridors
+
+oubliette doesn't trigger with grates over the trapdoor
+
+floor drops mark items as seen before they are dropped
+
+dove can collect blood key
+hacker can collect gold key (and obsidian key without stairsing)
+play sound on unlocking an obliette lock
+lich's eye bullets appear in chests/shops
+lich's eye bullets only work if held, not in chests
+lich's eye bullets unable to be dropped by gunslinger
+udjat detects BM
+udjat *doesn't* use monocle sprite
+
+dynamically load mod name
+
+mod banner
+
+char textures (head/armor/bestiary)
+
+yang actually has three turkeys
+
+black market in jungle, like gungeon, with lunky shoppie who has ankh
+DaR in jungle on a level seperate from BM
+abbey altar on 2-2, place crest to visit abbey after 2-5
+
+moai on 3-2 or 3-3, unless worm, in which case 3-3 #2
+
+scepter from anubis on 4-1
+cog entrance on 4-2, cog replaces 4-3
+
+vlad's castle on zone, instead of depth, 5-1 with amulet in block, cape is passive that is blood and flying (possibly every other beat?)
+
+items that give extra levels:
+worm food from obliette-1 <worm tounge spawns on 2-1 and 3-1, worm replaces 2-2 or 3-2>
+alien compass from abbey-1 <ms is 3-3.5, then spits you out into another 3-3>
+gold crown from DaR <haunted castle is 4-1.5>
+
+items:
+ankh
+bracket key
+temmie armor (temmie shop on abbey-3)
+escape rope
+super hot watch
+hourglass - restart any song once
+shovel, armor, torch, boots, helmet, of becoming/wonder
+eggplant in abbey-2
+ring of vitality, +2 max health (1 heart) per floor
+combination artifacts from homm3
+
+olmec fight with hell door on 5-5
+
+ND boss locations:
+boss 1: 1-5 or obliette-5
+boss 2: 2-5
+boss 3: 3-5
+boss 4: 4-5
+boss 5: 5-6 or 6-7
+
+world 6:
+6-1, 6-2, 6-3, lich, 6-4, yama, final nd boss(es)
+
+shrine to give a random item from your inv to your next run on 6-4 or obliette-4? add scatter trap next to it 
+
+char unlock conditions
+
+blue echo flower that loops song once and spawns ghost, sometimes in a secret room by itself
+
+genocide route, complete with slowed music (must visit all possible areas and kill everything as soon as possible)
+damage buff accessory that increases damage for every kill
+
+omega red, problem for hacker char
+
+
+
+chars:
+robot - half heart like aria, 6 armor, input delay of 4 beats
+time traveller - start at end of chain, compelete in reverse
+character that fuses all other characters
+yang - mary but with 3 tukeys
+double paradox - paradox but shuffled every zone
+
+mod icon
+mod banner
+get
+move scripts to own folder
+
+swipe music?
+undertale - core, another medium, battle against a true hero, finale, hopes and dreams, save the world
+f777 - distant secrets, sound of infinity, lightspeed's too slow
+
+final bosses:
+hacker - none, standard 5th boss
+gunslinger - none, standard 5th boss
+hunter - 
+paradox - none, standard 5th boss?
+speedrunner - the labrynth
+yang - none, standard 5th boss
+
+redo oubliette gen; keep huge maze for rat lair
+4 rooms, room{[room, chest], [shop]}, 4 rooms, room{chest loop, 4 rooms, two standard, one corridor king, crest off of chest}, 4 rooms, boss entrance, boss
+loop start{branch a: 2 rooms, shop, 2 rooms, chest, room; branch b: 2 rooms, room{crest}, chest, room} merge point = room, then room, boss entrance, boss
+3 rooms, room{[room, chest], [shop]}, 3 rooms, room{chest loop, 3 rooms, two standard, one corridor king, crest off of chest}, 3 rooms, boss entrance, boss
+loop start{branch a: 2 rooms, shop, 2 rooms, chest; branch b: 6 rooms, chest, room} merge point = room, then room{crest}, boss entrance, boss
+4 rooms, room{[room, chest], [shop]}, 3 rooms, room{chest loop, 4 rooms, two standard, one shrine, one corridor king, crest off of chest}, 3 rooms, boss entrance, boss
+loop start{branch a: 2 rooms, shop, 2 rooms, chest; branch b: 5 rooms, chest, 2 rooms; brach c: crest} merge point = room, then room, boss entrance, boss
+4 rooms, room{[room, chest], [shop, crest]}, 3 rooms, room{chest loop, 4 rooms, two standard, one shrine, one corridor king, crest off of chest}, 2 rooms, boss entrance, boss
+loop start{branch a: 2 rooms, shop, 2 rooms, chest; branch b: 3 rooms, room[crest], chest, room} merge point = room, then room, boss entrance, boss

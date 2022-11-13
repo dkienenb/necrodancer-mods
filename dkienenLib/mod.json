@@ -1,0 +1,19 @@
+{
+	"namespace": "dkienenLib",
+	"displayName": "dkienenLib",
+	"version": "1.0.0",
+	"synchronyVersion": "3.2.0",
+	"description": "Library mod containing many useful functions",
+	"author": "dkienenb",
+	"dependencies": {},
+	"api": {"scriptPath":"scripts"},
+	"icon": "dkienenLibIcon.png",
+	"banner": "dkienenLibBanner.png",
+	"tags": [],
+	"name": "dkienenLib_io_2437823",
+	"homepageURL": "https://mod.io/g/crypt/m/dkienenlib",
+	"modioID": "2437823",
+	"modioUserID": 14309121,
+	"pendingVersion": "1.0.0",
+	"visibility": 2
+}

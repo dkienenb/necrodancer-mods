@@ -1,0 +1,15 @@
+{
+	"namespace": "SpelunkyGungeonMod",
+	"displayName": "Spelunky Gungeon Mod",
+	"version": "1.0.0",
+	"synchronyVersion": "3.2.0",
+	"description": "No description given.",
+	"author": "dkienenb",
+	"dependencies": {"LibLevelGen_io_2421628":"1.1.1", "dkienenLib_io_2437823":"1.0.0"},
+	"api": {"scriptPath":""},
+	"icon": "SpelunkyGungeonModIcon.png",
+	"banner": "SpelunkyGungeonModBanner.png",
+	"tags": [],
+	"name": "SpelunkyGungeonMod",
+	"pendingVersion": "1.0.0"
+}

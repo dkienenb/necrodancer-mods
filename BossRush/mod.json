@@ -1,0 +1,19 @@
+{
+	"namespace": "BossRush",
+	"displayName": "Boss Rush",
+	"version": "1.0.0",
+	"synchronyVersion": "3.2.0",
+	"description": "Skip all standard levels",
+	"author": "dkienenb",
+	"dependencies": {},
+	"api": {"scriptPath":""},
+	"icon": "BossRushIcon.png",
+	"banner": "BossRushBanner.png",
+	"tags": [],
+	"name": "BossRush_io_2445826",
+	"homepageURL": "https://mod.io/g/crypt/m/bossrush1",
+	"modioID": "2445826",
+	"modioUserID": 14309121,
+	"pendingVersion": "1.0.0",
+	"visibility": 0
+}
