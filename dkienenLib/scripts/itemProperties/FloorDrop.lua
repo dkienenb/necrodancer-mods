@@ -26,7 +26,10 @@ function addOneDrop(item)
 		local thing = object.spawn(item, spawnX, spawnY)
 		itemGeneration.markSeen(thing, 1)
 	else
-		trackedItemDroppingEntities[chosen.id] = item
+		if not trackedItemDroppingEntities[chosen.id] then
+			trackedItemDroppingEntities[chosen.id] = {}
+		end
+		table.insert(trackedItemDroppingEntities[chosen.id], item)
 	end
 end
 
@@ -41,21 +44,21 @@ function addRandomDrop(modName, itemName, requiredPlayerComponent, depth, floor)
 	eventUtil.addDepthLevelEvent("AddRandomItemDrop" .. tableKey, "training", 9, components, eventUtil.makeDepthPredicate(depth, floor), function()
 		addOneDrop(item)
 	end)
-	event.objectDeath.add("RandomItemDrop" .. tableKey, {order="itemDrop"}, function(ev)
-		if trackedItemDroppingEntities[ev.entity.id] == item then
+end
+
+event.objectDeath.add("RandomItemDrops", {order="itemDrop"}, function(ev)
+	print(ev)
+	if trackedItemDroppingEntities[ev.entity.id] then
+		for _, item in ipairs(trackedItemDroppingEntities[ev.entity.id]) do
 			local thing = object.spawn(item, ev.entity.position.x, ev.entity.position.y, {})
 			itemGeneration.markSeen(thing, 1)
-			if player.firstWithComponent("goldHater") then
-				for _, goldPile in ipairs(map.allWithComponent(ev.entity.position.x, ev.entity.position.y, "itemCurrency")) do
-					if goldPile.itemCurrency.currencyType == "gold" then
-						object.delete(goldPile)
-					end
-				end
+			if ev.killer and ev.killer.goldHater then
+				ev.credit = -2
 			end
 			trackedItemDroppingEntities[ev.entity.id] = nil
 		end
-	end)
-end
+	end
+end)
 
 function apply(_, args, name, modName)
 	addRandomDrop(modName, name, args.requiredPlayerComponent, args.depth, args.floor)

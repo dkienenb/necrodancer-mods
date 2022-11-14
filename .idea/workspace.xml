@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f4ab3b59-2257-41b7-b99e-81dbb4d2557c" name="Default Changelist" comment="" />
+    <list default="true" id="f4ab3b59-2257-41b7-b99e-81dbb4d2557c" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SpelunkyGungeonMod/SpelunkyGungeonMod.lua" beforeDir="false" afterPath="$PROJECT_DIR$/SpelunkyGungeonMod/SpelunkyGungeonMod.lua" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SpelunkyGungeonMod/levelgen.lua" beforeDir="false" afterPath="$PROJECT_DIR$/SpelunkyGungeonMod/levelgen.lua" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SpelunkyGungeonMod/todo" beforeDir="false" afterPath="$PROJECT_DIR$/SpelunkyGungeonMod/todo" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dkienenLib/scripts/itemProperties/FloorDrop.lua" beforeDir="false" afterPath="$PROJECT_DIR$/dkienenLib/scripts/itemProperties/FloorDrop.lua" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -14,7 +21,11 @@
       </list>
     </option>
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
   <component name="ProjectId" id="2HI9EmmnrfIGl6qRFB1277kmRHI" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showExcludedFiles" value="true" />
@@ -22,6 +33,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/dkienenLib/scripts/itemProperties" />
@@ -60,7 +72,7 @@
       <workItem from="1667961624721" duration="14175000" />
       <workItem from="1668042688971" duration="601000" />
       <workItem from="1668121474149" duration="30160000" />
-      <workItem from="1668201055221" duration="30873000" />
+      <workItem from="1668201055221" duration="53692000" />
     </task>
     <servers />
   </component>
@@ -68,6 +80,10 @@
     <option name="version" value="1" />
   </component>
   <component name="WindowStateProjectService">
+    <state x="558" y="95" key="CommitChangelistDialog2" timestamp="1668460372361">
+      <screen x="0" y="0" width="1920" height="1044" />
+    </state>
+    <state x="558" y="95" key="CommitChangelistDialog2/0.0.1920.1044/1920.0.1920.1080@0.0.1920.1044" timestamp="1668460372361" />
     <state x="744" y="277" key="FileChooserDialogImpl" timestamp="1667972388665">
       <screen x="0" y="0" width="1920" height="1044" />
     </state>

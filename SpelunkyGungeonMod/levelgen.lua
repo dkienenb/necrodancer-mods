@@ -1,4 +1,5 @@
 local boss = require "necro.game.level.Boss"
+local customEntities = require "necro.game.data.CustomEntities"
 
 local libLevelGen = require "LibLevelGen.LibLevelGen"
 local levelgenUtil = require "LibLevelGen.Util"
@@ -11,10 +12,21 @@ local minibosses = {"Mommy", "Dragon2", "Dragon3", "Ogre", "HeadGlassJaw"}
 
 local name = "SpelunkyGungeonMod"
 local prefix = name .. "_"
+local entityUtil = require "dkienenLib.EntityUtil"
 
 -- open tiles per monster
 local spawnRate = 12
 local crests = {"WormFood", "UdjatEye", "OldCrest"}
+
+local bossID = boss.Type.extend("Blobulord")
+entityUtil.registerEntity(name, customEntities.template.enemy("slime", 8), {
+	boss = {type=bossID},
+	Sync_enemyPoolBoss={},
+	health = {
+		maxHealth = 10,
+		health = 10
+	}
+}, "Blobulord")
 
 local roomGenParams = {
 	-- Directions in which the room is allowed to generate.
@@ -126,12 +138,14 @@ end
 
 local function makeChestRoom(target)
 	target:placeEntityAt(3, 3, prefix .. "ChestPlaceholderMarker")
-	target:clearFlags(room.Flag.ALLOW_ENEMY, room.Flag.ALLOW_TRAP)
+	target:clearFlags(room.Flag.ALLOW_ENEMY)
+	target:clearFlags(room.Flag.ALLOW_TRAP)
 end
 
 local function makeCrestRoom(target)
 	target:placeEntityAt(3, 3, prefix .. (crests[target.instance:getFloor()] or "Bomb3"))
-	target:clearFlags(room.Flag.ALLOW_ENEMY, room.Flag.ALLOW_TRAP)
+	target:clearFlags(room.Flag.ALLOW_ENEMY)
+	target:clearFlags(room.Flag.ALLOW_TRAP)
 end
 
 local function branch(room, roomGenCombinationsParameter, includeDirtDoor)
@@ -231,9 +245,13 @@ local function createRooms(mainSegment)
 	else
 		mainSegment:setRoomBorder("BossWall")
 		mainSegment:setCorridorBorder("BossWall")
+		mainSegment:setTileset("Boss")
+		instance.boss=bossID
 		local startingRoom = mainSegment:createStartingRoom()
 		local bossRoom = branch(startingRoom, bossRoomCombinations, false)
-		bossRoom:clearFlags(room.Flag.ALLOW_ENEMY, room.Flag.ALLOW_TRAP)
+		bossRoom:clearFlags(room.Flag.ALLOW_ENEMY)
+		bossRoom:clearFlags(room.Flag.ALLOW_TRAP)
+		bossRoom:placeEntityAt(10, 10, prefix .. "Blobulord")
 	end
 end
 

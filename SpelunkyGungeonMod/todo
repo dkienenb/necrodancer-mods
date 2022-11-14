@@ -2,9 +2,9 @@ gungeon boss on x-4 and ND boss on x-5
 
 move levelgen into lib? doors in oubliette corridors
 
-oubliette doesn't trigger with grates over the trapdoor
-
 floor drops mark items as seen before they are dropped
+
+glass key failsafe triggers on normal chars sometimes
 
 dove can collect blood key
 hacker can collect gold key (and obsidian key without stairsing)
@@ -15,15 +15,29 @@ lich's eye bullets unable to be dropped by gunslinger
 udjat detects BM
 udjat *doesn't* use monocle sprite
 
+can unlock locks while flying
+
 dynamically load mod name
 
 mod banner
 
 char textures (head/armor/bestiary)
 
+moles in z1
+
 yang actually has three turkeys
 
-black market in jungle, like gungeon, with lunky shoppie who has ankh
+spells
+bloodlust, +1 dmg
+destroy undead
+fire shield
+armageddon
+chain lightning
+fly
+
+shrine in oubliette
+
+black market in jungle, like gungeon BM, on sperate level like lunky BM, with lunky shoppie who has ankh
 DaR in jungle on a level seperate from BM
 abbey altar on 2-2, place crest to visit abbey after 2-5
 
@@ -42,6 +56,7 @@ gold crown from DaR <haunted castle is 4-1.5>
 items:
 ankh
 bracket key
+black knight's shield (weapon)
 temmie armor (temmie shop on abbey-3)
 escape rope
 super hot watch
@@ -49,7 +64,48 @@ hourglass - restart any song once
 shovel, armor, torch, boots, helmet, of becoming/wonder
 eggplant in abbey-2
 ring of vitality, +2 max health (1 heart) per floor
+transmutes into ring of idun, same thing but gain apples every floor
 combination artifacts from homm3
+slayer item, +3 dmg to boss/miniboss
+backwards shield: protect behind you
+fancy mustache: bosses have mustache, heal 4 hearts after boss. headgear
+piggy bank, +1 to gold, dies like marv
+chest teleporter
+
+shrine of becoming:
+all items turn to becoming variants
+
+monsters:
+slime that drops goo upon death
+slime with a random pattern
+slime with a random pattern, but that ends up on the same space
+slime that moves every beat in one direction, 3 hp, dies upon hitting wall
+slimes:
+- element
+- color
+- movement pattern
+- if bumping into another slime, smaller one is eaten, add health and max health to health
+- explodes if too big (more than 8 hp) into small slimes
+- spiked slimes that deal damage to you if hit, have them eaten to survive
+- rare slime that drops a key
+shellington: skeleton variant that drops bones which revive it
+
+blobulord:
+attacks:
+recolor slimes, change all movement pattern generators
+shoot slime projectile that spawns slimes on impact
+fire the one-directional slimes as projectiles, in rings or bursts
+hide in grate, spawning many slimes
+absorb slimes, gain health
+pacifist kill: blobulord goes over 100 health, exploding instantly
+teleport on hit
+
+beetle, but goo
+gunsinger (enemy buffer)
+purple bat: like normal bat, but moves up/down more
+stair mimic, complete with extra zone if death prevented
+Zone 5 enemy: Clockwork Knight.
+Basically, chess piece from deep blues, but moves about every 3 beats, but moves 1 beat if on electricity
 
 olmec fight with hell door on 5-5
 
@@ -84,8 +140,7 @@ yang - mary but with 3 tukeys
 double paradox - paradox but shuffled every zone
 
 mod icon
-mod banner
-get
+mod banners
 move scripts to own folder
 
 swipe music?

@@ -56,17 +56,6 @@ local allNonShovelNonWeaponItems = {}
 
 local doubleParadoxMap = {}
 
-local bossID = boss.Type.extend("Blobulord")
-entityUtil.registerEntity(modName, customEntities.template.enemy("slime", 8), {
-	boss = {type=bossID},
-	Sync_enemyPoolBoss={},
-	health = {
-		maxHealth = 10,
-		health = 10
-	}
-}, "Blobulord")
-
-
 function createGrate(material)
 	local name = material .. "Grate"
 	local components = {
@@ -159,8 +148,7 @@ event.levelSequenceUpdate.add("Oubliette", {order="shuffle", sequence = 4}, func
 	table.insert(ev.sequence, oublietteStart, {type=generatorID, floor=1, depth=1.5, zone=1.5})
 	table.insert(ev.sequence, oublietteStart + 1, {type=generatorID, floor=2, depth=1.5, zone=1.5})
 	table.insert(ev.sequence, oublietteStart + 2, {type=generatorID, floor=3, depth=1.5, zone=1.5})
-	table.insert(ev.sequence, oublietteStart + 3, {type=generatorID, floor=4, depth=1.5, zone=1.5, boss=bossID})
-	print(ev)
+	table.insert(ev.sequence, oublietteStart + 3, {type=generatorID, floor=4, depth=1.5, zone=1.5})
 end)
 
 event.levelComplete.add("OublietteWarp", {order="nextLevel"}, function (ev)
@@ -371,7 +359,7 @@ event.musicTrack.add("OublietteMusic", {order = "assetMods"}, function (ev)
 			track = "Oubliette Sting.mp3"
 		end
 		if floor == 4 then
-			track = "Oubliette Sting.mp3"
+			track = "Desert of Lost Souls.mp3"
 		end
 		ev.beatmap = "mods/" .. modName .. "/music/" .. track .. ".txt"
 		ev.originalBeatmap = "mods/" .. modName .. "/music/" .. track .. ".txt"
