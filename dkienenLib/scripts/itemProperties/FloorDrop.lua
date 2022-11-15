@@ -47,7 +47,6 @@ function addRandomDrop(modName, itemName, requiredPlayerComponent, depth, floor)
 end
 
 event.objectDeath.add("RandomItemDrops", {order="itemDrop"}, function(ev)
-	print(ev)
 	if trackedItemDroppingEntities[ev.entity.id] then
 		for _, item in ipairs(trackedItemDroppingEntities[ev.entity.id]) do
 			local thing = object.spawn(item, ev.entity.position.x, ev.entity.position.y, {})

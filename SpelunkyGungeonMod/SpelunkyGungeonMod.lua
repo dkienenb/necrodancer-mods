@@ -23,7 +23,6 @@ local oublietteGenerator = require "SpelunkyGungeonMod.levelgen"
 
 local modName = "SpelunkyGungeonMod"
 local prefix = modName .. "_"
-local RNG_RANDOMDROPS = rng.Channel.extend(prefix .. "RandomDrops")
 local RNG_PARADOX = rng.Channel.extend(prefix .. "Paradox")
 local RNG_OUBLIETTE = rng.Channel.extend(prefix .. "Oubliette")
 local RNG_CHESTPLACEHOLDERS = rng.Channel.extend(prefix .. "ChestPlaceholders")
@@ -41,6 +40,7 @@ local componentUtil = require "dkienenLib.ComponentUtil"
 local entityUtil = require "dkienenLib.EntityUtil"
 local characterUtil = require "dkienenLib.CharacterUtil"
 local eventUtil = require "dkienenLib.EventUtil"
+local musicUtil = require "dkienenLib.MusicUtil"
 
 oublietteTrapdoorProperties = snapshot.runVariable({})
 oublietteVisit = snapshot.runVariable(false)
@@ -346,7 +346,7 @@ event.renderGlobalHUD.override("renderLevelCounter", 1, function(func, ev)
 	end
 
 	text = localization.format("render.levelCounterHUD.depthLevel",
-			"Depth: %s  Level: %s",
+			"Depth: %s  Floor: %s",
 			depth,
 			boss and localization.get("render.levelCounterHUD.boss") or floor)
 	hud.drawText {
@@ -358,31 +358,10 @@ event.renderGlobalHUD.override("renderLevelCounter", 1, function(func, ev)
 	}
 end)
 
-event.musicTrack.add("OublietteMusic", {order = "assetMods"}, function (ev)
-	local depth = currentLevel.getDepth()
-	local floor = currentLevel.getFloor()
-	if depth == 1.5 then
-		local track
-		if floor == 1 then
-			track = "Crossing the Chasm.mp3"
-		end
-		if floor == 2 then
-			track = "Nonstop.mp3"
-		end
-		if floor == 3 then
-			track = "Oubliette Sting.mp3"
-		end
-		if floor == 4 then
-			track = "Desert of Lost Souls.mp3"
-		end
-		ev.beatmap = "mods/" .. modName .. "/music/" .. track .. ".txt"
-		ev.originalBeatmap = "mods/" .. modName .. "/music/" .. track .. ".txt"
-		ev.layers[1].file = "mods/" .. modName .. "/music/" .. track
-		ev.layers[1].originalFile = "mods/" .. modName .. "/music/" .. track
-		ev.layers[2] = nil
-		ev.vocals = nil
-	end
-end)
+musicUtil.setMusic(modName, 1.5, 1, "Crossing the Chasm.mp3")
+musicUtil.setMusic(modName, 1.5, 2, "Nonstop.mp3")
+musicUtil.setMusic(modName, 1.5, 3, "Oubliette Sting.mp3")
+musicUtil.setMusic(modName, 1.5, 4, "Desert of Lost Souls.mp3")
 
 characterUtil.registerCharacter(modName, "1337h4x0r", nil, "", nil, "]")
 characterUtil.registerCharacter(modName, "Double Paradox", {"Bomb"}, "Randomize your items every zone!")
