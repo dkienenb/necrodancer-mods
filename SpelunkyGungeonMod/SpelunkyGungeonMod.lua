@@ -299,6 +299,20 @@ event.levelLoad.add("ParadoxItems", {order = "initialItems"}, function(ev)
 	end
 end)
 
+event.lobbyGenerate.add("removeStairs", {order="amplified", sequence=2}, function (ev)
+	for entity in ecs.entitiesWithComponents { "trapStartRun" } do
+		if entity.trapStartRun.mode == "SingleZone" then
+			local x, y = entity.position.x, entity.position.y
+			object.delete(entity)
+			tile.setType(x, y, "Floor")
+			local label = map.firstWithComponent(x, y, "worldLabel")
+			if label then
+				object.delete(label)
+			end
+		end
+	end
+end)
+
 event.levelLoad.add("DoubleParadoxItems", {order = "initialItems"}, function(ev)
 	if not currentLevel.isSafe() and (currentLevel.getDepth() ~= 1) and (currentLevel.getFloor() == 1) then
 		for _, paradox in ipairs(player.getPlayerEntities()) do
