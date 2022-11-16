@@ -5,8 +5,6 @@ local object = require "necro.game.object.Object"
 local snapshot = require "necro.game.system.Snapshot"
 local rng = require "necro.game.system.RNG"
 local ecs = require "system.game.Entities"
-local map = require "necro.game.object.Map"
-local player = require "necro.game.character.Player"
 local itemGeneration = require "necro.game.item.ItemGeneration"
 
 trackedItemDroppingEntities = snapshot.runVariable({});

@@ -118,7 +118,7 @@ function createLock(material)
 			if victim.inventory and affectorItem.entityHasItem(victim, key) then
 				object.kill(trap)
 				object.kill(ecs.getEntityByID(lock.grate))
-				object.delete(affectorItem.getItem(victim, key))
+				consumable.consume(affectorItem.getItem(victim, key))
 			end
 		end
 	end)
@@ -138,7 +138,7 @@ end
 --end)
 --	end
 
-event.entitySchemaLoadNamedEntity.add("debug", {key="Trainingsarcophagus"}, function (ev)
+event.entitySchemaLoadNamedEntity.add("debug", {key="Slime", 8}, function (ev)
 --	dbg(ev.entity)
 end)
 
@@ -339,7 +339,7 @@ end)
 event.renderGlobalHUD.override("renderLevelCounter", 1, function(func, ev)
 	local text
 
-	local depth, floor, boss = currentLevel.getDepth(), currentLevel.getFloor(), currentLevel.isBoss()
+	local depth, floor, isBoss = currentLevel.getDepth(), currentLevel.getFloor(), currentLevel.isBoss()
 
 	if depth == 1.5 then
 		depth = "Oubliette"
@@ -348,7 +348,7 @@ event.renderGlobalHUD.override("renderLevelCounter", 1, function(func, ev)
 	text = localization.format("render.levelCounterHUD.depthLevel",
 			"Depth: %s  Floor: %s",
 			depth,
-			boss and localization.get("render.levelCounterHUD.boss") or floor)
+			isBoss and "Boss" or floor)
 	hud.drawText {
 		text = text,
 		font = ui.Font.SMALL,
@@ -361,7 +361,8 @@ end)
 musicUtil.setMusic(modName, 1.5, 1, "Crossing the Chasm.mp3")
 musicUtil.setMusic(modName, 1.5, 2, "Nonstop.mp3")
 musicUtil.setMusic(modName, 1.5, 3, "Oubliette Sting.mp3")
-musicUtil.setMusic(modName, 1.5, 4, "Desert of Lost Souls.mp3")
+musicUtil.setMusic(modName, 1.5, 4, "The Complex.mp3")
+musicUtil.setMusic(modName, 1, 4, "The Complex.mp3")
 
 characterUtil.registerCharacter(modName, "1337h4x0r", nil, "", nil, "]")
 characterUtil.registerCharacter(modName, "Double Paradox", {"Bomb"}, "Randomize your items every zone!")
@@ -385,5 +386,6 @@ itemUtil.registerItem(modName, "Udjat Eye", "head_monocle", "Reveals secrets", "
 itemUtil.registerItem(modName, "Worm Food", nil, "Nom nom!", "misc", {Unban=true})
 itemUtil.registerItem(modName, "Old Crest", nil, "Prevents damage once", "misc", {Unban=true, DamageBlock={}})
 
+itemUtil.registerItem(modName, "Ring of Vitality", nil, "Increases max health every floor", "ring", {GradualMaxHealthIncrease={}})
 itemUtil.registerItem(modName, "Hunter Soul", nil, "Target down!", "misc", {FloorDrop={requiredPlayerComponent = prefix .. "Hunter"}, Stack={}, Breakable={sound="drinkPotion", depth={}, requiredComponent = prefix .. "Hunter"}})
 itemUtil.registerItem(modName, "Lich's Eye Bullets", nil, "More liches", "misc", {})

@@ -1,5 +1,5 @@
 local boss = require "necro.game.level.Boss"
-local customEntities = require "necro.game.data.CustomEntities"
+local object = require "necro.game.object.Object"
 
 local libLevelGen = require "LibLevelGen.LibLevelGen"
 local levelgenUtil = require "LibLevelGen.Util"
@@ -9,24 +9,52 @@ local room = require "LibLevelGen.Room"
 local levelSequence = require "LibLevelGen.LevelSequence"
 local monsters = {"Armadillo2", "Armadillo3", "Bat2", "Bat4", "Beetle", "Beetle2", "Blademaster", "Clone", "Fireelemental", "Goblin", "Goblin2", "Golem3", "Hellhound", "Iceelemental", "Lich", "Mole", "Monkey2", "Mummy", "Mushroom2", "Skeleton3", "Skeleton3", "Skeleton3", "Skeleton3", "Skeleton4", "Slime4", "Slime5", "Slime6", "Slime7", "Slime8", "Warlock", "Warlock2"}
 local minibosses = {"Mommy", "Dragon2", "Dragon3", "Ogre", "HeadGlassJaw"}
+local sizeModifier = require "necro.game.character.SizeModifier"
 
 local name = "SpelunkyGungeonMod"
 local prefix = name .. "_"
-local entityUtil = require "dkienenLib.EntityUtil"
+local monsterUtil = require "dkienenLib.MonsterUtil"
 
 -- open tiles per monster
 local spawnRate = 12
 local crests = {"WormFood", "UdjatEye", "OldCrest"}
 
-local bossID = boss.Type.extend("Blobulord")
-entityUtil.registerEntity(name, customEntities.template.enemy("slime", 8), {
-	boss = {type=bossID},
-	Sync_enemyPoolBoss={},
-	health = {
-		maxHealth = 10,
-		health = 10
-	}
-}, "Blobulord")
+local blobulordComponents = {
+	voiceAttack = {
+		sound = "slimeAttack"
+	},
+	voiceDeath = {
+		sound = "slimeDeath"
+	},
+	voiceHit = {
+	   sound = "slimeHit"
+	},
+	particleBarrier = {},
+	particleFreeze = {},
+	particleRingConfusion = {},
+	particleSink = {},
+	particleTakeDamage = {
+		texture = "ext/particles/TEMP_particle_purple.png"
+	},
+	positionalSprite={
+		offsetY = 8
+	},
+	particleUnsink = {},
+	sprite = {
+		height = 26,
+		mirrorOffsetX = 0,
+		texture = "ext/entities/slime_purple.png",
+		width = 26
+	},
+}
+
+local bossID = monsterUtil.registerBoss(name, "Blobulord", nil, 5, nil, blobulordComponents, function (ev)
+	local blob = ev.entity
+	local big = sizeModifier.isGigantic(blob)
+	if not big then sizeModifier.grow(blob) end
+	--object.spawn("Bat4", blob.position.x + 1, blob.position.y + 1)
+	print(ev)
+end)
 
 local roomGenParams = {
 	-- Directions in which the room is allowed to generate.
@@ -143,7 +171,7 @@ local function makeChestRoom(target)
 end
 
 local function makeCrestRoom(target)
-	target:placeEntityAt(3, 3, prefix .. (crests[target.instance:getFloor()] or "Bomb3"))
+	target:placeEntityAt(3, 3, (prefix .. (crests[target.instance:getFloor()]) or "Bomb3"))
 	target:clearFlags(room.Flag.ALLOW_ENEMY)
 	target:clearFlags(room.Flag.ALLOW_TRAP)
 end

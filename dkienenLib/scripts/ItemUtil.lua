@@ -20,7 +20,7 @@ function registerItem(modName, name, templateItem, hint, slot, args)
 	entityUtil.registerEntity(modName, customEntities.template.item(templateItem), components, officialName, data)
 end
 
-registerItem("dkienenLib", "Test item", nil, "Yargs", "misc", {Failsafe={drop={depth=2, floor=2, components={"enemyPoolMiniboss"}}}, Unban=true, BloodRegen={}, Breakable={purchase=true, depth={depth=2, floor=3}}})
+registerItem("dkienenLib", "Test item", nil, "Yargs", "ring", {})
 
 return {
 	registerItem=registerItem

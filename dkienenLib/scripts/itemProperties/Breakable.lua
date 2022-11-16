@@ -4,6 +4,7 @@ local affectorItem = require "necro.game.item.AffectorItem"
 local player = require "necro.game.character.Player"
 local currentLevel = require "necro.game.level.CurrentLevel"
 local ecs = require "system.game.Entities"
+local eventUtil = require "dkienenLib.EventUtil"
 
 function apply(components, args, name)
 	local defaultBreakText = name .. " shatters!"
@@ -46,17 +47,14 @@ event.priceTagPay.add("PurchaseBreak", {order = "consume"}, function (ev)
 end)
 
 componentUtil.registerComponent("dkienenLib", "breakOnDepth", {depth={type="int16",default=nil},floor={type="int16",default=nil}})
-
-event.levelLoad.add("DepthBreak", {order = "spawnPlayers", sequence = 4}, function(ev)
-	for item in ecs.entitiesWithComponents{"dkienenLib_breakOnDepth", "item"} do
-		local holder = ecs.getEntityByID(item.item.holder)
-		if player.isPlayerEntity(holder) then
-			local depth, floor
-			depth = item.dkienenLib_breakOnDepth.depth
-			floor = item.dkienenLib_breakOnDepth.floor
-			if (depth == 0 or (currentLevel.getDepth() == depth)) and (floor == 0 or (currentLevel.getFloor() == floor)) and not (currentLevel.getSequentialNumber() == 1) then
-				consumable.consume(item)
-			end
+eventUtil.addLevelEvent("DepthBreak", "spawnPlayers", 4, {"dkienenLib_breakOnDepth"}, function(item, _)
+	local holder = ecs.getEntityByID(item.item.holder)
+	if player.isPlayerEntity(holder) then
+		local depth, floor
+		depth = item.dkienenLib_breakOnDepth.depth
+		floor = item.dkienenLib_breakOnDepth.floor
+		if (depth == 0 or (currentLevel.getDepth() == depth)) and (floor == 0 or (currentLevel.getFloor() == floor)) then
+			consumable.consume(item)
 		end
 	end
 end)
