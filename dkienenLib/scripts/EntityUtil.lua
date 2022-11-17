@@ -1,6 +1,7 @@
 local miscUtil = require "dkienenLib.MiscUtil"
 local componentUtil = require "dkienenLib.ComponentUtil"
 local customEntities = require "necro.game.data.CustomEntities"
+local damage = require "necro.game.system.Damage"
 
 local function registerEntity(modName, template, components, name, data)
 	local prefix = miscUtil.makePrefix(modName)
@@ -30,7 +31,12 @@ local function registerMarkerEntity(modName, markerName)
 	registerEntity(modName, nil, {}, markerName .. "Marker")
 end
 
+local function destroy(entity, deathMessage)
+	damage.inflict({victim=entity, killerName=deathMessage, damage=999, damageType=damage.Type.SELF_DESTRUCT})
+end
+
 return {
 	registerEntity=registerEntity,
-	registerMarkerEntity=registerMarkerEntity
+	registerMarkerEntity=registerMarkerEntity,
+	destroy=destroy
 }

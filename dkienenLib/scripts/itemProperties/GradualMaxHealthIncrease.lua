@@ -7,7 +7,7 @@ function apply(components)
 end
 
 componentUtil.registerComponent("dkienenLib", "gradualMaxHealthIncrease", {levels={type="int32", default=0}, healthGranted={type="int32", default=0}})
-eventUtil.addLevelEvent("maxHealthIncrease", "runState", -1, {"dkienenLib_gradualMaxHealthIncrease"}, function (entity)
+eventUtil.addLevelEvent("dkienenLib", "maxHealthIncrease", "runState", -1, {"dkienenLib_gradualMaxHealthIncrease"}, function (entity)
 	local levels = entity.dkienenLib_gradualMaxHealthIncrease.levels
 	local healthGranted = entity.dkienenLib_gradualMaxHealthIncrease.healthGranted
 	levels = levels + 1

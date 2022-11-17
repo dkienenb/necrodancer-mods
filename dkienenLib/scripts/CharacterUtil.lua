@@ -1,5 +1,6 @@
 local miscUtil = require "dkienenLib.MiscUtil"
 local entityUtil = require "dkienenLib.EntityUtil"
+local eventUtil = require "dkienenLib.EventUtil"
 local customEntities = require "necro.game.data.CustomEntities"
 local multiCharacter = require "necro.game.data.modifier.MultiCharacter"
 local extraMode = require "necro.game.data.modifier.ExtraMode"
@@ -7,7 +8,7 @@ local enum = require "system.utils.Enum"
 local modChars = {}
 local color = require "system.utils.Color"
 
-function registerCharacter(modName, charName, inventory, charSelectText, cursedSlots, overrideCharName)
+function registerCharacter(modName, charName, inventory, charSelectText, cursedSlots, overrideCharName, levelEvents)
     local officialName = miscUtil.makeProperIdentifier(charName)
     local prefix = miscUtil.makePrefix(modName)
     if overrideCharName then charName = overrideCharName end
@@ -24,16 +25,14 @@ function registerCharacter(modName, charName, inventory, charSelectText, cursedS
                 lobbyOrder=0
             },
             sprite={
-               -- texture="mods/" .. modName .. "/images/chars/" .. officialName .. "Body.png"
-                texture="mods/" .. modName .. "/images/chars/" .. "Hunter" .. "Body.png"
+               texture="mods/" .. modName .. "/images/characters/" .. officialName .. "Body.png"
             },
             textCharacterSelectionMessage = {
                 text = charSelectText
             },
         },
         {
-           -- sprite={texture="mods/" .. modName .. "/images/chars/" .. officialName .. "Heads.png"}
-            sprite={texture="mods/" .. modName .. "/images/chars/" .. "Hunter" .. "Heads.png"}
+           sprite={texture="mods/" .. modName .. "/images/characters/" .. officialName .. "Heads.png"}
         }
     }
     if cursedSlots then
@@ -43,6 +42,19 @@ function registerCharacter(modName, charName, inventory, charSelectText, cursedS
     local template = customEntities.template.player()
     entityUtil.registerEntity(modName, template, components, officialName)
     table.insert(modChars, prefix .. officialName)
+    if levelEvents then
+        local filter = {}
+        table.insert(filter, prefix .. officialName)
+        for index, levelEvent in ipairs(levelEvents) do
+            local predicate = levelEvent.predicate
+            if not predicate and levelEvent.notFirstLevel then
+                predicate = function (depth, floor)
+                    return (depth ~= 1) or (floor ~= 1)
+                end
+            end
+            eventUtil.addDepthLevelEvent(modName, officialName .. "Power" .. index, levelEvent.order or "spawnPlayers", levelEvent.sequence, filter, predicate, levelEvent.action)
+        end
+    end
 end
 
 local mode = multiCharacter.Mode.extend("All Chars Modded", enum.data {

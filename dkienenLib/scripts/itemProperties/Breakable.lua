@@ -10,6 +10,11 @@ function apply(components, args, name)
 	local defaultBreakText = name .. " shatters!"
 	local defaultSound = "glassBreak"
 	if args then
+		if args.activeItem then
+			components.activeItemConsumable = {}
+			defaultSound = ""
+			defaultBreakText = ""
+		end
 		if args.damage then
 			components.itemConsumeOnIncomingDamage = {}
 		end
@@ -47,7 +52,7 @@ event.priceTagPay.add("PurchaseBreak", {order = "consume"}, function (ev)
 end)
 
 componentUtil.registerComponent("dkienenLib", "breakOnDepth", {depth={type="int16",default=nil},floor={type="int16",default=nil}})
-eventUtil.addLevelEvent("DepthBreak", "spawnPlayers", 4, {"dkienenLib_breakOnDepth"}, function(item, _)
+eventUtil.addLevelEvent("dkienenLib", "DepthBreak", "spawnPlayers", 4, {"dkienenLib_breakOnDepth"}, function(item, _)
 	local holder = ecs.getEntityByID(item.item.holder)
 	if player.isPlayerEntity(holder) then
 		local depth, floor

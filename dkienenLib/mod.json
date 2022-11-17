@@ -1,9 +1,9 @@
 {
 	"namespace": "dkienenLib",
 	"displayName": "dkienenLib",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"synchronyVersion": "3.2.0",
-	"description": "Library mod containing many useful functions",
+	"description": "Library mod containing many useful functions, preventing me from duplicating code",
 	"author": "dkienenb",
 	"dependencies": {},
 	"api": {"scriptPath":"scripts"},
@@ -11,9 +11,10 @@
 	"banner": "dkienenLibBanner.png",
 	"tags": [],
 	"name": "dkienenLib_io_2437823",
-	"homepageURL": "https://mod.io/g/crypt/m/dkienenlib",
+	"changelog": "Added autoloading (still very much WIP)\nPublishing publicly alongside the Hunter character mod",
+	"homepageURL": "https://mod.io/g/crypt/m/dkienenLib",
 	"modioID": "2437823",
 	"modioUserID": 14309121,
-	"pendingVersion": "1.0.0",
-	"visibility": 2
+	"pendingVersion": "1.0.2",
+	"visibility": 0
 }

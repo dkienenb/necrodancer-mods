@@ -34,12 +34,11 @@ end
 function addRandomDrop(modName, itemName, requiredPlayerComponent, depth, floor)
 	itemName = miscUtil.makeProperIdentifier(itemName)
 	local item = miscUtil.makePrefix(modName) .. itemName
-	local tableKey = modName .. itemName;
 	local components
 	if requiredPlayerComponent then
 		components = {requiredPlayerComponent}
 	end
-	eventUtil.addDepthLevelEvent("AddRandomItemDrop" .. tableKey, "training", 9, components, eventUtil.makeDepthPredicate(depth, floor), function()
+	eventUtil.addDepthLevelEvent(modName, "AddRandomItemDrop" .. itemName, "training", 9, components, eventUtil.makeDepthPredicate(depth, floor), function()
 		addOneDrop(item)
 	end)
 end

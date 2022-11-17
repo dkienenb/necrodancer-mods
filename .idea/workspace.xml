@@ -1,19 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f4ab3b59-2257-41b7-b99e-81dbb4d2557c" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/SpelunkyGungeonMod/music/Level Up.mp3" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dkienenLib/scripts/AIUtil.lua" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dkienenLib/scripts/MonsterUtil.lua" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dkienenLib/scripts/itemProperties/GradualMaxHealthIncrease.lua" afterDir="false" />
+    <list default="true" id="f4ab3b59-2257-41b7-b99e-81dbb4d2557c" name="Default Changelist" comment="Add Ring of Vitality">
+      <change afterPath="$PROJECT_DIR$/HunterCharacter/HunterCharacter.lua" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/HunterCharacter/HunterCharacterBanner.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/HunterCharacter/HunterCharacterIcon.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/HunterCharacter/characters/Hunter.lua" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/HunterCharacter/images/items/Soul.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/HunterCharacter/items/Soul.lua" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/HunterCharacter/mod.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SpelunkyGungeonMod/images/characters/HunterBody.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SpelunkyGungeonMod/images/characters/HunterHeads.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dkienenLib/scripts/AutoLoadUtil.lua" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dkienenLib/scripts/itemProperties/Cast.lua" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dkienenLib/scripts/itemProperties/Hint.lua" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dkienenLib/scripts/itemProperties/Slot.lua" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dkienenLib/scripts/itemProperties/Spell.lua" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SpelunkyGungeonMod/SpelunkyGungeonMod.lua" beforeDir="false" afterPath="$PROJECT_DIR$/SpelunkyGungeonMod/SpelunkyGungeonMod.lua" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SpelunkyGungeonMod/levelgen.lua" beforeDir="false" afterPath="$PROJECT_DIR$/SpelunkyGungeonMod/levelgen.lua" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SpelunkyGungeonMod/todo" beforeDir="false" afterPath="$PROJECT_DIR$/SpelunkyGungeonMod/todo" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SpelunkyGungeonMod/images/chars/HunterBody.png" beforeDir="false" afterPath="$PROJECT_DIR$/HunterCharacter/images/characters/HunterBody.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SpelunkyGungeonMod/images/chars/HunterHeads.png" beforeDir="false" afterPath="$PROJECT_DIR$/HunterCharacter/images/characters/HunterHeads.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dkienenLib/mod.json" beforeDir="false" afterPath="$PROJECT_DIR$/dkienenLib/mod.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dkienenLib/scripts/CharacterUtil.lua" beforeDir="false" afterPath="$PROJECT_DIR$/dkienenLib/scripts/CharacterUtil.lua" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dkienenLib/scripts/EntityUtil.lua" beforeDir="false" afterPath="$PROJECT_DIR$/dkienenLib/scripts/EntityUtil.lua" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dkienenLib/scripts/EventUtil.lua" beforeDir="false" afterPath="$PROJECT_DIR$/dkienenLib/scripts/EventUtil.lua" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dkienenLib/scripts/ItemUtil.lua" beforeDir="false" afterPath="$PROJECT_DIR$/dkienenLib/scripts/ItemUtil.lua" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dkienenLib/scripts/MetaUtil.lua" beforeDir="false" afterPath="$PROJECT_DIR$/dkienenLib/scripts/MetaUtil.lua" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dkienenLib/scripts/itemProperties/Breakable.lua" beforeDir="false" afterPath="$PROJECT_DIR$/dkienenLib/scripts/itemProperties/Breakable.lua" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dkienenLib/scripts/itemProperties/FloorDrop.lua" beforeDir="false" afterPath="$PROJECT_DIR$/dkienenLib/scripts/itemProperties/FloorDrop.lua" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dkienenLib/scripts/itemProperties/GradualMaxHealthIncrease.lua" beforeDir="false" afterPath="$PROJECT_DIR$/dkienenLib/scripts/itemProperties/GradualMaxHealthIncrease.lua" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dkienenLib/scripts/itemProperties/Stack.lua" beforeDir="false" afterPath="$PROJECT_DIR$/dkienenLib/scripts/itemProperties/Stack.lua" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mods.iml" beforeDir="false" afterPath="$PROJECT_DIR$/mods.iml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,6 +68,7 @@
     </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/dkienenLib/scripts/itemProperties" />
+      <recent name="$PROJECT_DIR$/dkienenLib/scripts" />
     </key>
   </component>
   <component name="RunManager">
@@ -78,7 +96,7 @@
       <workItem from="1667961624721" duration="14175000" />
       <workItem from="1668042688971" duration="601000" />
       <workItem from="1668121474149" duration="30160000" />
-      <workItem from="1668201055221" duration="79120000" />
+      <workItem from="1668201055221" duration="95622000" />
     </task>
     <task id="LOCAL-00001" summary="Fix floor drops on monk containing gold&#10;Fix floor drops overriding each other">
       <created>1668460419967</created>
@@ -101,7 +119,14 @@
       <option name="project" value="LOCAL" />
       <updated>1668477953682</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Add Ring of Vitality">
+      <created>1668582592338</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1668582592338</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -111,13 +136,18 @@
     <MESSAGE value="Fix floor drops on monk containing gold&#10;Fix floor drops overriding each other" />
     <MESSAGE value="Remove lobby singlezones stairs" />
     <MESSAGE value="add musicUtil" />
-    <option name="LAST_COMMIT_MESSAGE" value="add musicUtil" />
+    <MESSAGE value="Add Ring of Vitality" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add Ring of Vitality" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="558" y="95" key="CommitChangelistDialog2" timestamp="1668477953604">
+    <state x="714" y="324" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1668645475722">
       <screen x="0" y="0" width="1920" height="1044" />
     </state>
-    <state x="558" y="95" key="CommitChangelistDialog2/0.0.1920.1044/1920.0.1920.1080@0.0.1920.1044" timestamp="1668477953604" />
+    <state x="714" y="324" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1920.1044/1920.0.1920.1080@0.0.1920.1044" timestamp="1668645475722" />
+    <state x="558" y="95" key="CommitChangelistDialog2" timestamp="1668628300486">
+      <screen x="0" y="0" width="1920" height="1044" />
+    </state>
+    <state x="558" y="95" key="CommitChangelistDialog2/0.0.1920.1044/1920.0.1920.1080@0.0.1920.1044" timestamp="1668628300486" />
     <state x="744" y="277" key="FileChooserDialogImpl" timestamp="1667972388665">
       <screen x="0" y="0" width="1920" height="1044" />
     </state>
@@ -126,18 +156,18 @@
       <screen x="0" y="0" width="1920" height="1044" />
     </state>
     <state x="457" y="154" key="SettingsEditor/0.0.1920.1044/1920.0.1920.1080@0.0.1920.1044" timestamp="1668004024993" />
-    <state x="556" y="255" key="Vcs.Push.Dialog.v2" timestamp="1668477955213">
+    <state x="556" y="255" key="Vcs.Push.Dialog.v2" timestamp="1668582594793">
       <screen x="0" y="0" width="1920" height="1044" />
     </state>
-    <state x="556" y="255" key="Vcs.Push.Dialog.v2/0.0.1920.1044/1920.0.1920.1080@0.0.1920.1044" timestamp="1668477955213" />
+    <state x="556" y="255" key="Vcs.Push.Dialog.v2/0.0.1920.1044/1920.0.1920.1080@0.0.1920.1044" timestamp="1668582594793" />
     <state x="641" y="346" key="com.intellij.ide.util.TipDialog" timestamp="1668201125354">
       <screen x="0" y="0" width="1920" height="1044" />
     </state>
     <state x="641" y="346" key="com.intellij.ide.util.TipDialog/0.0.1920.1044/1920.0.1920.1080@0.0.1920.1044" timestamp="1668201125354" />
-    <state x="637" y="132" width="645" height="780" key="find.popup" timestamp="1667969158303">
+    <state x="637" y="132" width="645" height="780" key="find.popup" timestamp="1668645402760">
       <screen x="0" y="0" width="1920" height="1044" />
     </state>
-    <state x="637" y="132" width="645" height="780" key="find.popup/0.0.1920.1044/1920.0.1920.1080@0.0.1920.1044" timestamp="1667969158303" />
+    <state x="637" y="132" width="645" height="780" key="find.popup/0.0.1920.1044/1920.0.1920.1080@0.0.1920.1044" timestamp="1668645402760" />
     <state x="623" y="230" width="672" height="678" key="search.everywhere.popup" timestamp="1668476211210">
       <screen x="0" y="0" width="1920" height="1044" />
     </state>

@@ -128,7 +128,9 @@ function createGrateAndKeyAndLock(material, hint, itemArgs)
 	createGrate(material)
 	itemArgs.Stack = {}
 	itemArgs.Unban = {}
-	itemUtil.registerItem(modName, material .. " Key", nil, hint, "misc", itemArgs)
+	itemArgs.Slot = {slot="misc"}
+	itemArgs.Hint = {hint=hint}
+	itemUtil.registerItem(modName, material .. " Key", nil, itemArgs)
 	createLock(material)
 end
 
@@ -138,7 +140,7 @@ end
 --end)
 --	end
 
-event.entitySchemaLoadNamedEntity.add("debug", {key="Slime", 8}, function (ev)
+event.entitySchemaLoadNamedEntity.add("debug", {key="dkienenLib_TestItem"}, function (ev)
 --	dbg(ev.entity)
 end)
 
@@ -187,7 +189,7 @@ event.entitySchemaLoadNamedEntity.add("registerItemsForParadox", {order = "final
 	end
 end)
 
-eventUtil.addLevelEvent("lichSubstitutions", "enemySubstitutions", -1, {prefix .. "LichsEyeBullets"}, function (entity, event)
+eventUtil.addLevelEvent("SpelunkyGungeonMod", "lichSubstitutions", "enemySubstitutions", -1, {prefix .. "LichsEyeBullets"}, function (entity, event)
 	local holder = ecs.getEntityByID(entity.item.holder)
 	if player.isPlayerEntity(holder) then
 		for _, entity in ipairs(event.entities) do
@@ -260,14 +262,6 @@ event.levelLoad.add("SpeedrunnerTrapdoor", {order = "training", sequence = 1}, f
 			for yOffset = -2, 2 do
 				object.spawn("Trapdoor", spawnX + xOffset, spawnY + yOffset)
 			end
-		end
-	end
-end)
-
-event.levelLoad.add("HunterKill", {order = "spawnPlayers", sequence = 3}, function(ev)
-	for hunter in ecs.entitiesWithComponents {prefix .. "Hunter"} do
-		if not currentLevel.isSafe() and not (affectorItem.entityHasItem(hunter, prefix .. "HunterSoul")) and not ((currentLevel.getFloor() == 1) and (currentLevel.getDepth() == 1)) then
-			object.kill(hunter, nil, "Hunter's curse")
 		end
 	end
 end)
@@ -364,9 +358,14 @@ musicUtil.setMusic(modName, 1.5, 3, "Oubliette Sting.mp3")
 musicUtil.setMusic(modName, 1.5, 4, "The Complex.mp3")
 musicUtil.setMusic(modName, 1, 4, "The Complex.mp3")
 
+local function hunterKill(hunter)
+	if not (affectorItem.entityHasItem(hunter, prefix .. "HunterSoul")) then
+		entityUtil.destroy(hunter, "Hunter's curse")
+	end
+end
+
 characterUtil.registerCharacter(modName, "1337h4x0r", nil, "", nil, "]")
 characterUtil.registerCharacter(modName, "Double Paradox", {"Bomb"}, "Randomize your items every zone!")
-characterUtil.registerCharacter(modName, "Hunter", {"ShovelBasic","WeaponCrossbow","Bomb","HeadCircletTelepathy"}, "Locate and kill your\ntarget monster every floor,\nor die.")
 characterUtil.registerCharacter(modName, "Gunslinger", {"ShovelBasic", "WeaponDagger", "Bomb", "SpelunkyGungeonMod_LichsEyeBullets"}, "Defeat the lich(es)!")
 characterUtil.registerCharacter(modName, "Guy Spelunky", {"WeaponWhip", "Bomb3", "Bomb"}, "Contains the correct amount\nof digging tools!", {shovel=true})
 characterUtil.registerCharacter(modName, "Paradox", {"Bomb"}, "Start with random items!")
@@ -378,14 +377,14 @@ entityUtil.registerMarkerEntity(modName, "OublietteTrapdoor")
 entityUtil.registerMarkerEntity(modName, "ChestPlaceholder")
 
 createGrateAndKeyAndLock("Blood", "More health, regenerate health", {FloorDrop={depth=1, floor=1}, Breakable={depth={depth=3, floor=2}}, BloodRegen={}, HealthIncrease={}})
-createGrateAndKeyAndLock("Glass", "Breaks on hit, +3 damage", {Purchasable={price={coins=48, blood=4}, secretShopWeights={999999}}, Failsafe={shop={depth=1, floor=2}}, Breakable={damage=true}, DamageIncrease={amount=3}})
+createGrateAndKeyAndLock("Glass", "Breaks on hit, +3 damage", {Purchasable={price={coins=48, blood=4}, secretShopWeights={0, 0, 999999, 999999, 0}}, Failsafe={shop={depth=1, floor=2}}, Breakable={damage=true}, DamageIncrease={amount=3}})
 createGrateAndKeyAndLock("Gold", "Breaks on purchase, more money", {Purchasable={price={coins=110}, shopWeights={0, 999999, 0}, lockedShopWeights={0, 999999, 0}},  Failsafe={shop={depth=1, floor=3}}, Breakable={purchase=true}}, {GoldIncrease={}})
 createGrateAndKeyAndLock("Obsidian", "Missed beat breaks, +1 multiplier", {Failsafe={drop={depth=1, floor=3, components="enemyPoolMiniboss"}}, Breakable={missedBeat=true}, MultiplierIncrease={}})
 
-itemUtil.registerItem(modName, "Udjat Eye", "head_monocle", "Reveals secrets", "misc", {Unban=true})
-itemUtil.registerItem(modName, "Worm Food", nil, "Nom nom!", "misc", {Unban=true})
-itemUtil.registerItem(modName, "Old Crest", nil, "Prevents damage once", "misc", {Unban=true, DamageBlock={}})
+itemUtil.registerItem(modName, "Udjat Eye", "head_monocle", {Slot={}, Hint={hint="Reveals secrets"}, Unban=true})
+itemUtil.registerItem(modName, "Worm Food", nil, {Slot={}, Hint={hint="Nom nom!"}, Unban=true})
+itemUtil.registerItem(modName, "Old Crest", nil, {Slot={}, Hint={hint="Prevents damage once"}, Unban=true, DamageBlock={}})
 
-itemUtil.registerItem(modName, "Ring of Vitality", nil, "Increases max health every floor", "ring", {GradualMaxHealthIncrease={}})
-itemUtil.registerItem(modName, "Hunter Soul", nil, "Target down!", "misc", {FloorDrop={requiredPlayerComponent = prefix .. "Hunter"}, Stack={}, Breakable={sound="drinkPotion", depth={}, requiredComponent = prefix .. "Hunter"}})
-itemUtil.registerItem(modName, "Lich's Eye Bullets", nil, "More liches", "misc", {})
+itemUtil.registerItem(modName, "Ring of Vitality", nil, {Slot={slot="ring"}, Hint={hint="Increases max health every floor"}, GradualMaxHealthIncrease={}})
+itemUtil.registerItem(modName, "Escape Rope", nil, {Slot={slot="action"}, Hint={hint="Teleports you to the shop"}, Spell={spell="SpellcastCrownOfTeleportation", cooldown=20}})
+itemUtil.registerItem(modName, "Lich's Eye Bullets", nil, {Slot={}, Hint={hint="More liches"}})

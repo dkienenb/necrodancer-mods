@@ -1,8 +1,8 @@
 local currentLevel = require "necro.game.level.CurrentLevel"
 local ecs = require "system.game.Entities"
 
-function addLevelEvent(eventHandlerName, order, sequence, components, action)
-    event.levelLoad.add(eventHandlerName, {order = order, sequence = sequence}, function(ev)
+function addLevelEvent(modName, eventHandlerName, order, sequence, components, action)
+    event.levelLoad.add(modName .. eventHandlerName, {order = order, sequence = sequence}, function(ev)
         if not currentLevel.isSafe() then
             local depth = currentLevel.getDepth()
             local floor = currentLevel.getFloor()
@@ -17,8 +17,8 @@ function addLevelEvent(eventHandlerName, order, sequence, components, action)
     end)
 end
 
-function addDepthLevelEvent(eventHandlerName, order, sequence, components, predicate, action)
-    addLevelEvent(eventHandlerName, order, sequence, components, function (entity, depth, floor, ...)
+function addDepthLevelEvent(modName, eventHandlerName, order, sequence, components, predicate, action)
+    addLevelEvent(modName, eventHandlerName, order, sequence, components, function (entity, depth, floor, ...)
         if predicate and predicate(depth, floor) then
             action(entity, depth, floor, ...)
         end
