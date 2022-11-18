@@ -52,6 +52,12 @@ function registerCharacter(modName, charName, inventory, charSelectText, cursedS
                     return (depth ~= 1) or (floor ~= 1)
                 end
             end
+            if not predicate and levelEvent.depth and levelEvent.floor then
+                predicate = eventUtil.makeDepthPredicate(levelEvent.depth, levelEvent.floor)
+            end
+            if not predicate then
+                predicate = function() return true end
+            end
             eventUtil.addDepthLevelEvent(modName, officialName .. "Power" .. index, levelEvent.order or "spawnPlayers", levelEvent.sequence, filter, predicate, levelEvent.action)
         end
     end

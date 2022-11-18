@@ -1,7 +1,7 @@
 {
 	"namespace": "HunterCharacter",
 	"displayName": "Hunter Character",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"synchronyVersion": "3.2.1",
 	"description": "Adds a new character, the Hunter, who must find and kill a target on every floor.\n",
 	"author": "dkienenb",
@@ -11,9 +11,10 @@
 	"banner": "HunterCharacterBanner.png",
 	"tags": [],
 	"name": "HunterCharacter_io_2503632",
-	"homepageURL": "https://mod.io/g/crypt/m/huntercharacter",
+	"changelog": "Added mod icon",
+	"homepageURL": "https://mod.io/g/crypt/m/HunterCharacter",
 	"modioID": "2503632",
 	"modioUserID": 14309121,
-	"pendingVersion": "1.0.0",
+	"pendingVersion": "1.0.1",
 	"visibility": 0
 }

@@ -2,16 +2,20 @@ local currentLevel = require "necro.game.level.CurrentLevel"
 local ecs = require "system.game.Entities"
 
 function addLevelEvent(modName, eventHandlerName, order, sequence, components, action)
-    event.levelLoad.add(modName .. eventHandlerName, {order = order, sequence = sequence}, function(ev)
+    local eventName = "levelLoad"
+    if order == "processPendingObjects" then
+        eventName = "gameStateLevel";
+    end
+    event[eventName].add(modName .. eventHandlerName, {order = order, sequence = sequence}, function(ev)
         if not currentLevel.isSafe() then
             local depth = currentLevel.getDepth()
             local floor = currentLevel.getFloor()
             if components then
                 for entity in ecs.entitiesWithComponents(components) do
-                    action(entity, depth, floor, ev)
+                    action(entity, depth, floor, ev, modName)
                 end
             else
-                action(nil, depth, floor, ev)
+                action(nil, depth, floor, ev, modName)
             end
         end
     end)

@@ -79,9 +79,9 @@ function createGrate(material)
 	entityUtil.registerEntity(modName, nil, components, name)
 	grateCount = grateCount + 1
 	event.trapTrigger.override("descend", grateCount, function (func, ev)
-		if not map.firstWithComponent(ev.trap.position.x, ev.trap.position.y, prefix .. name) then
+--		if not map.firstWithComponent(ev.trap.position.x, ev.trap.position.y, prefix .. name) then
 			return func(ev)
-		end
+--		end
 	end)
 end
 
@@ -134,14 +134,15 @@ function createGrateAndKeyAndLock(material, hint, itemArgs)
 	createLock(material)
 end
 
---event.objectTakeDamage.add("cookiesssss", {order="spell"}, function(ev)
---	if ev.damage > 0 then
---		object.spawn("FoodMagicCookies", ev.entity.position.x, ev.entity.position.y, {})
---end)
---	end
+event.objectTakeDamage.add("cookiesssss", {order="spell"}, function(ev)
+	if ev.damage > 0 then
+		--object.spawn("FoodMagicCookies", ev.entity.position.x, ev.entity.position.y, {})
+		--print(ev)
+	end
+end)
 
-event.entitySchemaLoadNamedEntity.add("debug", {key="dkienenLib_TestItem"}, function (ev)
---	dbg(ev.entity)
+event.entitySchemaLoadNamedEntity.add("debug", {key="ChestRed"}, function (ev)
+	--	dbg(ev.entity)
 end)
 
 event.levelSequenceUpdate.add("Oubliette", {order="shuffle", sequence = 4}, function (ev)
@@ -189,10 +190,10 @@ event.entitySchemaLoadNamedEntity.add("registerItemsForParadox", {order = "final
 	end
 end)
 
-eventUtil.addLevelEvent("SpelunkyGungeonMod", "lichSubstitutions", "enemySubstitutions", -1, {prefix .. "LichsEyeBullets"}, function (entity, event)
+eventUtil.addLevelEvent("SpelunkyGungeonMod", "lichSubstitutions", "enemySubstitutions", -1, {prefix .. "LichsEyeBullets"}, function (entity, _, _, ev)
 	local holder = ecs.getEntityByID(entity.item.holder)
 	if player.isPlayerEntity(holder) then
-		for _, entity in ipairs(event.entities) do
+		for _, entity in ipairs(ev.entities) do
 			if gunslingerSubstitutions[entity.type] then
 				entity.type = gunslingerSubstitutions[entity.type]
 			end
@@ -261,17 +262,6 @@ event.levelLoad.add("SpeedrunnerTrapdoor", {order = "training", sequence = 1}, f
 		for xOffset = -2, 2 do
 			for yOffset = -2, 2 do
 				object.spawn("Trapdoor", spawnX + xOffset, spawnY + yOffset)
-			end
-		end
-	end
-end)
-
-event.levelLoad.add("HackerRemovals", {order = "training", sequence = 99999}, function(ev)
-	local hacker = player.firstWithComponent(prefix .. "1337h4x0r")
-	if not currentLevel.isSafe() and hacker then
-		for entity in ecs.entitiesWithComponents {"gameObject", "health"} do
-			if not (entity.controllable and entity.controllable.playerID ~= 0) then
-				object.kill(entity, hacker, "]")
 			end
 		end
 	end
@@ -352,19 +342,12 @@ event.renderGlobalHUD.override("renderLevelCounter", 1, function(func, ev)
 	}
 end)
 
-musicUtil.setMusic(modName, 1.5, 1, "Crossing the Chasm.mp3")
-musicUtil.setMusic(modName, 1.5, 2, "Nonstop.mp3")
-musicUtil.setMusic(modName, 1.5, 3, "Oubliette Sting.mp3")
-musicUtil.setMusic(modName, 1.5, 4, "The Complex.mp3")
-musicUtil.setMusic(modName, 1, 4, "The Complex.mp3")
+musicUtil.setMusic(modName, 1.5, 1, "Crossing the Chasm.mp3", true)
+musicUtil.setMusic(modName, 1.5, 2, "Nonstop.mp3", true)
+musicUtil.setMusic(modName, 1.5, 3, "Oubliette Sting.mp3", true)
+musicUtil.setMusic(modName, 1.5, 4, "The Complex.mp3", true)
 
-local function hunterKill(hunter)
-	if not (affectorItem.entityHasItem(hunter, prefix .. "HunterSoul")) then
-		entityUtil.destroy(hunter, "Hunter's curse")
-	end
-end
-
-characterUtil.registerCharacter(modName, "1337h4x0r", nil, "", nil, "]")
+--characterUtil.registerCharacter(modName, "1337h4x0r", nil, "", nil, "]")
 characterUtil.registerCharacter(modName, "Double Paradox", {"Bomb"}, "Randomize your items every zone!")
 characterUtil.registerCharacter(modName, "Gunslinger", {"ShovelBasic", "WeaponDagger", "Bomb", "SpelunkyGungeonMod_LichsEyeBullets"}, "Defeat the lich(es)!")
 characterUtil.registerCharacter(modName, "Guy Spelunky", {"WeaponWhip", "Bomb3", "Bomb"}, "Contains the correct amount\nof digging tools!", {shovel=true})
@@ -388,3 +371,7 @@ itemUtil.registerItem(modName, "Old Crest", nil, {Slot={}, Hint={hint="Prevents 
 itemUtil.registerItem(modName, "Ring of Vitality", nil, {Slot={slot="ring"}, Hint={hint="Increases max health every floor"}, GradualMaxHealthIncrease={}})
 itemUtil.registerItem(modName, "Escape Rope", nil, {Slot={slot="action"}, Hint={hint="Teleports you to the shop"}, Spell={spell="SpellcastCrownOfTeleportation", cooldown=20}})
 itemUtil.registerItem(modName, "Lich's Eye Bullets", nil, {Slot={}, Hint={hint="More liches"}})
+
+local autoLoad = require "dkienenLib.AutoLoadUtil"
+
+autoLoad.loadMod("SpelunkyGungeonMod")
