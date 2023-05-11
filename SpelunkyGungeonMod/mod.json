@@ -11,5 +11,8 @@
 	"banner": "SpelunkyGungeonModBanner.png",
 	"tags": [],
 	"name": "SpelunkyGungeonMod",
-	"pendingVersion": "1.0.0"
+	"pendingVersion": "1.0.0",
+	"dkienenLib": {
+		"banSingleZones": true
+	}
 }

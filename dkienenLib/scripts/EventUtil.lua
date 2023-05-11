@@ -1,12 +1,18 @@
 local currentLevel = require "necro.game.level.CurrentLevel"
 local ecs = require "system.game.Entities"
+local prefixUtil = require "dkienenLib.PrefixUtil"
 
-function addLevelEvent(modName, eventHandlerName, order, sequence, components, action)
+local function addEvent(eventName, eventHandlerName, order, sequence, action)
+    event[eventName].add(prefixUtil.getMod() .. eventHandlerName, {order = order, sequence = sequence}, action)
+end
+
+local function addLevelEvent(modName, eventHandlerName, order, sequence, components, action)
+    modName = modName or prefixUtil.getMod()
     local eventName = "levelLoad"
     if order == "processPendingObjects" then
         eventName = "gameStateLevel";
     end
-    event[eventName].add(modName .. eventHandlerName, {order = order, sequence = sequence}, function(ev)
+    addEvent(eventName, eventHandlerName, order, sequence, function(ev)
         if not currentLevel.isSafe() then
             local depth = currentLevel.getDepth()
             local floor = currentLevel.getFloor()
@@ -21,7 +27,8 @@ function addLevelEvent(modName, eventHandlerName, order, sequence, components, a
     end)
 end
 
-function addDepthLevelEvent(modName, eventHandlerName, order, sequence, components, predicate, action)
+local function addDepthLevelEvent(modName, eventHandlerName, order, sequence, components, predicate, action)
+    modName = modName or prefixUtil.getMod()
     addLevelEvent(modName, eventHandlerName, order, sequence, components, function (entity, depth, floor, ...)
         if predicate and predicate(depth, floor) then
             action(entity, depth, floor, ...)
@@ -29,13 +36,14 @@ function addDepthLevelEvent(modName, eventHandlerName, order, sequence, componen
     end)
 end
 
-function makeDepthPredicate(depth, floor)
+local function makeDepthPredicate(depth, floor)
     return function(currentDepth, currentFloor)
         return (not depth or (currentDepth == depth)) and (not floor or (currentFloor == floor))
     end
 end
 
 return {
+    addEvent=addEvent,
     addLevelEvent=addLevelEvent,
     addDepthLevelEvent=addDepthLevelEvent,
     makeDepthPredicate=makeDepthPredicate

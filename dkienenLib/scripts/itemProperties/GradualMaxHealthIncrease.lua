@@ -1,6 +1,7 @@
 local componentUtil = require "dkienenLib.ComponentUtil"
 local eventUtil = require "dkienenLib.EventUtil"
 local ecs = require "system.game.Entities"
+local health = require "necro.game.character.Health"
 
 function apply(components)
 	components.dkienenLib_gradualMaxHealthIncrease = {}
@@ -14,7 +15,7 @@ eventUtil.addLevelEvent("dkienenLib", "maxHealthIncrease", "runState", -1, {"dki
 	local healthIncrease = (levels * 2) - healthGranted
 	if entity.item and entity.item.holder then
 		local holder = ecs.getEntityByID(entity.item.holder)
-		holder.health.maxHealth = holder.health.maxHealth + healthIncrease
+		health.increaseMaxHealth(holder, healthIncrease, entity)
 		healthGranted = healthGranted + healthIncrease
 	end
 	entity.dkienenLib_gradualMaxHealthIncrease.levels = levels
@@ -24,7 +25,7 @@ end)
 event.inventoryUnequipItem.add("loseGradualMaxHP", {order = "health", filter = "dkienenLib_gradualMaxHealthIncrease"}, function (ev)
 	if ev.holder and ev.holder.health then
 		local loss = ev.item.dkienenLib_gradualMaxHealthIncrease.healthGranted
-		ev.holder.health.maxHealth = ev.holder.health.maxHealth - loss
+		health.increaseMaxHealth(ev.holder, -loss)
 	end
 end)
 

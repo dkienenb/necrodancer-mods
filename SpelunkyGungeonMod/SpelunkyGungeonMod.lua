@@ -1,36 +1,31 @@
+local autoLoad = require "dkienenLib.AutoLoadUtil"
+
+autoLoad.loadMod("SpelunkyGungeonMod")
+
 local object = require "necro.game.object.Object"
-local customEntities = require "necro.game.data.CustomEntities"
 local marker = require "necro.game.tile.Marker"
 local currentLevel = require "necro.game.level.CurrentLevel"
-local priceTag = require "necro.game.item.PriceTag"
-local itemGeneration = require "necro.game.item.ItemGeneration"
-local currency = require "necro.game.item.Currency"
 local player = require "necro.game.character.Player"
 local rng = require "necro.game.system.RNG"
 local consumable = require "necro.game.item.Consumable"
-local components = require "necro.game.data.Components"
 local map = require "necro.game.object.Map"
 local affectorItem = require "necro.game.item.AffectorItem"
-local damage = require "necro.game.system.Damage"
-local boss = require "necro.game.level.Boss"
 local tile = require "necro.game.tile.Tile"
-local commonTrap = require "necro.game.data.trap.CommonTrap"
 local segment = require "necro.game.tile.Segment"
 local snapshot = require "necro.game.system.Snapshot"
-local inventory = require "necro.game.item.Inventory"
-local levelSequence = require "necro.game.level.LevelSequence"
-local oublietteGenerator = require "SpelunkyGungeonMod.levelgen"
 
-local modName = "SpelunkyGungeonMod"
-local prefix = modName .. "_"
-local RNG_PARADOX = rng.Channel.extend(prefix .. "Paradox")
+local modName = require "dkienenLib.PrefixUtil".getMod()
+local prefix = require "dkienenLib.PrefixUtil".prefix()
+
+local oublietteGenerator = require(modName .. ".levelgen")
+
 local RNG_OUBLIETTE = rng.Channel.extend(prefix .. "Oubliette")
 local RNG_CHESTPLACEHOLDERS = rng.Channel.extend(prefix .. "ChestPlaceholders")
 
 local hud = require "necro.render.hud.HUD"
 local hudLayout = require "necro.render.hud.HUDLayout"
-local localization = require "system.i18n.Localization"
 local ui  = require "necro.render.UI"
+local minimapTheme = require "necro.game.data.tile.MinimapTheme"
 
 local ecs = require "system.game.Entities"
 local Color = require "system.utils.Color"
@@ -40,21 +35,18 @@ local componentUtil = require "dkienenLib.ComponentUtil"
 local entityUtil = require "dkienenLib.EntityUtil"
 local characterUtil = require "dkienenLib.CharacterUtil"
 local eventUtil = require "dkienenLib.EventUtil"
-local musicUtil = require "dkienenLib.MusicUtil"
+local levelSeqUtil = require "dkienenLib.LevelSequenceUtil"
 
 oublietteTrapdoorProperties = snapshot.runVariable({})
 oublietteVisit = snapshot.runVariable(false)
 oublietteStart = snapshot.variable()
 
 local grateCount = 6
-local gunslingerSubstitutions = {}
 local abbeyMonsters = {"Armadillo3", "Bat3", "Bat4", "Beetle", "Beetle2", "Blademaster2", "Clone", "Devil2", "ElectricMage3", "Ghoul", "Goblin2", "Harpy", "Lich3", "Mole", "Monkey2", "Monkey3", "Mushroom2", "Orc2", "Orc3", "Skull3", "Skull4", "Sync_CoopThief", "Warlock", "Warlock2", "WaterBall2", "Wraith2"}
 
 local abbeyMiniboss = {"Mommy", "Metrognome2"}
 
 local allNonShovelNonWeaponItems = {}
-
-local doubleParadoxMap = {}
 
 function createGrate(material)
 	local name = material .. "Grate"
@@ -66,10 +58,10 @@ function createGrate(material)
 			z = -99
 		},
 		visibility={},
-		sprite = {texture = "mods/SpelunkyGungeonMod/images/level/" .. name .. ".png"},
+		sprite = {texture = "mods/" .. modName .. "/images/level/" .. name .. ".png"},
 		minimapStaticPixel = {
-			color = Color.rgb(0, 255, 255),
-			depth = 5
+			color = Color.rgb(0, 0, 255),
+			depth = minimapTheme.Depth.TRAP
 		},
 		visibilityRevealWhenLit = {},
 		visibilityVisibleOnProximity = {},
@@ -79,9 +71,9 @@ function createGrate(material)
 	entityUtil.registerEntity(modName, nil, components, name)
 	grateCount = grateCount + 1
 	event.trapTrigger.override("descend", grateCount, function (func, ev)
---		if not map.firstWithComponent(ev.trap.position.x, ev.trap.position.y, prefix .. name) then
+		if not map.firstWithComponent(ev.trap.position.x, ev.trap.position.y, prefix .. name) then
 			return func(ev)
---		end
+		end
 	end)
 end
 
@@ -95,11 +87,11 @@ function createLock(material)
 			z = -9999
 		},
 		minimapStaticPixel = {
-			color = Color.rgb(0, 255, 255) ,
-			depth = 5
+			color = Color.rgb(0, 0, 255) ,
+			depth = minimapTheme.Depth.TRAP
 		},
 		position={},
-		sprite={texture = "mods/SpelunkyGungeonMod/images/level/" .. material .. "Lock.png"},
+		sprite={texture = "mods/" .. modName .. "/images/level/" .. material .. "Lock.png"},
 		visibility={},
 		trap={},
 		visibilityRevealWhenLit = {},
@@ -145,61 +137,20 @@ event.entitySchemaLoadNamedEntity.add("debug", {key="ChestRed"}, function (ev)
 	--	dbg(ev.entity)
 end)
 
-event.levelSequenceUpdate.add("Oubliette", {order="shuffle", sequence = 4}, function (ev)
-	oublietteStart = 4
-	local generatorID = oublietteGenerator.generatorID
-	table.insert(ev.sequence, oublietteStart, {type=generatorID, floor=1, depth=1.5, zone=1.5})
-	table.insert(ev.sequence, oublietteStart + 1, {type=generatorID, floor=2, depth=1.5, zone=1.5})
-	table.insert(ev.sequence, oublietteStart + 2, {type=generatorID, floor=3, depth=1.5, zone=1.5})
-	table.insert(ev.sequence, oublietteStart + 3, {type=generatorID, floor=4, depth=1.5, zone=1.5})
-end)
+--event.levelSequenceUpdate.add("Oubliette", {order="shuffle", sequence = 4}, function (ev)
+--	oublietteStart = 4
+--	local generatorID = oublietteGenerator.generatorID
+--	table.insert(ev.sequence, oublietteStart, {type=generatorID, floor=1, depth=1.5, zone=1.5})
+--	table.insert(ev.sequence, oublietteStart + 1, {type=generatorID, floor=2, depth=1.5, zone=1.5})
+--	table.insert(ev.sequence, oublietteStart + 2, {type=generatorID, floor=3, depth=1.5, zone=1.5})
+--	table.insert(ev.sequence, oublietteStart + 3, {type=generatorID, floor=4, depth=1.5, zone=1.5})
+--end)
 
-event.levelComplete.add("OublietteWarp", {order="nextLevel"}, function (ev)
-	if ev.targetLevel == oublietteStart and not oublietteVisit then
-		ev.targetLevel = (ev.targetLevel + 4);
-	end
-end)
-
-event.entitySchemaLoadNamedEntity.add("generateGunslingerSubstitions", {order = "finalize"}, function (ev)
-	local entity = ev.entity
-	if entity and entity.health and not entity.crateLike then
-		if entity.health.health == 1 then
-			gunslingerSubstitutions[entity.name] = "Lich"
-		end
-		if entity.health.health == 2 then
-			gunslingerSubstitutions[entity.name] = "Lich2"
-		end
-		if entity.health.health == 3 then
-			gunslingerSubstitutions[entity.name] = "Lich3"
-		end
-	end
-end)
-
-event.entitySchemaLoadNamedEntity.add("registerItemsForParadox", {order = "finalize"}, function (ev)
-	local entity = ev.entity
-	if entity and entity.item then
-		if entity.itemSlot then
-			if entity.itemSlot.name ~= "shovel" and entity.itemSlot.name ~= "weapon" then
-				table.insert(allNonShovelNonWeaponItems, entity.name)
-			end
-			if not doubleParadoxMap[entity.itemSlot.name] then
-				doubleParadoxMap[entity.itemSlot.name] = {}
-			end
-			table.insert(doubleParadoxMap[entity.itemSlot.name], entity.name)
-		end
-	end
-end)
-
-eventUtil.addLevelEvent("SpelunkyGungeonMod", "lichSubstitutions", "enemySubstitutions", -1, {prefix .. "LichsEyeBullets"}, function (entity, _, _, ev)
-	local holder = ecs.getEntityByID(entity.item.holder)
-	if player.isPlayerEntity(holder) then
-		for _, entity in ipairs(ev.entities) do
-			if gunslingerSubstitutions[entity.type] then
-				entity.type = gunslingerSubstitutions[entity.type]
-			end
-		end
-	end
-end)
+--event.levelComplete.add("OublietteWarp", {order="nextLevel"}, function (ev)
+--	if ev.targetLevel == oublietteStart and not oublietteVisit then
+--		ev.targetLevel = (ev.targetLevel + 4);
+--	end
+--end)
 
 event.levelLoad.add("OublietteTrapdoor", {order = "training"}, function(ev)
 	if not currentLevel.isSafe() and currentLevel.getDepth() == 1 and currentLevel.getFloor() == 3 then
@@ -250,67 +201,9 @@ event.trapTrigger.override("descend", 1, function (func, ev)
 	local victim = ev.victim
 	if trap.position.x == x and trap.position.y == y and map.firstWithComponent(x, y, prefix .. "OublietteTrapdoorMarker") and player.isPlayerEntity(victim) then
 		oublietteVisit = true
+		levelSeqUtil.overrideWarp("Oubliette-1")
 	end
 	return func(ev)
-end)
-
-event.levelLoad.add("SpeedrunnerTrapdoor", {order = "training", sequence = 1}, function(ev)
-	if not currentLevel.isSafe() and not currentLevel.isBoss() and player.firstWithComponent(prefix .. "Speedrunner") then
-		local spawnX, spawnY = marker.lookUpMedian(marker.Type.SPAWN)
-		if not spawnX then spawnX = 0 end
-		if not spawnY then spawnY = 0 end
-		for xOffset = -2, 2 do
-			for yOffset = -2, 2 do
-				object.spawn("Trapdoor", spawnX + xOffset, spawnY + yOffset)
-			end
-		end
-	end
-end)
-
-event.levelLoad.add("ParadoxItems", {order = "initialItems"}, function(ev)
-	if not currentLevel.isSafe() and (currentLevel.getDepth() == 1) and (currentLevel.getFloor() == 1) then
-		for _, paradox in ipairs(player.getPlayerEntities()) do
-			if paradox[prefix .. "Paradox"] or paradox[prefix .. "DoubleParadox"] then
-				local spawnX, spawnY = marker.lookUpMedian(marker.Type.SPAWN)
-				local item = rng.choice(allNonShovelNonWeaponItems, RNG_PARADOX)
-				local weapon = rng.choice(doubleParadoxMap.weapon, RNG_PARADOX)
-				local shovel = rng.choice(doubleParadoxMap.shovel, RNG_PARADOX)
-				inventory.grant(item, paradox, true)
-				inventory.grant(weapon, paradox, true)
-				inventory.grant(shovel, paradox, true)
-			end
-		end
-	end
-end)
-
-event.lobbyGenerate.add("removeStairs", {order="amplified", sequence=2}, function (ev)
-	for entity in ecs.entitiesWithComponents { "trapStartRun" } do
-		if entity.trapStartRun.mode == "SingleZone" then
-			local x, y = entity.position.x, entity.position.y
-			object.delete(entity)
-			tile.setType(x, y, "Floor")
-			local label = map.firstWithComponent(x, y, "worldLabel")
-			if label then
-				object.delete(label)
-			end
-		end
-	end
-end)
-
-event.levelLoad.add("DoubleParadoxItems", {order = "initialItems"}, function(ev)
-	if not currentLevel.isSafe() and (currentLevel.getDepth() ~= 1) and (currentLevel.getFloor() == 1) then
-		for _, paradox in ipairs(player.getPlayerEntities()) do
-			if paradox[prefix .. "DoubleParadox"] then
-				for _, item in ipairs(inventory.getItems(paradox)) do
-					if item.itemSlot and doubleParadoxMap[item.itemSlot.name] then
-						local choice = rng.choice(doubleParadoxMap[item.itemSlot.name], RNG_PARADOX)
-						object.kill(item);
-						inventory.grant(choice, paradox, true)
-					end
-				end
-			end
-		end
-	end
 end)
 
 event.levelLoad.add("ChestPlaceholders", {order = "initialItems"}, function(ev)
@@ -320,39 +213,9 @@ event.levelLoad.add("ChestPlaceholders", {order = "initialItems"}, function(ev)
 	end
 end)
 
-event.renderGlobalHUD.override("renderLevelCounter", 1, function(func, ev)
-	local text
+levelSeqUtil.addZone(1.5, "Oubliette", {"Crossing the Chasm.mp3", "Nonstop.mp3", "Oubliette Sting.mp3", "The Complex.mp3"}, oublietteGenerator.generatorID, "1-4", 4)
 
-	local depth, floor, isBoss = currentLevel.getDepth(), currentLevel.getFloor(), currentLevel.isBoss()
-
-	if depth == 1.5 then
-		depth = "Oubliette"
-	end
-
-	text = localization.format("render.levelCounterHUD.depthLevel",
-			"Depth: %s  Floor: %s",
-			depth,
-			isBoss and "Boss" or floor)
-	hud.drawText {
-		text = text,
-		font = ui.Font.SMALL,
-		element = hudLayout.Element.LEVEL,
-		alignX = 1,
-		alignY = 1
-	}
-end)
-
-musicUtil.setMusic(modName, 1.5, 1, "Crossing the Chasm.mp3", true)
-musicUtil.setMusic(modName, 1.5, 2, "Nonstop.mp3", true)
-musicUtil.setMusic(modName, 1.5, 3, "Oubliette Sting.mp3", true)
-musicUtil.setMusic(modName, 1.5, 4, "The Complex.mp3", true)
-
---characterUtil.registerCharacter(modName, "1337h4x0r", nil, "", nil, "]")
-characterUtil.registerCharacter(modName, "Double Paradox", {"Bomb"}, "Randomize your items every zone!")
-characterUtil.registerCharacter(modName, "Gunslinger", {"ShovelBasic", "WeaponDagger", "Bomb", "SpelunkyGungeonMod_LichsEyeBullets"}, "Defeat the lich(es)!")
 characterUtil.registerCharacter(modName, "Guy Spelunky", {"WeaponWhip", "Bomb3", "Bomb"}, "Contains the correct amount\nof digging tools!", {shovel=true})
-characterUtil.registerCharacter(modName, "Paradox", {"Bomb"}, "Start with random items!")
-characterUtil.registerCharacter(modName, "Speedrunner", nil, "Simulate the power\nof a good gaming chair!")
 
 componentUtil.registerComponent(modName, "Lock", {grate={type="entityID"}, keyComponent={type="string"}})
 
@@ -368,10 +231,4 @@ itemUtil.registerItem(modName, "Udjat Eye", "head_monocle", {Slot={}, Hint={hint
 itemUtil.registerItem(modName, "Worm Food", nil, {Slot={}, Hint={hint="Nom nom!"}, Unban=true})
 itemUtil.registerItem(modName, "Old Crest", nil, {Slot={}, Hint={hint="Prevents damage once"}, Unban=true, DamageBlock={}})
 
-itemUtil.registerItem(modName, "Ring of Vitality", nil, {Slot={slot="ring"}, Hint={hint="Increases max health every floor"}, GradualMaxHealthIncrease={}})
 itemUtil.registerItem(modName, "Escape Rope", nil, {Slot={slot="action"}, Hint={hint="Teleports you to the shop"}, Spell={spell="SpellcastCrownOfTeleportation", cooldown=20}})
-itemUtil.registerItem(modName, "Lich's Eye Bullets", nil, {Slot={}, Hint={hint="More liches"}})
-
-local autoLoad = require "dkienenLib.AutoLoadUtil"
-
-autoLoad.loadMod("SpelunkyGungeonMod")

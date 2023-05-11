@@ -37,7 +37,7 @@ function allScriptsFromPackage(modName, scriptPath)
 	return mappings
 end
 
-
 return {
-	allScriptsFromPackage=allScriptsFromPackage
+	allScriptsFromPackage=allScriptsFromPackage,
+	getModJSON=getModJSON
 }

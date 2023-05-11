@@ -2,22 +2,18 @@ gungeon boss on x-4 and ND boss on x-5
 
 move levelgen into lib? doors in oubliette corridors
 
-sentient dkienenLib, acting as a wrapper between created mods and the synchrony api
-
 floor drops mark items as seen before they are dropped
+minimap pixel for trapdoor
 
+helium and argon warlocks
 dove can collect blood key
-hacker can collect gold key (and obsidian key without stairsing)
 play sound on unlocking an obliette lock
 lich's eye bullets and ring of vitality appear in chests/shops
 lich's eye bullets only work if held, not in chests
 lich's eye bullets unable to be dropped by gunslinger
 udjat detects BM
-udjat *doesn't* use monocle sprite
 
 can unlock locks while flying
-
-use enemysubstitutions for lich substitutions
 
 dynamically load mod name
 
@@ -39,7 +35,7 @@ fly
 
 shrine in oubliette
 
-black market in jungle, like gungeon BM, on sperate level like lunky BM, with lunky shoppie who has ankh
+black market in jungle, like gungeon BM, on sperate level like lunky BM, with lunky shoppie who has ankh (plus bomb shop)
 DaR in jungle on a level seperate from BM
 abbey altar on 2-2, place crest to visit abbey after 2-5
 
@@ -61,11 +57,13 @@ bracket key
 black knight's shield (weapon)
 temmie armor (temmie shop on abbey-3)
 escape rope
-super hot watch
+silver pocketwatch - slow time
+gold pocketwatch - speed time
+super hot watch - enable bard mode
 hourglass - restart any song once
 shovel, armor, torch, boots, helmet, of becoming/wonder
 eggplant in abbey-2
-transmutes into ring of idun, same thing but gain apples every floor
+transmute ring of vitality into ring of idun, same thing but gain apples every floor
 combination artifacts from homm3
 slayer item, +3 dmg to boss/miniboss
 backwards shield: protect behind you
@@ -90,6 +88,10 @@ slimes:
 - spiked slimes that deal damage to you if hit, have them eaten to survive
 - rare slime that drops a key
 shellington: skeleton variant that drops bones which revive it
+
+slime that splits 50 times
+
+huntsmen boss (a pack of monsters of various kinds that gain abilities the more of them are killed)
 
 Enemy: Reaper. Genocide exclusive.
 Moves extremely fast (1-3 spaces per beat (but only 1 when close to player), diagonal, moves more spaces, moves through walls), instant kills, has "scythe" attack that swings in an arc.
@@ -143,7 +145,6 @@ robot - half heart like aria, 6 armor, input delay of 4 beats
 time traveller - start at end of chain, compelete in reverse
 characters that fuses all other characters
 yang - mary but with 3 tukeys
-double paradox - paradox but shuffled every zone
 
 mod icon
 mod banners

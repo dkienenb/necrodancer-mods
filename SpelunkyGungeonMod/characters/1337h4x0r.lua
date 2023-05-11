@@ -15,13 +15,20 @@ local function killAll(hacker)
     end
 end
 
-local function spawnGoldKey(_, _, _, _, modName)
+local function spawnImportantShopItems()
+    local items = {}
+    for _, itemName in ipairs(ecs.getEntityTypesWithComponents({"itemPoolShop"})) do
+        local item = ecs.getEntityPrototype(itemName)
+        if item.itemPoolShop.weights and item.itemPoolShop.weights[2] and item.itemPoolShop.weights[2] > 3000 then
+            table.insert(items, itemName)
+            itemGeneration.markSeen(itemName, 1)
+        end
+    end
     local shopX, shopY = marker.lookUpMedian(marker.Type.SHOP)
     if shopX and shopY then
         object.spawn("ChestRed", shopX, shopY, {
-            storage = { items = { modName .. "_GoldKey" } },
+            storage = { items = items },
         })
-        itemGeneration.markSeen(modName .. "_GoldKey", 1)
     end
 end
 
@@ -57,7 +64,7 @@ return {
                 order="initialItems",
                 depth=1,
                 floor=2,
-                action=spawnGoldKey
+                action=spawnImportantShopItems
             }
         }
     }

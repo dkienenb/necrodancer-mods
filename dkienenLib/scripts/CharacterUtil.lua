@@ -47,12 +47,17 @@ function registerCharacter(modName, charName, inventory, charSelectText, cursedS
         table.insert(filter, prefix .. officialName)
         for index, levelEvent in ipairs(levelEvents) do
             local predicate = levelEvent.predicate
+            if not predicate and levelEvent.notBoss then
+                predicate = function(_, floor)
+                    return floor < 4
+                end
+            end
             if not predicate and levelEvent.notFirstLevel then
                 predicate = function (depth, floor)
                     return (depth ~= 1) or (floor ~= 1)
                 end
             end
-            if not predicate and levelEvent.depth and levelEvent.floor then
+            if not predicate and (levelEvent.depth or levelEvent.floor) then
                 predicate = eventUtil.makeDepthPredicate(levelEvent.depth, levelEvent.floor)
             end
             if not predicate then
