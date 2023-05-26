@@ -61,5 +61,6 @@ function apply(_, args, name, modName)
 end
 
 return {
-	apply=apply
+	apply=apply,
+	addOneDrop=addOneDrop
 }

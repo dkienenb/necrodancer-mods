@@ -5,7 +5,7 @@
 	"synchronyVersion": "3.2.0",
 	"description": "Library mod containing many useful functions, preventing me from duplicating code",
 	"author": "dkienenb",
-	"dependencies": {},
+	"dependencies": {"LibLevelGen_io_2421628":"1.1.1"},
 	"api": {"scriptPath":"scripts"},
 	"icon": "dkienenLibIcon.png",
 	"banner": "dkienenLibBanner.png",

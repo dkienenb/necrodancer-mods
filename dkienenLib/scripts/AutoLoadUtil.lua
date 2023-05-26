@@ -3,6 +3,7 @@ local prefixUtil = require "dkienenLib.PrefixUtil"
 local characterUtil = require "dkienenLib.CharacterUtil"
 local itemUtil = require "dkienenLib.ItemUtil"
 local miscUtil = require "dkienenLib.MiscUtil"
+local entityUtil = require "dkienenLib.EntityUtil"
 
 function loadMod(modName)
 	prefixUtil.setMod(modName)
@@ -23,6 +24,10 @@ function loadMod(modName)
 		local item = itemFile.item
 		itemUtil.registerItem(modName, itemName, item.template, item.properties)
 	end
+	--local shrines = metaUtil.allScriptsFromPackage(modName, "shrines")
+	--for shrineName, shrineFile in pairs(shrines) do
+	--	entityUtil.registerShrine()
+	--end
 end
 
 return {

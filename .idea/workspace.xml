@@ -4,45 +4,25 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f4ab3b59-2257-41b7-b99e-81dbb4d2557c" name="Default Changelist" comment="sy">
-      <change afterPath="$PROJECT_DIR$/SpelunkyGungeonMod/characters/DoubleParadox.lua" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SpelunkyGungeonMod/characters/Gunslinger.lua" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SpelunkyGungeonMod/characters/Hunter.lua" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SpelunkyGungeonMod/characters/Paradox.lua" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SpelunkyGungeonMod/characters/Speedrunner.lua" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SpelunkyGungeonMod/images/characters/1337h4x0rBody.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SpelunkyGungeonMod/images/characters/1337h4x0rHeads.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SpelunkyGungeonMod/images/characters/DoubleParadoxBody.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SpelunkyGungeonMod/images/characters/DoubleParadoxHeads.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SpelunkyGungeonMod/images/characters/ParadoxBody.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SpelunkyGungeonMod/images/characters/ParadoxHeads.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SpelunkyGungeonMod/images/characters/SpeedrunnerBody.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SpelunkyGungeonMod/images/characters/SpeedrunnerHeads.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SpelunkyGungeonMod/images/items/RingOfVitality.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SpelunkyGungeonMod/images/items/Soul.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SpelunkyGungeonMod/images/items/WormFood.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SpelunkyGungeonMod/items/LichsEyeBullets.lua" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SpelunkyGungeonMod/items/RingOfVitality.lua" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SpelunkyGungeonMod/items/Soul.lua" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SpelunkyGungeonMod/music.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dkienenLib/scripts/LevelSequenceUtil.lua" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dkienenLib/scripts/PrefixUtil.lua" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dkienenLib/scripts/itemProperties/ReplaceMonsters.lua" afterDir="false" />
+    <list default="true" id="f4ab3b59-2257-41b7-b99e-81dbb4d2557c" name="Default Changelist" comment="o">
+      <change afterPath="$PROJECT_DIR$/SpelunkyGungeonMod/characters/GuySpelunky.lua" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SpelunkyGungeonMod/images/characters/SpeedrunnerHEads.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SpelunkyGungeonMod/images/shrines/ShrineOfTime.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SpelunkyGungeonMod/shrines/Time.lua" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dkienenLib/scripts/FloorUtil.lua" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dkienenLib/scripts/LevelGenerationUtil.lua" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dkienenLib/scripts/LevelGenerationUtil_RoomActions.lua" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SpelunkyGungeonMod/SpelunkyGungeonMod.lua" beforeDir="false" afterPath="$PROJECT_DIR$/SpelunkyGungeonMod/SpelunkyGungeonMod.lua" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SpelunkyGungeonMod/characters/1337h4x0r.lua" beforeDir="false" afterPath="$PROJECT_DIR$/SpelunkyGungeonMod/characters/1337h4x0r.lua" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SpelunkyGungeonMod/images/items/HunterSoul.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/SpelunkyGungeonMod/mod.json" beforeDir="false" afterPath="$PROJECT_DIR$/SpelunkyGungeonMod/mod.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SpelunkyGungeonMod/images/characters/SpeedrunnerHeads.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/SpelunkyGungeonMod/levelgen.lua" beforeDir="false" afterPath="$PROJECT_DIR$/SpelunkyGungeonMod/levelgen.lua" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SpelunkyGungeonMod/todo" beforeDir="false" afterPath="$PROJECT_DIR$/SpelunkyGungeonMod/todo" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dkienenLib/mod.json" beforeDir="false" afterPath="$PROJECT_DIR$/dkienenLib/mod.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dkienenLib/scripts/AutoLoadUtil.lua" beforeDir="false" afterPath="$PROJECT_DIR$/dkienenLib/scripts/AutoLoadUtil.lua" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dkienenLib/scripts/CharacterUtil.lua" beforeDir="false" afterPath="$PROJECT_DIR$/dkienenLib/scripts/CharacterUtil.lua" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dkienenLib/scripts/EntityUtil.lua" beforeDir="false" afterPath="$PROJECT_DIR$/dkienenLib/scripts/EntityUtil.lua" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dkienenLib/scripts/EventUtil.lua" beforeDir="false" afterPath="$PROJECT_DIR$/dkienenLib/scripts/EventUtil.lua" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dkienenLib/scripts/ItemUtil.lua" beforeDir="false" afterPath="$PROJECT_DIR$/dkienenLib/scripts/ItemUtil.lua" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dkienenLib/scripts/MetaUtil.lua" beforeDir="false" afterPath="$PROJECT_DIR$/dkienenLib/scripts/MetaUtil.lua" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dkienenLib/scripts/MiscUtil.lua" beforeDir="false" afterPath="$PROJECT_DIR$/dkienenLib/scripts/MiscUtil.lua" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dkienenLib/scripts/MusicUtil.lua" beforeDir="false" afterPath="$PROJECT_DIR$/dkienenLib/scripts/MusicUtil.lua" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dkienenLib/scripts/itemProperties/GradualMaxHealthIncrease.lua" beforeDir="false" afterPath="$PROJECT_DIR$/dkienenLib/scripts/itemProperties/GradualMaxHealthIncrease.lua" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dkienenLib/scripts/LevelSequenceUtil.lua" beforeDir="false" afterPath="$PROJECT_DIR$/dkienenLib/scripts/LevelSequenceUtil.lua" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dkienenLib/scripts/PrefixUtil.lua" beforeDir="false" afterPath="$PROJECT_DIR$/dkienenLib/scripts/PrefixUtil.lua" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dkienenLib/scripts/itemProperties/FloorDrop.lua" beforeDir="false" afterPath="$PROJECT_DIR$/dkienenLib/scripts/itemProperties/FloorDrop.lua" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -70,23 +50,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_ADD_EXTERNAL_FILES": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "last_opened_file_path": "/home/dkienenb/.local/share/NecroDancer/mods/SpelunkyGungeonMod/items",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "settings.editor.selected.configurable": "preferences.lookFeel",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/dkienenb/.local/share/NecroDancer/mods/SpelunkyGungeonMod/characters&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/SpelunkyGungeonMod/items" />
       <recent name="$PROJECT_DIR$/SpelunkyGungeonMod/characters" />
+      <recent name="$PROJECT_DIR$/SpelunkyGungeonMod/items" />
       <recent name="$PROJECT_DIR$/SpelunkyGungeonMod/images/characters" />
       <recent name="$PROJECT_DIR$/SpelunkyGungeonMod/images/items" />
       <recent name="$PROJECT_DIR$/dkienenLib/scripts/itemProperties" />
@@ -141,7 +121,9 @@
       <workItem from="1668830185059" duration="597000" />
       <workItem from="1669344277651" duration="889000" />
       <workItem from="1669697074724" duration="408000" />
-      <workItem from="1683660520723" duration="54400000" />
+      <workItem from="1683660520723" duration="64911000" />
+      <workItem from="1683849614359" duration="51772000" />
+      <workItem from="1684428216593" duration="2624000" />
     </task>
     <task id="LOCAL-00001" summary="Fix floor drops on monk containing gold&#10;Fix floor drops overriding each other">
       <created>1668460419967</created>
@@ -192,7 +174,14 @@
       <option name="project" value="LOCAL" />
       <updated>1668752079640</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="refactor of level sequence part 1">
+      <created>1683813679381</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1683813679381</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -207,6 +196,7 @@
     <MESSAGE value="Move hunter to her own mod, add the start of autoloader" />
     <MESSAGE value="Add icon to hunter mod" />
     <MESSAGE value="Fix bug on ] causing some keys to be unobtainable&#10;Loop music in secret area&#10;Move ] to own file" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fix bug on ] causing some keys to be unobtainable&#10;Loop music in secret area&#10;Move ] to own file" />
+    <MESSAGE value="refactor of level sequence part 1" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor of level sequence part 1" />
   </component>
 </project>

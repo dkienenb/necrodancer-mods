@@ -1,5 +1,3 @@
-gungeon boss on x-4 and ND boss on x-5
-
 move levelgen into lib? doors in oubliette corridors
 
 floor drops mark items as seen before they are dropped
@@ -7,56 +5,54 @@ minimap pixel for trapdoor
 
 helium and argon warlocks
 dove can collect blood key
+properly warp to boss levels with dove
+fix random amount of monsters code in room actions
 play sound on unlocking an obliette lock
 lich's eye bullets and ring of vitality appear in chests/shops
-lich's eye bullets only work if held, not in chests
 lich's eye bullets unable to be dropped by gunslinger
 udjat detects BM
 
 can unlock locks while flying
 
-dynamically load mod name
-
 mod banner
 
 char textures (head/armor/bestiary)
 
-moles in z1
-
 yang actually has three turkeys
 
 spells
-bloodlust, +1 dmg
-destroy undead
-fire shield
-armageddon
-chain lightning
-fly
-
-shrine in oubliette
+bloodlust, +1 dmg for 30 beats, +2 for greater - https://discord.com/channels/600372254836129850/600373678231912564/1111342692413214760
+destroy undead, radius 4, greater is whole level
+fire shield, attackers take 6 fire damage, +0.5 def, greater, damage increases to 999, and +2 def, 30 beats
+armageddon, everything takes 2 fire damage, including you, greater, 6 damage
+chain lightning, nearest monster takes 8 dmg, then closest to that takes 4, then 2, then 1; greater, starts at 16
+shuffle (swaps all entities in the level with each other), greater, sort by value and put the ones with items closer, then the ones that drop the most money
 
 black market in jungle, like gungeon BM, on sperate level like lunky BM, with lunky shoppie who has ankh (plus bomb shop)
-DaR in jungle on a level seperate from BM
-abbey altar on 2-2, place crest to visit abbey after 2-5
+vlad's in volcano, on separate level, complete with drill, containing ankh, vlad's amulet
+abbey altar in jungle/volcano, any level besides bm/vlad's entrance, place crest to visit abbey after 2-4
 
-moai on 3-2 or 3-3, unless worm, in which case 3-3 #2
+volcano leads to factory, jungle to thermal caves, unless abbey, in which case v->tc and j->f
+worm food from obliette-1 <worm tongue (internally a shrine) spawns on 2-1 jungle or 3-1 thermal, worm skips 2-2 or 3-2>
+worm has crysknife (99 piercing damage, throwable)
+ms option on 3-3 thermal, sep level that then leads to 3-3 #2
+moai on 3-2 or 3-3 thermal, unless worm, in which case 3-3 #2
+
+factory-1 has dark energy sword (5 dmg, 5 dmg lightning arc)
+stair mimic on factory-2, survive the 999 damage it deals to you to travel to stomach (skipping factory-3)
+shoppie in stomach if dissolved by acid drops hedjet substitute
+factory-5 has exit near spawn, but has plasma cannon somewhere in the level
 
 scepter from anubis on 4-1
 cog entrance on 4-2, cog replaces 4-3
 
-vlad's castle on zone, instead of depth, 5-1 with amulet in block, cape is passive that is blood and flying (possibly every other beat?)
-
-items that give extra levels:
-worm food from obliette-1 <worm tounge spawns on 2-1 and 3-1, worm replaces 2-2 or 3-2>
-alien compass from abbey-1 <ms is 3-3.5, then spits you out into another 3-3>
-gold crown from DaR <haunted castle is 4-1.5>
+r&g dep entrance on 5-1 (spitting you back out into 5-2)
 
 items:
 ankh
 bracket key
 black knight's shield (weapon)
 temmie armor (temmie shop on abbey-3)
-escape rope
 silver pocketwatch - slow time
 gold pocketwatch - speed time
 super hot watch - enable bard mode
@@ -69,7 +65,10 @@ slayer item, +3 dmg to boss/miniboss
 backwards shield: protect behind you
 fancy mustache: bosses have mustache, heal 4 hearts after boss. headgear
 piggy bank, +1 to gold, dies like marv
+wizard hat, ring of mana but for head
 chest teleporter
+spell that makes you beeline the exit using AI (robot starts with it)
+armor that makes you immune to damage on wire (robot also starts with it)
 
 shrine of becoming:
 all items turn to becoming variants
@@ -91,12 +90,20 @@ shellington: skeleton variant that drops bones which revive it
 
 slime that splits 50 times
 
+sarcs which drop more monsters the more damage is dealt to them
+enemy which takes 3 - dmg, 5 - dmg, 7 - dmg
+the timeless: monsters in the r&g dep. every loop, more spawn in various places.
+groff the timeless: becomes harder the more he is killed (multichar or deathless) [optional boss of R&G dep]
+R&G dep: https://cdn.discordapp.com/attachments/489598804581154816/1107121883616378921/image.png
+eventually hunts the player down earlier and earlier, dropping more gold / items
+
 huntsmen boss (a pack of monsters of various kinds that gain abilities the more of them are killed)
 
 Enemy: Reaper. Genocide exclusive.
+12 hp.
 Moves extremely fast (1-3 spaces per beat (but only 1 when close to player), diagonal, moves more spaces, moves through walls), instant kills, has "scythe" attack that swings in an arc.
 However, normally stays in a single spot. Killing an enemy next to it "enrages" it, causing the attacks.
-To kill it without worrying about enraging it, you can either use 2 bombs in a row, spell spam, or very high damage, or tanky build (with shields and freezes or quartz armor high hp) (edited)
+To kill it without worrying about enraging it, you can either use 3 bombs in a row, spell spam, or very high damage, or tanky build (with shields and freezes or quartz armor high hp) (edited)
 
 blobulord:
 attacks:
@@ -115,26 +122,40 @@ stair mimic, complete with extra zone if death prevented
 Zone 5 enemy: Clockwork Knight.
 Basically, chess piece from deep blues, but moves about every 3 beats, but moves 1 beat if on electricity
 
-olmec fight with hell door on 5-5
+olmec fight with hell door on 5-4
+
+alternate zones:
+z2:Volcano
+z3:Factory [6 levels long, 7 with boss]
+z4:
+z5:Depths
+level hud text properly displays the zone name
+
+zone names:
+z1:cave
+z2:jungle
+z3:thermal caves
+z4:crypt proper
+z5:laboratory
+z6:underworld
 
 ND boss locations:
-boss 1: 1-5 or obliette-5
-boss 2: 2-5
-boss 3: 3-5
-boss 4: 4-5
-boss 5: 5-6 or 6-7
+boss 5: 5-5 or 6-7
 
 world 6:
 6-1, 6-2, 6-3, lich, 6-4, yama, final nd boss(es)
 
-shrine to give a random item from your inv to your next run on 6-4 or obliette-4? add scatter trap next to it 
+special scatter trap for shrine of time
 
 char unlock conditions
+
+fairy dragon
 
 blue echo flower that loops song once and spawns ghost, sometimes in a secret room by itself
 
 genocide route, complete with slowed music (must visit all possible areas and kill everything as soon as possible)
 damage buff accessory that increases damage for every kill
+codex accessory that increases damage? for every unique enemy kill
 
 omega red, problem for hacker char
 
@@ -144,7 +165,7 @@ chars:
 robot - half heart like aria, 6 armor, input delay of 4 beats
 time traveller - start at end of chain, compelete in reverse
 characters that fuses all other characters
-yang - mary but with 3 tukeys
+yang - mary but with 3 turkeys
 
 mod icon
 mod banners
@@ -153,6 +174,17 @@ move scripts to own folder
 swipe music?
 undertale - core, another medium, battle against a true hero, finale, hopes and dreams, save the world
 f777 - distant secrets, sound of infinity, lightspeed's too slow
+https://www.youtube.com/watch?v=pnmfsHWot64 playing with firepower for mech bosses vs robot char for a final boss showdown?
+
+music:
+2-1v: s2
+a2: die cubulon die
+a3: abbey bells yell
+mimic: question marks of death
+cog, olmec, bm, worm, vlad castle, ms, 6-2 use spelunky hd themes (worm extra lush, CoG & BM either sped up or on 1/2 beat)
+6-1: 4-3
+6-3: bullet hell yes
+lich uses lich theme
 
 final bosses:
 hacker - none, standard 5th boss

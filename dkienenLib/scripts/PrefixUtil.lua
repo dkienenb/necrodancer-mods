@@ -1,5 +1,5 @@
 local snapshot = require "necro.game.system.Snapshot"
-mod = snapshot.variable("")
+mod = snapshot.variable("dkienenLib")
 
 local function getMod()
   return mod

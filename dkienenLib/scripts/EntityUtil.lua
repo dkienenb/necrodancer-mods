@@ -1,6 +1,9 @@
 local miscUtil = require "dkienenLib.MiscUtil"
+local eventUtil = require "dkienenLib.EventUtil"
+local prefixUtil = require "dkienenLib.PrefixUtil"
 local componentUtil = require "dkienenLib.ComponentUtil"
 
+local commonShrine = require "necro.game.data.object.CommonShrine"
 local customEntities = require "necro.game.data.CustomEntities"
 local damage = require "necro.game.system.Damage"
 local object = require "necro.game.object.Object"
@@ -29,6 +32,11 @@ local function registerEntity(modName, template, components, name, data)
 		customEntities[registerFunction](components)
 	end
 end
+
+--componentUtil.registerComponent(prefixUtil.getMod(), "Placeholder", {entity={type="entityID"}})
+--local function registerPlaceholder(name)
+--
+--end
 
 local function registerMarkerEntity(modName, markerName)
 	registerEntity(modName, nil, {}, markerName .. "Marker")
@@ -62,11 +70,26 @@ local function surroundEntity(entity, radius, thing)
 	end
 end
 
+local function registerShrine(name, inactiveDrop, activeDrop, hint, action)
+	commonShrine.registerShrine(name, {
+		shrine = {
+			inactiveDrop = {inactiveDrop},
+			activeDrop = {activeDrop},
+		},
+		shrineHintLabel = { text = hint },
+		sprite = {
+			texture="mods/" .. prefixUtil.getMod() .. "/images/shrines/ShrineOf" .. name .. ".png"
+		},
+	})
+	event.shrine.add(prefixUtil.getMod() .. name, name, action)
+end
+
 return {
 	registerEntity=registerEntity,
 	registerMarkerEntity=registerMarkerEntity,
 	destroy=destroy,
 	surroundPosition=surroundPosition,
 	lookupMarker=lookupMarker,
-	surroundEntity=surroundEntity
+	surroundEntity=surroundEntity,
+	registerShrine=registerShrine
 }

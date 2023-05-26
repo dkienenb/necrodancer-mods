@@ -69,11 +69,11 @@ local roomGenParams = {
 	corridorThickness = {3},
 	-- How long is the corridor allowed to be.
 	-- Length of 0 is allowed, and will result in rooms being adjacent.
-	corridorLength = {2, 3, 4, 5, 6},
+	corridorLength = {2, 3, 4},
 	-- Allowed width values for the generated room.
-	roomWidth = {8, 9, 10, 11, 20},
+	roomWidth = {5, 6, 7, 8, 15},
 	-- Allowed height values for the generated room.
-	roomHeight = {8, 9, 10, 11, 20},
+	roomHeight = {5, 6, 7, 8, 15},
 }
 
 local shopGenCombinations = segment.createRandLinkedRoomParameterCombinations({

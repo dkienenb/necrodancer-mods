@@ -13,12 +13,16 @@ local affectorItem = require "necro.game.item.AffectorItem"
 local tile = require "necro.game.tile.Tile"
 local segment = require "necro.game.tile.Segment"
 local snapshot = require "necro.game.system.Snapshot"
+local inventory = require "necro.game.item.Inventory"
+local itemBan = require "necro.game.item.ItemBan"
+local floorDrop = require "dkienenLib.itemProperties.FloorDrop"
 
 local modName = require "dkienenLib.PrefixUtil".getMod()
 local prefix = require "dkienenLib.PrefixUtil".prefix()
 
 local oublietteGenerator = require(modName .. ".levelgen")
 
+local RNG_MOLES = rng.Channel.extend(prefix .. "Moles")
 local RNG_OUBLIETTE = rng.Channel.extend(prefix .. "Oubliette")
 local RNG_CHESTPLACEHOLDERS = rng.Channel.extend(prefix .. "ChestPlaceholders")
 
@@ -38,15 +42,11 @@ local eventUtil = require "dkienenLib.EventUtil"
 local levelSeqUtil = require "dkienenLib.LevelSequenceUtil"
 
 oublietteTrapdoorProperties = snapshot.runVariable({})
-oublietteVisit = snapshot.runVariable(false)
-oublietteStart = snapshot.variable()
 
 local grateCount = 6
 local abbeyMonsters = {"Armadillo3", "Bat3", "Bat4", "Beetle", "Beetle2", "Blademaster2", "Clone", "Devil2", "ElectricMage3", "Ghoul", "Goblin2", "Harpy", "Lich3", "Mole", "Monkey2", "Monkey3", "Mushroom2", "Orc2", "Orc3", "Skull3", "Skull4", "Sync_CoopThief", "Warlock", "Warlock2", "WaterBall2", "Wraith2"}
 
 local abbeyMiniboss = {"Mommy", "Metrognome2"}
-
-local allNonShovelNonWeaponItems = {}
 
 function createGrate(material)
 	local name = material .. "Grate"
@@ -134,54 +134,17 @@ event.objectTakeDamage.add("cookiesssss", {order="spell"}, function(ev)
 end)
 
 event.entitySchemaLoadNamedEntity.add("debug", {key="ChestRed"}, function (ev)
-	--	dbg(ev.entity)
+		--dbg(ev.entity)
 end)
-
---event.levelSequenceUpdate.add("Oubliette", {order="shuffle", sequence = 4}, function (ev)
---	oublietteStart = 4
---	local generatorID = oublietteGenerator.generatorID
---	table.insert(ev.sequence, oublietteStart, {type=generatorID, floor=1, depth=1.5, zone=1.5})
---	table.insert(ev.sequence, oublietteStart + 1, {type=generatorID, floor=2, depth=1.5, zone=1.5})
---	table.insert(ev.sequence, oublietteStart + 2, {type=generatorID, floor=3, depth=1.5, zone=1.5})
---	table.insert(ev.sequence, oublietteStart + 3, {type=generatorID, floor=4, depth=1.5, zone=1.5})
---end)
-
---event.levelComplete.add("OublietteWarp", {order="nextLevel"}, function (ev)
---	if ev.targetLevel == oublietteStart and not oublietteVisit then
---		ev.targetLevel = (ev.targetLevel + 4);
---	end
---end)
 
 event.levelLoad.add("OublietteTrapdoor", {order = "training"}, function(ev)
 	if not currentLevel.isSafe() and currentLevel.getDepth() == 1 and currentLevel.getFloor() == 3 then
-		local candidates = {}
-		local levelX, levelY, levelWidth, levelHeight = tile.getLevelBounds()
-		local spawnX, spawnY = marker.lookUpMedian(marker.Type.SPAWN)
-		if not spawnX then spawnX = 0 end
-		if not spawnY then spawnY = 0 end
-		local shopX, shopY = marker.lookUpMedian(marker.Type.SHOP)
-		for y = levelY, levelY + levelHeight - 1 do
-			for x = levelX, levelX + levelWidth - 1 do
-				if tile.getInfo(x, y).name == "Floor" then
-					if (not (math.abs(spawnX - x) <= 1)) and (not (math.abs(spawnY - y) <= 1)) then
-						if (not (math.abs(shopX - x) <= 3)) and (not (math.abs(shopY - y) <= 3)) then
-							if not (segment.getSegmentIDAt(x, y) == segment.SECRET_ROOM) then
-								if not map.get(x, y) then
-									table.insert(candidates, {x=x, y=y})
-								end
-							end
-						end
-					end
-				end
-			end
-		end
+		local candidates = findOpenFloor()
 		rng.shuffle(candidates, RNG_OUBLIETTE)
 		local index = 1
 		local chosen = candidates[index]
 		index = index + 1
 		-- spawn four locks with four other chosens
-		object.spawn("Sync_CrackTrapdoorOpen", chosen.x, chosen.y)
-		object.spawn(prefix .. "OublietteTrapdoorMarker", chosen.x, chosen.y)
 		oublietteTrapdoorProperties = {x=chosen.x, y=chosen.y}
 		local grateComponentName = prefix .. "Grate"
 		for _, material in ipairs({"Blood", "Gold", "Obsidian", "Glass"}) do
@@ -191,6 +154,8 @@ event.levelLoad.add("OublietteTrapdoor", {order = "training"}, function(ev)
 			local lock = object.spawn(prefix .. material .. "Lock", lockLocation.x, lockLocation.y)
 			lock[prefix .. "Lock"].grate = grate
 		end
+		object.spawn("Sync_CrackTrapdoorOpen", chosen.x, chosen.y)
+		object.spawn(prefix .. "OublietteTrapdoorMarker", chosen.x, chosen.y)
 	end
 end)
 
@@ -200,7 +165,6 @@ event.trapTrigger.override("descend", 1, function (func, ev)
 	local y = oublietteTrapdoorProperties.y
 	local victim = ev.victim
 	if trap.position.x == x and trap.position.y == y and map.firstWithComponent(x, y, prefix .. "OublietteTrapdoorMarker") and player.isPlayerEntity(victim) then
-		oublietteVisit = true
 		levelSeqUtil.overrideWarp("Oubliette-1")
 	end
 	return func(ev)
@@ -213,9 +177,22 @@ event.levelLoad.add("ChestPlaceholders", {order = "initialItems"}, function(ev)
 	end
 end)
 
-levelSeqUtil.addZone(1.5, "Oubliette", {"Crossing the Chasm.mp3", "Nonstop.mp3", "Oubliette Sting.mp3", "The Complex.mp3"}, oublietteGenerator.generatorID, "1-4", 4)
+eventUtil.addDepthLevelEvent(modName, "Moles", "extraEntities", 0, nil, eventUtil.makeDepthPredicate(1), function()
+	if not currentLevel.isBoss() then
+		local candidates = findOpenFloor()
+		rng.shuffle(candidates, RNG_MOLES)
+		for index, candidate in ipairs(candidates) do
+			local x = candidate.x
+			local y = candidate.y
+			if index > currentLevel.getFloor() * 2 then
+				break
+			end
+			object.spawn("Mole", x, y)
+		end
+	end
+end)
 
-characterUtil.registerCharacter(modName, "Guy Spelunky", {"WeaponWhip", "Bomb3", "Bomb"}, "Contains the correct amount\nof digging tools!", {shovel=true})
+levelSeqUtil.addZone(1.5, "Oubliette", {"Crossing the Chasm.mp3", "Nonstop.mp3", "Oubliette Sting.mp3", "The Complex.mp3"}, oublietteGenerator.generatorID, 4, "Caves-4")
 
 componentUtil.registerComponent(modName, "Lock", {grate={type="entityID"}, keyComponent={type="string"}})
 
@@ -232,3 +209,25 @@ itemUtil.registerItem(modName, "Worm Food", nil, {Slot={}, Hint={hint="Nom nom!"
 itemUtil.registerItem(modName, "Old Crest", nil, {Slot={}, Hint={hint="Prevents damage once"}, Unban=true, DamageBlock={}})
 
 itemUtil.registerItem(modName, "Escape Rope", nil, {Slot={slot="action"}, Hint={hint="Teleports you to the shop"}, Spell={spell="SpellcastCrownOfTeleportation", cooldown=20}})
+
+stashedItem = snapshot.runVariable(nil)
+entityUtil.registerShrine("Time", "Crate3", "WeaponDagger", "Send an item to your next run!", function(ev)
+	local items = inventory.getItems(ev.interactor)
+	local validItems = {}
+	for _, item in ipairs(items) do
+		if item.itemCommon then
+			table.insert(validItems, item)
+		end
+	end
+	local removed = rng.choice(validItems, RNG_MOLES)
+	if not removed then
+		ev.entity.shrine.active = false
+	else
+		stashedItem=removed.name
+	end
+	object.kill(removed)
+end)
+
+eventUtil.addDepthLevelEvent(modName, "TimeShrineItem", "training", 9, nil, eventUtil.makeDepthPredicate(1, 2), function()
+	floorDrop.addOneDrop(stashedItem)
+end)
