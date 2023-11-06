@@ -13,6 +13,8 @@
 	"name": "SpelunkyGungeonMod",
 	"pendingVersion": "1.0.0",
 	"dkienenLib": {
-		"banSingleZones": true
+		"banSingleZones": true,
+		"requireAmplified": true,
+		"requireSync": true
 	}
 }

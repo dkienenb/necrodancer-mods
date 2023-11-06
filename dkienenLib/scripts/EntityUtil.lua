@@ -3,6 +3,7 @@ local eventUtil = require "dkienenLib.EventUtil"
 local prefixUtil = require "dkienenLib.PrefixUtil"
 local componentUtil = require "dkienenLib.ComponentUtil"
 
+local commonSpell = require "necro.game.data.spell.CommonSpell"
 local commonShrine = require "necro.game.data.object.CommonShrine"
 local customEntities = require "necro.game.data.CustomEntities"
 local damage = require "necro.game.system.Damage"
@@ -44,7 +45,7 @@ end
 
 local function destroy(entity, deathMessage, attacker)
 	damage.inflict({victim=entity, killerName=deathMessage, attacker=attacker, damage=999, type=damage.Type.PHASING})
-	if not entity.killable.dead then
+	if entity.killable and not entity.killable.dead then
 		damage.inflict({victim=entity, killerName=deathMessage, attacker=attacker, damage=999, type=damage.Type.SELF_DESTRUCT})
 	end
 end
@@ -84,6 +85,17 @@ local function registerShrine(name, inactiveDrop, activeDrop, hint, action)
 	event.shrine.add(prefixUtil.getMod() .. name, name, action)
 end
 
+local function registerSpellCast(spellName, spellEffect)
+	componentUtil.registerComponent(prefixUtil.getMod(), spellName)
+	commonSpell.registerSpell("Spellcast" .. spellName, {
+		spellcast = {},
+		spellcastFlyaway = {
+			text = spellName
+		}
+	})
+	eventUtil.addEvent("spellcast", "Spellcast" .. spellName, nil, nil, spellEffect, prefixUtil.getMod() .. spellName)
+end
+
 return {
 	registerEntity=registerEntity,
 	registerMarkerEntity=registerMarkerEntity,
@@ -91,5 +103,6 @@ return {
 	surroundPosition=surroundPosition,
 	lookupMarker=lookupMarker,
 	surroundEntity=surroundEntity,
-	registerShrine=registerShrine
+	registerShrine=registerShrine,
+	registerSpellCast=registerSpellCast
 }

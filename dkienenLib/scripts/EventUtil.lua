@@ -2,14 +2,14 @@ local currentLevel = require "necro.game.level.CurrentLevel"
 local ecs = require "system.game.Entities"
 local prefixUtil = require "dkienenLib.PrefixUtil"
 
-local function addEvent(eventName, eventHandlerName, order, sequence, action)
-    event[eventName].add(prefixUtil.getMod() .. eventHandlerName, {order = order, sequence = sequence}, action)
+local function addEvent(eventName, eventHandlerName, order, sequence, action, filter)
+    event[eventName].add(prefixUtil.getMod() .. eventHandlerName, {order = order, sequence = sequence, filter = filter}, action)
 end
 
 local function addLevelEvent(modName, eventHandlerName, order, sequence, components, action)
     modName = modName or prefixUtil.getMod()
     local eventName = "levelLoad"
-    if order == "processPendingObjects" then
+    if order == "processPendingObjects" or order == "levelLoadingDone" then
         eventName = "gameStateLevel";
     end
     addEvent(eventName, eventHandlerName, order, sequence, function(ev)

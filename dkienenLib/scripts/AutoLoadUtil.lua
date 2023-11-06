@@ -13,6 +13,12 @@ function loadMod(modName)
 		if settings.banSingleZones then
 			miscUtil.banSingleZones()
 		end
+		if settings.requireAmplified then
+			miscUtil.requireAmplified()
+		end
+		if settings.requireAmplified then
+			miscUtil.requireSync()
+		end
 	end
 	local characters = metaUtil.allScriptsFromPackage(modName, "characters")
 	for charName, characterFile in pairs(characters) do

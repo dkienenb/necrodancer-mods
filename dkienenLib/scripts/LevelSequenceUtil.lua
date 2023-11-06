@@ -123,22 +123,27 @@ local function addZone(depthNumber, displayName, music, generator, length, nextL
 end
 
 event.renderGlobalHUD.override("renderLevelCounter", 1, function()
-  local index = currentLevel.getNumber()
-  local found = findLevelByIndex(index)
-  if found then
-    local text = found.name
-    if currentLevel.isBoss() then
-      text = text .. " (Boss)"
+  local text = ""
+  if not currentLevel.isSafe() then
+    local index = currentLevel.getNumber()
+    local found = findLevelByIndex(index)
+    if found then
+      text = found.name
+      if currentLevel.isBoss() then
+        text = text .. " (Boss)"
+      end
+      text = text .. " [" .. currentLevel.getSequentialNumber() .. "]"
     end
-    text = text .. " [" .. currentLevel.getSequentialNumber() .. "]"
-    hud.drawText {
-      text = text,
-      font = ui.Font.SMALL,
-      element = hudLayout.Element.LEVEL,
-      alignX = 1,
-      alignY = 1
-    }
+  else
+    text = "Lobby"
   end
+  hud.drawText {
+    text = text,
+    font = ui.Font.SMALL,
+    element = hudLayout.Element.LEVEL,
+    alignX = 1,
+    alignY = 1
+  }
 end)
 
 return {

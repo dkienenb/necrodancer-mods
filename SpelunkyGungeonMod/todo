@@ -1,4 +1,5 @@
 move levelgen into lib? doors in oubliette corridors
+fix ensemble: https://discord.com/channels/600372254836129850/600373678231912564/1111904882610421781
 
 floor drops mark items as seen before they are dropped
 minimap pixel for trapdoor
@@ -66,6 +67,9 @@ backwards shield: protect behind you
 fancy mustache: bosses have mustache, heal 4 hearts after boss. headgear
 piggy bank, +1 to gold, dies like marv
 wizard hat, ring of mana but for head
+chamber gun
+weapon material that deals 1dmg for each zone
+armor that reduces dmg over 5 hearts to nothing (including curses)
 chest teleporter
 spell that makes you beeline the exit using AI (robot starts with it)
 armor that makes you immune to damage on wire (robot also starts with it)
@@ -98,6 +102,7 @@ R&G dep: https://cdn.discordapp.com/attachments/489598804581154816/1107121883616
 eventually hunts the player down earlier and earlier, dropping more gold / items
 
 huntsmen boss (a pack of monsters of various kinds that gain abilities the more of them are killed)
+a boss with a brother who won't fight you unless the brother is killed, with the hardest fight in the game
 
 Enemy: Reaper. Genocide exclusive.
 12 hp.
@@ -127,23 +132,17 @@ olmec fight with hell door on 5-4
 alternate zones:
 z2:Volcano
 z3:Factory [6 levels long, 7 with boss]
-z4:
+z4:<none>
 z5:Depths
-level hud text properly displays the zone name
-
-zone names:
-z1:cave
-z2:jungle
-z3:thermal caves
-z4:crypt proper
-z5:laboratory
-z6:underworld
 
 ND boss locations:
 boss 5: 5-5 or 6-7
 
 world 6:
 6-1, 6-2, 6-3, lich, 6-4, yama, final nd boss(es)
+
+ensemble chars
+1-1, 1-2, 1-3, 1-4, O-1, O-2, O-3, O-4, 2-1, 2-2, 2-3,
 
 special scatter trap for shrine of time
 
@@ -164,8 +163,21 @@ omega red, problem for hacker char
 chars:
 robot - half heart like aria, 6 armor, input delay of 4 beats
 time traveller - start at end of chain, compelete in reverse
-characters that fuses all other characters
 yang - mary but with 3 turkeys
+wizard - can't move without taking dmg but takes no blood magic dmg, starts with dash and fireball, has 4 spell slots in the diagnal directions, 1 heart max
+unnamed - char that must die once every floor (with a special potion) or else dies upon the next floor
+characters that fuses all other characters - lute, lantern, klari sword (all 3 as wep), leaping boots, ring of peace, blood shovel
+    missed beat kills
+    cursed leaping
+    teleport bombs, attacks also confuse monsters, not exit stairs unlocked
+    vow of poverty
+    marv
+    tempo timer
+    diag move in direction sword currently is
+    reaper souls
+    possesed monsters dash like suzu
+    fix beat, quad tempo
+    start inv: blood shovel, weapons listed above, leaping, klari armor, might ring
 
 mod icon
 mod banners

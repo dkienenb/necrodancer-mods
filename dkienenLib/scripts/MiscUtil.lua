@@ -2,6 +2,7 @@ local object = require "necro.game.object.Object"
 local map = require "necro.game.object.Map"
 local tile = require "necro.game.tile.Tile"
 local ecs = require "system.game.Entities"
+local gameDLC = require "necro.game.data.resource.GameDLC"
 
 function makeProperIdentifier(name)
 	name = string.gsub(name, "%s+", "")
@@ -25,6 +26,14 @@ local function banSingleZones()
 	end)
 end
 
+local function requireAmplified()
+	assert(gameDLC.isAmplifiedLoaded(), "Amplified required but not loaded")
+end
+
+local function requireSync()
+	assert(gameDLC.isSynchronyLoaded(), "Sync required but not loaded")
+end
+
 function makePrefix(modName)
 	return modName .. "_"
 end
@@ -32,5 +41,7 @@ end
 return {
 	makeProperIdentifier=makeProperIdentifier,
 	makePrefix = makePrefix,
-	banSingleZones=banSingleZones
+	banSingleZones=banSingleZones,
+	requireAmplified=requireAmplified,
+	requireSync=requireSync
 }

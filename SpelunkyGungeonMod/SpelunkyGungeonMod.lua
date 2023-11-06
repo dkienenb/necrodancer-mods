@@ -16,6 +16,7 @@ local snapshot = require "necro.game.system.Snapshot"
 local inventory = require "necro.game.item.Inventory"
 local itemBan = require "necro.game.item.ItemBan"
 local floorDrop = require "dkienenLib.itemProperties.FloorDrop"
+local ensemble = require "necro.game.data.modifier.Ensemble"
 
 local modName = require "dkienenLib.PrefixUtil".getMod()
 local prefix = require "dkienenLib.PrefixUtil".prefix()
@@ -40,6 +41,7 @@ local entityUtil = require "dkienenLib.EntityUtil"
 local characterUtil = require "dkienenLib.CharacterUtil"
 local eventUtil = require "dkienenLib.EventUtil"
 local levelSeqUtil = require "dkienenLib.LevelSequenceUtil"
+local floorUtil = require "dkienenLib.FloorUtil"
 
 oublietteTrapdoorProperties = snapshot.runVariable({})
 
@@ -139,7 +141,7 @@ end)
 
 event.levelLoad.add("OublietteTrapdoor", {order = "training"}, function(ev)
 	if not currentLevel.isSafe() and currentLevel.getDepth() == 1 and currentLevel.getFloor() == 3 then
-		local candidates = findOpenFloor()
+		local candidates = floorUtil.findOpenFloor()
 		rng.shuffle(candidates, RNG_OUBLIETTE)
 		local index = 1
 		local chosen = candidates[index]
@@ -179,7 +181,7 @@ end)
 
 eventUtil.addDepthLevelEvent(modName, "Moles", "extraEntities", 0, nil, eventUtil.makeDepthPredicate(1), function()
 	if not currentLevel.isBoss() then
-		local candidates = findOpenFloor()
+		local candidates = floorUtil.findOpenFloor()
 		rng.shuffle(candidates, RNG_MOLES)
 		for index, candidate in ipairs(candidates) do
 			local x = candidate.x
@@ -190,6 +192,7 @@ eventUtil.addDepthLevelEvent(modName, "Moles", "extraEntities", 0, nil, eventUti
 			object.spawn("Mole", x, y)
 		end
 	end
+	dbg(ensemble.getSessionOrder())
 end)
 
 levelSeqUtil.addZone(1.5, "Oubliette", {"Crossing the Chasm.mp3", "Nonstop.mp3", "Oubliette Sting.mp3", "The Complex.mp3"}, oublietteGenerator.generatorID, 4, "Caves-4")
@@ -230,4 +233,8 @@ end)
 
 eventUtil.addDepthLevelEvent(modName, "TimeShrineItem", "training", 9, nil, eventUtil.makeDepthPredicate(1, 2), function()
 	floorDrop.addOneDrop(stashedItem)
+end)
+
+entityUtil.registerSpellCast("Bloodlust", function(ev)
+	print(ev.caster)
 end)

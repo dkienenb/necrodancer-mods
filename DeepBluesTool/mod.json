@@ -1,0 +1,14 @@
+{
+	"namespace": "DeepBluesTool",
+	"displayName": "DeepBluesTool",
+	"version": "1.0.0",
+	"synchronyVersion": "3.7.4",
+	"description": "No description given.",
+	"author": "dkienenb",
+	"dependencies": {},
+	"api": {"scriptPath":""},
+	"icon": "DeepBluesToolIcon.png",
+	"banner": "DeepBluesToolBanner.png",
+	"tags": [],
+	"name": "DeepBluesTool"
+}
