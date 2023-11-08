@@ -15,7 +15,9 @@ local Pathfinding = require("AutoNecroDancer.Pathfinding")
 local Safety = require("AutoNecroDancer.Safety")
 
 local LuteScript = require("AutoNecroDancer.ScriptedBosses.GoldenLute")
+local CoralRiffScript = require("AutoNecroDancer.ScriptedBosses.CoralRiff")
 local DeathMetalScript = require("AutoNecroDancer.ScriptedBosses.DeathMetal")
+local FortissimoleScript = require("AutoNecroDancer.ScriptedBosses.Fortissimole")
 targets = Snapshot.levelVariable({})
 
 local PRIORITY = {
@@ -49,7 +51,7 @@ end
 
 local function hasGold(x, y, player)
 	if player.goldHater then return false end
-	-- TODO FIXME very bad bandaid fix for z5 gorgons
+	-- FIXME very bad bandaid fix for z5 gorgons (for lag)
 	if Map.firstWithComponent(x, y, "crateLike") then return false end
 	if Map.firstWithComponent(x, y, "itemCurrency") then return true end
 	local tileInfo = Tile.getInfo(x, y)
@@ -64,13 +66,13 @@ local function scanSpaceForTargets(x, y, player)
 		local tileInfo = Tile.getInfo(x, y)
 		local digable, rising = Utils.canDig(player, x, y)
 		if digable and not rising and not tileInfo.isFloor then
-			table.insert(targets, {x=x,y=y,tile=true,wall=true,priority=PRIORITY.WALL})
+			table.insert(targets, {x=x,y=y,wall=true,priority=PRIORITY.WALL})
 		end
 		if hasExit(x, y, player) then
-			table.insert(targets, {x=x,y=y,tile=true,exit=true,priority=PRIORITY.EXIT})
+			table.insert(targets, {x=x,y=y,exit=true,priority=PRIORITY.EXIT})
 		end
 		if hasGold(x, y, player) then
-			table.insert(targets, {x=x,y=y,tile=true,gold=true,priority=PRIORITY.GOLD})
+			table.insert(targets, {x=x,y=y,gold=true,priority=PRIORITY.GOLD})
 		end
 		for _, entity in Utils.iterateMonsters(x, y, player, false) do
 			-- TODO properly pathfind to these
@@ -129,30 +131,11 @@ local function targetingOverride(player)
 	--[[
 		TODO KC
 		kill extras then zombies
-
-		TODO FM
-		kill ads, stay in center
-		kill corner of whichever side he's not on
-		kill other corner
-		kill spawned ads
-		do middle kill
-
-		for fm5 on non aria:
-			kill ads as before
-			kill one corner as before
-			dig backstage from other side
-			go all the way to the corner with fm
-			go down (should trigger him)
-			up side side unside unside side side side
-			repeat unside unside down side side
-
-		TODO CR
-		don't walk into water the beat before monsters spawn
-		don't walk away from your center square in a direction with a wall right after the spot you walked into
-		neither apply to diamond
 	--]]
 	DeathMetalScript.deathMetalOverride(player, targets)
+	FortissimoleScript.fortissimoleOverride(player, targets)
 	LuteScript.luteOverride(player, targets)
+	CoralRiffScript.coralRiffOverride(player, targets)
 end
 
 local function scanForTargets(player)
@@ -170,7 +153,7 @@ local function scanForTargets(player)
 			break
 		end
 		if not has then
-			table.insert(targets, {x=0, y=player.position.y, override=true, tile=true, priority=PRIORITY.WALL})
+			table.insert(targets, {x=0, y=player.position.y, override=true, priority=PRIORITY.WALL})
 		end
 	end
 	targetingOverride(player)

@@ -19,7 +19,7 @@ local function deathMetalOverride(player, targets)
 					elseif Utils.stringStartsWith(type, "Deathmetal") then
 						target.priority = PRIORITY.OVERRIDE - 1
 						target.override = true
-					elseif type ~= "Clone" and type ~= "Skeleton2Headless" then
+					elseif type ~= "Skeleton2Headless" then
 						target.priority = PRIORITY.OVERRIDE
 						target.override = true
 					end

@@ -22,6 +22,9 @@ local isValidSpace
 local function canHurt(monster, player, entityToPlayerDirection)
 	-- TODO crates, blood shoppies
 	if not Utils.canEverHurt(monster, player) then return false end
+	if monster.captiveAudience and monster.captiveAudience.active then
+		return false
+	end
 	if monster.stasis and monster.stasis.active and monster.stasisAttackableFlags and monster.stasisAttackableFlags.remove then
 		return false
 	end
@@ -80,6 +83,9 @@ local function canHurtWithoutRetaliation(monster, player, entityToPlayerDirectio
 		hp = hp - 1
 	end
 	if hp <= Damage.getBaseDamage(player) then
+		if monster.swapEntitiesOnDeath then
+			-- TODO warlocks
+		end
 		return true
 	end
 	if AffectorItem.entityHasItem(monster, "weaponShove") then
@@ -146,7 +152,7 @@ local function aiAllowsMovement(monster)
 end
 
 local function posesAdditionalThreat(monster, x, y, player)
-	--TODO yetis, dead ringer, ogreclubs, dm shield spawns
+	--TODO dead ringer, ogreclubs, dm shield spawns
 	local allowedToMove = aiAllowsMovement(monster)
 	local monsterX, monsterY = monster.position.x, monster.position.y
 	if monster.remappedMovement then
@@ -194,7 +200,9 @@ local function posesAdditionalThreat(monster, x, y, player)
 			end
 		end
 		if spell == "SpellcastSplash" or spell == "SpellcastClap" then
-			if math.abs(monsterX - x) < 3 and math.abs(monsterY - y) < 3 and Utilities.distanceL1(monsterX - x, monsterY - y) < 4 then
+			local dx = math.abs(monsterX - x)
+			local dy = math.abs(monsterY - y)
+			if dx < 3 and dy < 3 and not (dx == 2 and dy == 2) then
 				return true
 			end
 		end
@@ -255,21 +263,23 @@ local function protectedFrom(entity, player, targetX, targetY)
 			return true
 		end
 	end
-	if entity.name == "Mole" and entity.stasis.active then
+	if (entity.name == "Mole" or Utils.stringStartsWith(entity.name, "Tentacle")) and entity.stasis.active then
 		return true
 	end
 	if entity.name == "SleepingGoblin" and entity.confusable.remainingTurns == 0 then
 		return true
 	end
-	if entity.name == "Trapchest3" or entity.name == "DeathmetalPhase2" or entity.name == "DeathmetalPhase3" then
+	if entity.name == "Trapchest3" or entity.name == "DeathmetalPhase2" or entity.name == "DeathmetalPhase3" or entity.name == "Leprechaun" then
 		return true
 	end
 	if entity.name == "Ghost" then
 		if entity.stasis.active then return true end
-		if not Pathfinding.hasSnag(player, targetX, targetY) then
+		local entityX = entity.position.x
+		local entityY = entity.position.y
+		local nearXPLayer = math.abs(entityX - player.position.x) <= 1
+		local nearYPlayer = math.abs(entityY - player.position.y) <= 1
+		if not Pathfinding.hasSnag(player, targetX, targetY) or (nearXPLayer and entityY == targetY) or (nearYPlayer and entityX == targetX)  then
 			if not entity.stasis.active then
-				local entityX = entity.position.x
-				local entityY = entity.position.y
 				local nearX = math.abs(entityX - targetX) <= 1
 				local nearY = math.abs(entityY - targetY) <= 1
 				if (nearX and entityY == targetY) or (nearY and entityX == targetX) then
@@ -279,8 +289,6 @@ local function protectedFrom(entity, player, targetX, targetY)
 		end
 	end
 	return false
-	-- TODO ghosts: always safe if moving towards them, or staying still while they are in stasis
-	-- TODO lep: always safe until no longer fleeing
 	-- TODO clones: okay yeah this one is hard
 end
 

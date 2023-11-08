@@ -34,21 +34,21 @@ local function luteOverride(player, targets)
 			if playerY == -12 then
 				lutePhase = 1
 			else
-				table.insert(targets, {x=0,y=-12,tile=true,override=true,priority=PRIORITY.OVERRIDE})
+				table.insert(targets, {x=0,y=-12,override=true,priority=PRIORITY.OVERRIDE})
 			end
 		end
 		if lutePhase == 1 then
 			if playerY == -7 then
 				lutePhase = 2
 			else
-				table.insert(targets, {x=0,y=-7,tile=true,override=true,priority=PRIORITY.OVERRIDE})
+				table.insert(targets, {x=0,y=-7,override=true,priority=PRIORITY.OVERRIDE})
 			end
 		end
 		if lutePhase == 2 then
 			if playerY == -10 then
 				lutePhase = 3
 			else
-				table.insert(targets, {x=0,y=-10,tile=true,override=true,priority=PRIORITY.OVERRIDE})
+				table.insert(targets, {x=0,y=-10,override=true,priority=PRIORITY.OVERRIDE})
 			end
 		end
 		if lutePhase == 3 then
@@ -75,7 +75,6 @@ local function luteOverride(player, targets)
 			end
 		end
 		if lutePhase == 4 or lutePhase == 14 then
-			-- TODO fetch dagger (from double rider) (wait for all monsters to die) (then wait out firepigs)
 			local nextToLuteBody = Map.hasComponent(playerX, playerY - 1, "luteBody")
 			if nextToLuteBody and adjacent(playerX-luteX, playerY-luteY) then
 				lutePhase = lutePhase + 1
@@ -188,7 +187,7 @@ local function luteOverride(player, targets)
 				end
 			end
 			table.insert(targets, {x=x,y=y,tile=true,override=true,priority=PRIORITY.OVERRIDE})
-			if wallPig.actionDelay.currentAction ~= 0 and wallPig.actionDelay.delay == 0 and bodyX == 0 then
+			if wallPig.actionDelay.currentAction ~= 0 and wallPig.actionDelay.delay == 0 and bodyX == 0 and playerX == 0 then
 				lutePhase = lutePhase + 0.5
 			end
 		end

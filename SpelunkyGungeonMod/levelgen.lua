@@ -252,7 +252,7 @@ local function createOublietteBranching(startingRoom)
 	local fork2 = branchMultipleRandom(fork1, 1, 2)
 	local path2 = branchMultiple(fork2, 2)
 	local chest2 = branchChest(path2)
-	-- TODO loop chest back to fork2
+	-- loop chest back to fork2
 	local bossEntrance = branchMultipleRandom(fork2, 1, 2)
 	local exit = branchExit(bossEntrance)
 	table.insert(crestChoices, chest2)

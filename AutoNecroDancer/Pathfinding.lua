@@ -117,7 +117,6 @@ local function findSnag(player, directions)
 end
 
 local function findPath(player, target, startingDirectionOptions, blockedCache)
-	-- TODO trigger armadillos
 	if target.overrideAction then
 		return target.overrideAction
 	end
