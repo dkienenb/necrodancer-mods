@@ -20,7 +20,7 @@ local function fortissimoleOverride(player, targets)
 			local playerX, playerY = player.position.x, player.position.y
 			local extras = {}
 			for monster in Entities.entitiesWithComponents({ "health" }) do
-				if monster.controllable.playerID == 0 and not monster.playableCharacter and not (monster.captiveAudience and monster.captiveAudience.active) and not monster.boss then
+				if monster.controllable.playerID == 0 and not monster.playableCharacter and not (monster.captiveAudience and monster.captiveAudience.active) and not monster.boss and Utils.canEverHurt(monster, player) then
 					table.insert(extras, monster)
 				end
 			end

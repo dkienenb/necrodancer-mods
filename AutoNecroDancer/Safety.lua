@@ -10,12 +10,11 @@ local Snapshot = require "necro.game.system.Snapshot"
 local Tile = require "necro.game.tile.Tile"
 local Utilities = require "system.utils.Utilities"
 
+local AutoNecroDancer = require("AutoNecroDancer.AutoNecroDancer")
 local Pathfinding = require("AutoNecroDancer.Pathfinding")
+local ItemChoices = require("AutoNecroDancer.ItemChoices")
 local Targeting = require("AutoNecroDancer.Targeting")
 local Utils = require("AutoNecroDancer.Utils")
-
--- TODO conditions
-readyToExit = Snapshot.levelVariable(true)
 
 local isValidSpace
 
@@ -65,6 +64,15 @@ local function canHurtWithoutRetaliation(monster, player, entityToPlayerDirectio
 		if Targeting.hasExit(monster.position.x, monster.position.y, player) then
 			return false
 		end
+		if #ItemChoices.getTargetItems(monster.position.x, monster.position.y, player) ~= 0 then
+			return false
+		end
+	end
+	local inventory = player.inventory
+	if inventory then
+		local weaponEntityID = inventory.itemSlots.weapon and inventory.itemSlots.weapon[1]
+		local weapon = Entities.getEntityByID(weaponEntityID)
+		if weapon.itemFreezeOnAttack then return true end
 	end
 	if monster.kingCongaTeleport or monster.deepBluesTeleport or monster.metrognomeTeleportOnHit then
 		return true
@@ -273,20 +281,18 @@ local function protectedFrom(entity, player, targetX, targetY)
 		return true
 	end
 	if entity.name == "Ghost" then
-		if entity.stasis.active then return true end
 		local entityX = entity.position.x
 		local entityY = entity.position.y
-		local nearXPLayer = math.abs(entityX - player.position.x) <= 1
-		local nearYPlayer = math.abs(entityY - player.position.y) <= 1
-		if not Pathfinding.hasSnag(player, targetX, targetY) or (nearXPLayer and entityY == targetY) or (nearYPlayer and entityX == targetX)  then
-			if not entity.stasis.active then
-				local nearX = math.abs(entityX - targetX) <= 1
-				local nearY = math.abs(entityY - targetY) <= 1
-				if (nearX and entityY == targetY) or (nearY and entityX == targetX) then
-					return true
-				end
-			end
+		local adxp = math.abs(entityX - player.position.x)
+		local adyp = math.abs(entityY - player.position.y)
+		local adxt = math.abs(entityX - targetX)
+		local adyt = math.abs(entityY - targetY)
+		local startingDanger = (adxp == 0 and adyp == 1) or (adxp == 1 and adyp == 0)
+		local endingDanger = (adxt == 0 and adyt == 1) or (adxt == 1 and adyt == 0)
+		if not (startingDanger and (endingDanger or Pathfinding.hasSnag(player, targetX, targetY))) then
+			return true
 		end
+		if not startingDanger and entity.stasis.active then return true end
 	end
 	return false
 	-- TODO clones: okay yeah this one is hard
@@ -366,6 +372,19 @@ local function invulnerable(player)
 	end
 end
 
+local function hasNearbyMonsters(radius, x, y, player)
+	for dx = -radius, radius do
+		for dy = -radius, radius do
+			for _, monster in Utils.iterateMonsters(x + dx, y + dy, player, true) do
+				if not Utils.stringStartsWith(monster.name, "Slime") then
+					return true
+				end
+			end
+		end
+	end
+	return false
+end
+
 local function isDefensivePosition(playerX, playerY, targetX, targetY, player, startX, startY)
 	-- TODO open exit stairs always defensive
 	if invulnerable(player) then
@@ -375,17 +394,7 @@ local function isDefensivePosition(playerX, playerY, targetX, targetY, player, s
 	if courage then return true end
 	if not isDefensiveFromBombs(playerX, playerY) then return false end
 	local snag = Pathfinding.hasSnag(player, targetX, targetY)
-	if not snag and hasLiquid(targetX, targetY) and not Utils.unsinkable(player) then
-		for dx = -1, 1 do
-			for dy = -1, 1 do
-				for _, monster in Utils.iterateMonsters(targetX + dx, targetY + dy, player, true) do
-					if not Utils.stringStartsWith(monster.name, "Slime") then
-						return false
-					end
-				end
-			end
-		end
-	end
+	if not snag and hasLiquid(targetX, targetY) and not Utils.unsinkable(player) and hasNearbyMonsters(1, targetX, targetY, player) then return false end
 	if snag and player.tileIdleDamageReceiver and Tile.getInfo(playerX, playerY).idleDamage then
 		return false
 	end
@@ -393,10 +402,11 @@ local function isDefensivePosition(playerX, playerY, targetX, targetY, player, s
 		local dx = targetX - startX
 		local dy = targetY - startY
 		if not Pathfinding.hasSnag(player, targetX + dx, targetY + dy) then
-			return false
+			if hasNearbyMonsters(2, targetX, targetY, player) then
+				return false
+			end
 		end
 	end
-
 	for dx = -1, 1 do
 		for dy = -1, 1 do
 			if checkForAttackers(playerX + dx, playerY + dy, playerX, playerY, player, targetX, targetY) then
@@ -412,10 +422,17 @@ end
 
 local function hasInsurmountableObstacle(x, y, player)
 	if Map.hasComponent(x, y, "crateLike") then return true end
+	if Map.hasComponent(x, y, "shopkeeper") then return true end
 	if Map.hasComponent(x, y, "shrine") then return true end
+	for _, item in Map.entitiesWithComponent(x, y, "item") do
+		if not ItemChoices.canPurchase(item, player) then
+			return true
+		end
+	end
 	local ableToDig = Utils.canDig(player, x, y);
 	if not ableToDig then return true end
-	if Targeting.hasExit(x, y, player) and not readyToExit then return true end
+	local target = AutoNecroDancer.getTarget()
+	if target and Targeting.hasExit(x, y, player) and (not target.exit) then return true end
 	for _, monster in Utils.iterateMonsters(x, y, player, true) do
 		if not canHurt(monster, player) then
 			return true
@@ -454,5 +471,6 @@ return {
 	isValidDirection=isValidDirection,
 	hasPathBlocker=hasPathBlocker,
 	hasLiquid=hasLiquid,
-	hasCourage=hasCourage
+	hasCourage=hasCourage,
+	isValidSpace=isValidSpace
 }

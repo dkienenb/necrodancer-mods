@@ -107,7 +107,8 @@ local function canDig(entity, x, y)
 	}
 	ObjectEvents.fire("computeDigStrength", entity, parameters)
 	local strength = parameters.strength
-	local rising = tileInfo.digType and tileInfo.digType[strength] and tileInfo.digType[strength] == "RecededFloor"
+	local isMetalDoor = tileInfo.isDoor and tileInfo.digEntity
+	local rising = isMetalDoor or tileInfo.digType and tileInfo.digType[strength] and tileInfo.digType[strength] == "RecededFloor"
 	return strength >= tileInfo.digResistance, rising
 end
 
@@ -161,6 +162,27 @@ local function stringStartsWith(str, start)
 	return str:sub(1, #start) == start
 end
 
+local function getBasename(path)
+	return string.gsub(path, "(.*/)(.*)", "%2")
+end
+
+function convertDotPathToSlashPath(dotPath)
+	return string.gsub(dotPath, "%.", "/")
+end
+
+local function allScriptsFromPackage(scriptPath)
+	local pathPrefix = "mods/AutoNecroDancer/scripts/"
+	local pathSuffix = scriptPath
+	local path = pathPrefix .. pathSuffix
+	local listings = FileIO.listFiles(path, FileIO.List.RECURSIVE + FileIO.List.FILES + FileIO.List.FULL_PATH + FileIO.List.SORTED)
+	local mappings = {}
+	for _, listing in ipairs(listings) do
+		local basename = string.sub(getBasename(listing), 1, -5)
+		mappings[basename] = require("AutoNecroDancer." .. scriptPath .. "." .. basename)
+	end
+	return mappings
+end
+
 return {
 	stringStartsWith=stringStartsWith,
 	getDirections=getDirections,
@@ -170,5 +192,6 @@ return {
 	canEverHurt=canEverHurt,
 	positionAfterTrap=positionAfterTrap,
 	unsinkable=unsinkable,
-	untrappable=untrappable
+	untrappable=untrappable,
+	allScriptsFromPackage=allScriptsFromPackage
 }

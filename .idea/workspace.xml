@@ -5,16 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f4ab3b59-2257-41b7-b99e-81dbb4d2557c" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/AutoNecroDancer/ScriptedBosses/CoralRiff.lua" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/AutoNecroDancer/ScriptedBosses/Fortissimole.lua" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dictionaries/dkienenb.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dictionaries/dkienenb.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/AutoNecroDancer/ItemChoices.lua" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/AutoNecroDancer/Pathfinding.lua" beforeDir="false" afterPath="$PROJECT_DIR$/AutoNecroDancer/Pathfinding.lua" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/AutoNecroDancer/Safety.lua" beforeDir="false" afterPath="$PROJECT_DIR$/AutoNecroDancer/Safety.lua" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AutoNecroDancer/ScriptedBosses/CoralRiff.lua" beforeDir="false" afterPath="$PROJECT_DIR$/AutoNecroDancer/ScriptedBosses/CoralRiff.lua" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/AutoNecroDancer/ScriptedBosses/DeathMetal.lua" beforeDir="false" afterPath="$PROJECT_DIR$/AutoNecroDancer/ScriptedBosses/DeathMetal.lua" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AutoNecroDancer/ScriptedBosses/GoldenLute.lua" beforeDir="false" afterPath="$PROJECT_DIR$/AutoNecroDancer/ScriptedBosses/GoldenLute.lua" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AutoNecroDancer/ScriptedBosses/Fortissimole.lua" beforeDir="false" afterPath="$PROJECT_DIR$/AutoNecroDancer/ScriptedBosses/Fortissimole.lua" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/AutoNecroDancer/Targeting.lua" beforeDir="false" afterPath="$PROJECT_DIR$/AutoNecroDancer/Targeting.lua" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SpelunkyGungeonMod/levelgen.lua" beforeDir="false" afterPath="$PROJECT_DIR$/SpelunkyGungeonMod/levelgen.lua" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AutoNecroDancer/Utils.lua" beforeDir="false" afterPath="$PROJECT_DIR$/AutoNecroDancer/Utils.lua" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,27 +44,33 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/dkienenb/Documents/College/alfred/prog 2/workspaces/lab3&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.sourceCode.Lua&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "TODO_SCOPE": "All Places",
+    "WebServerToolWindowFactoryState": "false",
+    "last_opened_file_path": "/home/dkienenb/.local/share/NecroDancer/mods/AutoNecroDancer",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "settings.editor.selected.configurable": "preferences.sourceCode.Lua",
+    "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File": [
+      "TEXT"
+    ]
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/AutoNecroDancer" />
       <recent name="$PROJECT_DIR$/SpelunkyGungeonMod/characters" />
       <recent name="$PROJECT_DIR$/SpelunkyGungeonMod/items" />
       <recent name="$PROJECT_DIR$/SpelunkyGungeonMod/images/characters" />
       <recent name="$PROJECT_DIR$/SpelunkyGungeonMod/images/items" />
-      <recent name="$PROJECT_DIR$/dkienenLib/scripts/itemProperties" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/SpelunkyGungeonMod/characters" />
@@ -129,7 +134,9 @@
       <workItem from="1698866135963" duration="8713000" />
       <workItem from="1698950644213" duration="46883000" />
       <workItem from="1699146767038" duration="74731000" />
-      <workItem from="1699387057377" duration="16698000" />
+      <workItem from="1699387057377" duration="53993000" />
+      <workItem from="1699580206292" duration="6298000" />
+      <workItem from="1700077993071" duration="24910000" />
     </task>
     <task id="LOCAL-00001" summary="Fix floor drops on monk containing gold&#10;Fix floor drops overriding each other">
       <created>1668460419967</created>
@@ -201,7 +208,14 @@
       <option name="project" value="LOCAL" />
       <updated>1699297035642</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="cr update">
+      <created>1699423449724</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1699423449724</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -219,6 +233,7 @@
     <MESSAGE value="refactor of level sequence part 1" />
     <MESSAGE value="push changes" />
     <MESSAGE value="auto nd init" />
-    <option name="LAST_COMMIT_MESSAGE" value="auto nd init" />
+    <MESSAGE value="cr update" />
+    <option name="LAST_COMMIT_MESSAGE" value="cr update" />
   </component>
 </project>

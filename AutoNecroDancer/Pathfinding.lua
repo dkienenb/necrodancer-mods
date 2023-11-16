@@ -48,7 +48,7 @@ local function hasDiagonal(player)
 end
 
 local function movesEveryBeat(monster)
-	if monster.beatDelay and monster.beatDelay.interval > 1 then
+	if monster.beatDelay and monster.beatDelay.interval > 1 and not monster.name == "Slime" then
 		return false
 	end
 	return true
@@ -145,12 +145,15 @@ local function findPath(player, target, startingDirectionOptions, blockedCache)
 			for _, offset in ipairs(node.directionOffsets) do
 				local dx, dy = offset.dx, offset.dy
 				local newX, newY = nodeX + dx, nodeY + dy
-				local trapX, trapY = Utils.positionAfterTrap(player, newX, newY, offset)
-				if trapX ~= newX or trapY ~= newY then
-					closedCache:insertNode(trapX, trapY, true)
-					newX, newY = trapX, trapY
-				end
 				local arrived = newX == targetX and newY == targetY
+				local trapX, trapY = Utils.positionAfterTrap(player, newX, newY, offset)
+				if trapX ~= newX or trapY ~= newY and not arrived then
+					closedCache:insertNode(newX, newY, true)
+					if not doSomethingCached(blockedCache, newX, newY, Safety.hasPathBlocker, player) then
+						newX, newY = trapX, trapY
+						arrived = arrived or (newX == targetX and newY == targetY)
+					end
+				end
 				if arrived or (not closedCache:getNode(newX, newY) and not doSomethingCached(blockedCache, newX, newY, Safety.hasPathBlocker, player)) then
 					local spaceCost = hasSnag(player, newX, newY) and 2 or 1
 					if Safety.hasLiquid(newX, newY) then
@@ -179,5 +182,6 @@ end
 return {
 	distanceBetween=distanceBetween,
 	findPath=findPath,
-	hasSnag=hasSnag
+	hasSnag=hasSnag,
+	hasDiagonal=hasDiagonal
 }
