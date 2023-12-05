@@ -4,6 +4,7 @@ local AI = require "necro.game.enemy.ai.AI"
 local Damage = require "necro.game.system.Damage"
 local Direction = Action.Direction
 local Entities = require "system.game.Entities"
+local LowPercent = require "necro.game.item.LowPercent"
 local Map = require "necro.game.object.Map"
 local SizeModifier = require "necro.game.character.SizeModifier"
 local Snapshot = require "necro.game.system.Snapshot"
@@ -19,7 +20,7 @@ local Utils = require("AutoNecroDancer.Utils")
 local isValidSpace
 
 local function canHurt(monster, player, entityToPlayerDirection)
-	-- TODO crates, blood shoppies
+	-- TODO crates, blood shoppies, elec zombies on wire with snag behind them
 	if not Utils.canEverHurt(monster, player) then return false end
 	if monster.captiveAudience and monster.captiveAudience.active then
 		return false
@@ -57,6 +58,7 @@ local function canHurt(monster, player, entityToPlayerDirection)
 end
 
 local function canHurtWithoutRetaliation(monster, player, entityToPlayerDirection)
+	-- TODO enemies in walls
 	-- TODO enemies in water, exploding mushroom, warlocks
 	if not canHurt(monster, player, entityToPlayerDirection) then return false end
 	-- TODO extend this to exit path
@@ -72,7 +74,7 @@ local function canHurtWithoutRetaliation(monster, player, entityToPlayerDirectio
 	if inventory then
 		local weaponEntityID = inventory.itemSlots.weapon and inventory.itemSlots.weapon[1]
 		local weapon = Entities.getEntityByID(weaponEntityID)
-		if weapon.itemFreezeOnAttack then return true end
+		if weapon and weapon.itemFreezeOnAttack then return true end
 	end
 	if monster.kingCongaTeleport or monster.deepBluesTeleport or monster.metrognomeTeleportOnHit then
 		return true
@@ -117,7 +119,7 @@ local function monsterHasLifeSave(monster)
 end
 
 local function hasCourage(player, targetX, targetY)
-	if AffectorItem.entityHasItem(player, "Sync_itemPossessOnKill") then
+	if AffectorItem.entityHasItem(player, "Sync_itemPossessOnKill") or AffectorItem.entityHasItem(player, "itemDashOnKill") then
 		for _, monster in Utils.iterateMonsters(targetX, targetY, player, false) do
 			local hp = monster.health.health
 			if hp <= Damage.getBaseDamage(player) and not monsterHasLifeSave(monster) and
@@ -149,7 +151,6 @@ local function aiAllowsMovement(monster)
 			return false
 		end
 	end
-	if monster.captiveAudience and monster.captiveAudience.active then return false end
 	local ai = monster.ai
 	if not ai then return false end
 	if not ai.directions then return false end
@@ -186,6 +187,7 @@ local function posesAdditionalThreat(monster, x, y, player)
 		distance = monster.parryCounterAttack.distance
 	end
 	if monster.amplifiedMovement then
+		-- TODO beholders not currently charging
 		direction = monster.facingDirection.direction
 		distance = monster.amplifiedMovement.distance
 	end
@@ -195,19 +197,22 @@ local function posesAdditionalThreat(monster, x, y, player)
 		for _ = 1, distance do
 			currentX = currentX + dx
 			currentY = currentY + dy
+			if Pathfinding.hasSnag(monster, currentX, currentY) then
+				break
+			end
 			if currentX == x and currentY == y then
 				return true
 			end
 		end
 	end
-	if allowedToMove and monster.castOnMoveResult then
-		local spell = monster.castOnMoveResult.spell
+	if allowedToMove and monster.castOnMoveResult or monster.name == "Fortissimole" then
+		local spell = monster.castOnMoveResult and monster.castOnMoveResult.spell
 		if spell == "SpellcastSpores" or spell == "SpellcastSpores2" then
 			if math.abs(monsterX - x) < 2 and math.abs(monsterY - y) < 2 then
 				return true
 			end
 		end
-		if spell == "SpellcastSplash" or spell == "SpellcastClap" then
+		if spell == "SpellcastSplash" or spell == "SpellcastClap" or monster.name == "Fortissimole" then
 			local dx = math.abs(monsterX - x)
 			local dy = math.abs(monsterY - y)
 			if dx < 3 and dy < 3 and not (dx == 2 and dy == 2) then
@@ -244,7 +249,7 @@ end
 
 local function hasAdditionalThreats(x, y, targetX, targetY, player)
 	-- TODO courage for additional threats
-	local threatComponents = {"castOnMoveResult", "actionDelay", "remappedMovement", "weaponCastOnAttack", "parryCounterAttack", "amplifiedMovement"}
+	local threatComponents = {"castOnMoveResult", "actionDelay", "remappedMovement", "weaponCastOnAttack", "parryCounterAttack", "amplifiedMovement", "fortissimoleJump"}
 	for _, component in ipairs(threatComponents) do
 		for entity in Entities.entitiesWithComponents { component } do
 			if not (entity.position.x == targetX and entity.position.y == targetY and (entity.parryCounterAttack or canHurtWithoutRetaliation(entity, player))) then
@@ -258,9 +263,6 @@ local function hasAdditionalThreats(x, y, targetX, targetY, player)
 end
 
 local function protectedFrom(entity, player, targetX, targetY)
-	if entity.name == "Tarmonster" then
-		return true
-	end
 	if entity.name == "LuteHead" then
 		if entity.luteHead.flee then
 			return true
@@ -277,7 +279,7 @@ local function protectedFrom(entity, player, targetX, targetY)
 	if entity.name == "SleepingGoblin" and entity.confusable.remainingTurns == 0 then
 		return true
 	end
-	if entity.name == "Trapchest3" or entity.name == "DeathmetalPhase2" or entity.name == "DeathmetalPhase3" or entity.name == "Leprechaun" then
+	if entity.name == "Tarmonster" or entity.name == "ZombieSnake" or entity.name == "Trapchest3" or entity.name == "DeathmetalPhase2" or entity.name == "DeathmetalPhase3" or entity.name == "Leprechaun" or entity.name == "Pixie" then
 		return true
 	end
 	if entity.name == "Ghost" then
@@ -339,6 +341,7 @@ local function checkForAttackers(checkedX, checkedY, playerX, playerY, player, t
 end
 
 local function isDefensiveFromBombs(x, y, player)
+	-- TODO blast helm, check bombs for if safe bombs (bomb charm/spell)
 	for dx = -1, 1 do
 		for dy = -1, 1 do
 			local threshold = 1
@@ -346,7 +349,7 @@ local function isDefensiveFromBombs(x, y, player)
 				threshold = 2
 			end
 			for _, entity in Map.entitiesWithComponent(x + dx, y + dy, "explosive") do
-				if not (entity.name == "MushroomExploding") then
+				if entity.name ~= "MushroomExploding" and entity.name ~= "Pixie" then
 					local delay = entity.beatDelay
 					if delay then
 						local delayCount = delay.counter
@@ -370,14 +373,20 @@ local function invulnerable(player)
 	if not player.playableCharacter then
 		--return true
 	end
+	if player.barrier and player.barrier.remainingTurns > 0 and player.barrier.maximumDamageTaken == 0 then
+		return true
+	end
+	return false
 end
 
 local function hasNearbyMonsters(radius, x, y, player)
 	for dx = -radius, radius do
 		for dy = -radius, radius do
 			for _, monster in Utils.iterateMonsters(x + dx, y + dy, player, true) do
-				if not Utils.stringStartsWith(monster.name, "Slime") then
-					return true
+				if not ((math.abs(dx) > 2 or math.abs(dy) > 2) and (Utils.stringStartsWith(monster.name, "Mushroom") or Utils.stringStartsWith(monster.name, "Armadillo"))) then
+					if not Utils.stringStartsWith(monster.name, "Slime") and monster.name ~= "MushroomLight" and not Utils.stringStartsWith(monster.name, "Cauldron") then
+						return true
+					end
 				end
 			end
 		end
@@ -394,15 +403,17 @@ local function isDefensivePosition(playerX, playerY, targetX, targetY, player, s
 	if courage then return true end
 	if not isDefensiveFromBombs(playerX, playerY) then return false end
 	local snag = Pathfinding.hasSnag(player, targetX, targetY)
-	if not snag and hasLiquid(targetX, targetY) and not Utils.unsinkable(player) and hasNearbyMonsters(1, targetX, targetY, player) then return false end
 	if snag and player.tileIdleDamageReceiver and Tile.getInfo(playerX, playerY).idleDamage then
 		return false
 	end
-	if not snag and player.slideOnSlipperyTile and Tile.getInfo(targetX, targetY).slippery then
+	-- todo water/ice near monsters considered path blocker instead of not defensive
+	-- todo courage into floor hazards
+	if not snag and hasLiquid(targetX, targetY) and not Utils.unsinkable(player) and hasNearbyMonsters(2, targetX, targetY, player) then return false end
+	if not snag and player.slideOnSlipperyTile and not AffectorItem.entityHasItem(player, "itemSlideImmunity") and Tile.getInfo(targetX, targetY).slippery then
 		local dx = targetX - startX
 		local dy = targetY - startY
 		if not Pathfinding.hasSnag(player, targetX + dx, targetY + dy) then
-			if hasNearbyMonsters(2, targetX, targetY, player) then
+			if hasNearbyMonsters(4, targetX, targetY, player) then
 				return false
 			end
 		end
@@ -445,6 +456,11 @@ local function hasPathBlocker(x, y, player)
 	-- TODO block spaces next to nonrolling armadillos (including diagonals)
 	local goldHater = player.goldHater
 	if goldHater and Map.hasComponent(x, y, "itemCurrency") then return true end
+	if LowPercent.isEnforced() then
+		if Map.hasComponent(x, y, "itemNegateLowPercent") then
+			return true
+		end
+	end
 	if checkForTraps(x, y, player) then return true end
 	if hasInsurmountableObstacle(x, y, player) then return true end
 	return false
@@ -457,7 +473,7 @@ isValidSpace = function (targetX, targetY, startX, startY, player)
 		playerX, playerY = startX, startY
 	end
 	if hasPathBlocker(playerX, playerY, player) then return false end
-	-- TODO don't walk into dead ends (spots with one or zero spfe spots near them)
+	-- TODO don't walk into dead ends (spots with one or zero safe spots near them)
 	local defensivePosition = isDefensivePosition(playerX, playerY, targetX, targetY, player, startX, startY)
 	return defensivePosition
 end

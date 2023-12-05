@@ -11,6 +11,7 @@ local Pathfinding = require("AutoNecroDancer.Pathfinding")
 
 local function getDirections(entity)
 	-- TODO dragons breathing fire
+	if entity.freezable and (entity.freezable.remainingTurns > 0 or entity.freezable.permanent) then return {} end
 	if entity.remappedMovement then return {} end
 	if entity.ai and entity.ai.id == AI.Type.PAWN then
 		return {[Direction.DOWN_LEFT]=true, [Direction.DOWN_RIGHT]=true}
@@ -47,6 +48,7 @@ local function isDangerous(monster, player)
 	if monster.shopkeeper then return false end
 	if monster.crateLike then return false end
 	if monster.explosive then return false end
+	if monster.captiveAudience and monster.captiveAudience.active then return false end
 	if monster.controllable and monster.controllable.playerID ~= 0 then return false end
 	return true
 end
@@ -128,10 +130,12 @@ local function positionInDirection(entity, direction)
 end
 
 local function unsinkable(entity)
+	-- TODO immunity to water items (slippers, explorers, etc)
 	return not entity.sinkable
 end
 
 local function untrappable(entity)
+	-- TODO trap damage immunity (itemIncomingDamageTypeImmunityEarly)
 	return not Attack.Flag.check(entity.attackable.currentFlags, Attack.Flag.TRAP)
 end
 

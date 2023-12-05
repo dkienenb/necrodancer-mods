@@ -27,10 +27,11 @@ local FortissimoleScript = require("AutoNecroDancer.ScriptedBosses.Fortissimole"
 targets = Snapshot.levelVariable({})
 shopped = Snapshot.levelVariable(false)
 
+-- TODO give excessively high prio to weapons when one is not held
 local PRIORITY = {
 	OVERRIDE=99,
 	MONSTER = 4,
-	LOOT = 3,
+	LOOT = 4,
 	EXIT = 2,
 	WALL = 1
 }
@@ -58,6 +59,7 @@ end
 
 local function hasGold(x, y, player)
 	if player.goldHater then return false end
+	if hasExit(x, y, player) then return false end
 	-- FIXME very bad bandaid fix for z5 gorgons (for lag)
 	if Map.firstWithComponent(x, y, "crateLike") then return false end
 	if Map.firstWithComponent(x, y, "itemCurrency") then return true end
@@ -69,24 +71,27 @@ local function hasGold(x, y, player)
 end
 
 local function isReadyToExit()
+	-- TODO level chest, secret shops, level crates, locked shops, shrines, potion rooms
 	return shopped or CurrentLevel.isBoss()
 end
 
 -- TODO get hash of current pos and only apply strats with a higher prio value
 local function scanSpaceForTargets(x, y, player)
+	-- TODO use map, walltorch, glasstorch, telepathy, monocle
 	if Vision.isVisible(x, y) then
 		local tileInfo = Tile.getInfo(x, y)
 		local digable, rising = Utils.canDig(player, x, y)
 		if digable and not rising and not tileInfo.isFloor then
 			table.insert(targets, {x=x,y=y,wall=true,priority=PRIORITY.WALL})
-		elseif not shopped and tileInfo.name == "ShopWall" and Segment.contains(Segment.MAIN, x, y) then
+		elseif not shopped and (tileInfo.name == "ShopWall" or tileInfo.name == "DarkShopWall") and Segment.contains(Segment.MAIN, x, y) then
 			local shopX, shopY = Marker.lookUpMedian(Marker.Type.SHOP)
 			if player.position.x == shopX and player.position.y == shopY + 1 then
 				shopped = true
 			else
+				-- TODO follow shop wall instead of targeting marker when not visible
 				table.insert(targets, {x=shopX, y=shopY+1, shop=true,priority=PRIORITY.LOOT})
 			end
-		elseif not shopped and tileInfo.name == "ShopWallCracked" then
+		elseif not shopped and (tileInfo.name == "ShopWallCracked" or tileInfo.name == "DarkShopWallCracked") then
 			shopped = true
 		elseif hasExit(x, y, player) then
 			table.insert(targets, {x=x,y=y,exit=true,priority=PRIORITY.EXIT})
@@ -97,8 +102,8 @@ local function scanSpaceForTargets(x, y, player)
 		for _, monster in Utils.iterateMonsters(x, y, player, false) do
 			-- TODO properly pathfind to these
 			-- TODO target spaces 2 from standing armadillos
-			if (Pathfinding.hasDiagonal(player) or monster.name ~= "Spider" and not Utils.stringStartsWith(monster.name, "Armadillo") and monster.name ~= "Slime3")
-					and monster.name ~= "Clone" and monster.name ~= "Mole" then
+			if (Pathfinding.hasDiagonal(player) or monster.name ~= "Spider" and not Utils.stringStartsWith(monster.name, "Armadillo") and monster.name ~= "Slime3" and monster.name ~= "Mole")
+					and monster.name ~= "Clone" then
 				if not monster.playableCharacter then
 					if not (monster.controllable and monster.controllable.playerID ~= 0) then
 						table.insert(targets, { entityID= monster.id, priority=PRIORITY.MONSTER})
@@ -169,17 +174,25 @@ local function targetingOverride(player)
 		TODO KC
 		kill extras then zombies
 	--]]
+	-- TODO ensure proper script per player items is followed
 	DeathMetalScript.deathMetalOverride(player, targets)
 	FortissimoleScript.fortissimoleOverride(player, targets)
 	LuteScript.luteOverride(player, targets)
 	CoralRiffScript.coralRiffOverride(player, targets)
 end
 
-local function scanForTargets(player)
+local function scanForTargets(player, cowardStrats)
 	cleanDeadTargets(player)
 	local playerX, playerY = player.position.x, player.position.y
-	for dx = -SCAN_WIDTH_RADIUS, SCAN_WIDTH_RADIUS do
-		for dy = -SCAN_HEIGHT_RADIUS, SCAN_HEIGHT_RADIUS do
+	local scanWidth = SCAN_WIDTH_RADIUS
+	local scanHeight = SCAN_HEIGHT_RADIUS
+	if cowardStrats and not CurrentLevel.isBoss() then
+		playerX, playerY = 0, 0
+		scanWidth = 2
+		scanHeight = 2
+	end
+	for dx = -scanWidth, scanWidth do
+		for dy = -scanHeight, scanHeight do
 			scanSpaceForTargets(playerX + dx, playerY + dy, player)
 		end
 	end
@@ -190,8 +203,10 @@ local function scanForTargets(player)
 			break
 		end
 		if not has then
-			table.insert(targets, {x=0, y=player.position.y - 1, override=true, priority=PRIORITY.WALL})
+			table.insert(targets, {x=0, y=playerY - 1, override=true, priority=PRIORITY.WALL})
 		end
+	elseif cowardStrats then
+		table.insert(targets, {x=0, y=0, override=true, priority=PRIORITY.WALL})
 	end
 	targetingOverride(player)
 end

@@ -116,6 +116,8 @@ local function findSnag(player, directions)
 	end
 end
 
+-- TODO pathfind to immobile snaggys near coals
+
 local function findPath(player, target, startingDirectionOptions, blockedCache)
 	if target.overrideAction then
 		return target.overrideAction

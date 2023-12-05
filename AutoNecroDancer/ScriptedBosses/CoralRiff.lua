@@ -94,7 +94,7 @@ local function moveNext(targets)
 end
 
 local function coralRiffOverride(player, targets)
-	if not Pathfinding.hasDiagonal(player) and player.playableCharacter and not player.name == "Sync_Chaunter" then
+	if not Pathfinding.hasDiagonal(player) and player.playableCharacter and player.name ~= "Sync_Chaunter" then
 		for coralRiff in Entities.entitiesWithComponents({ "boss" }) do
 			if not crCacheInit then
 				crTargetCache = {{x=0,y=-9}, {x=-4, y=-9}, {x=-3, y=-9}, {x=-4, y=-9}}
