@@ -16,6 +16,7 @@ local ACTION_ITEMS = {
 		Sync_ScrollBerzerk=true,
 		TomeFreeze=true,
 		TomeShield=true,
+		TomeEarth=true,
 	},
 	useAtOnce = {
 		FamiliarRat=true,
@@ -27,7 +28,7 @@ local ACTION_ITEMS = {
 		FoodMagic4=true,
 		FoodMagicCarrot=true,
 		FoodMagicCookies=true,
-		ScrollEarthquake=true,
+		--ScrollEarthquake=true,
 		ScrollEnchantWeapon=true,
 		ScrollFear=true,
 		ScrollGigantism=true,
@@ -169,7 +170,7 @@ local function getNumericalValue(item, slotName, player)
 			end
 		end
 	end
-	value = value * 10
+	value = value * 12
 	if item.itemStack then
 		value = value + item.itemStack.quantity
 	end

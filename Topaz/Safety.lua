@@ -51,6 +51,8 @@ local function canHurt(monster, player, entityToPlayerDirection)
 					local damage = Damage.getBaseDamage(player)
 					if requiredDamage > damage then return false end
 				end
+			else
+				return false
 			end
 		end
 	end
@@ -134,6 +136,7 @@ end
 local function checkForTraps(x, y, player)
 		for _, entity in Map.entitiesWithComponent(x, y, "trap") do
 			if not (Utils.untrappable(player)) then
+				-- TODO automatic spike trap
 				if entity.trapInflictDamage then return true end
 				if entity.trapScatterInventory then return true end
 				if player.grooveChainDropOnDescent and player.grooveChainInflictDamageOnDrop and entity.trapDescend and (not entity.trapDescend.type or entity.trapDescend.type ~= 4) then return true end
@@ -161,7 +164,7 @@ local function aiAllowsMovement(monster)
 end
 
 local function posesAdditionalThreat(monster, x, y, player)
-	--TODO dead ringer, ogreclubs, dm shield spawns
+	--TODO dead ringer, ogreclubs
 	local allowedToMove = aiAllowsMovement(monster)
 	local monsterX, monsterY = monster.position.x, monster.position.y
 	if monster.remappedMovement then
@@ -186,8 +189,7 @@ local function posesAdditionalThreat(monster, x, y, player)
 		direction = monster.parryCounterAttack.direction
 		distance = monster.parryCounterAttack.distance
 	end
-	if monster.amplifiedMovement then
-		-- TODO beholders not currently charging
+	if monster.amplifiedMovement and monster.actionDelay and monster.actionDelay.currentAction ~= 0 and monster.actionDelay.delay == 0 then
 		direction = monster.facingDirection.direction
 		distance = monster.amplifiedMovement.distance
 	end
@@ -406,18 +408,6 @@ local function isDefensivePosition(playerX, playerY, targetX, targetY, player, s
 	if snag and player.tileIdleDamageReceiver and Tile.getInfo(playerX, playerY).idleDamage then
 		return false
 	end
-	-- todo water/ice near monsters considered path blocker instead of not defensive
-	-- todo courage into floor hazards
-	if not snag and hasLiquid(targetX, targetY) and not Utils.unsinkable(player) and hasNearbyMonsters(2, targetX, targetY, player) then return false end
-	if not snag and player.slideOnSlipperyTile and not AffectorItem.entityHasItem(player, "itemSlideImmunity") and Tile.getInfo(targetX, targetY).slippery then
-		local dx = targetX - startX
-		local dy = targetY - startY
-		if not Pathfinding.hasSnag(player, targetX + dx, targetY + dy) then
-			if hasNearbyMonsters(4, targetX, targetY, player) then
-				return false
-			end
-		end
-	end
 	for dx = -1, 1 do
 		for dy = -1, 1 do
 			if checkForAttackers(playerX + dx, playerY + dy, playerX, playerY, player, targetX, targetY) then
@@ -452,8 +442,20 @@ local function hasInsurmountableObstacle(x, y, player)
 	return false
 end
 
+local function checkForArmadillos(x, y, player)
+	for entity in Entities.entitiesWithComponents({"chargeRedirectOnHit"}) do
+		if Utils.stringStartsWith(entity.name, "Armadillo") then
+			if not entity.charge.active then
+				local dx, dy = math.abs(entity.position.x - x), math.abs(entity.position.y - y)
+				if dx == 1 and dy == 0 or dx == 0 and dy == 1 then
+					return true
+				end
+			end
+		end
+	end
+end
+
 local function hasPathBlocker(x, y, player)
-	-- TODO block spaces next to nonrolling armadillos (including diagonals)
 	local goldHater = player.goldHater
 	if goldHater and Map.hasComponent(x, y, "itemCurrency") then return true end
 	if LowPercent.isEnforced() then
@@ -461,8 +463,21 @@ local function hasPathBlocker(x, y, player)
 			return true
 		end
 	end
+	if checkForArmadillos(x, y, player) then return true end
 	if checkForTraps(x, y, player) then return true end
 	if hasInsurmountableObstacle(x, y, player) then return true end
+	local snag = Pathfinding.hasSnag(player, x, y)
+	-- todo courage into floor hazards
+	if not snag and hasLiquid(x, y) and not Utils.unsinkable(player) and hasNearbyMonsters(2, x, y, player) then return true end
+	if not snag and player.slideOnSlipperyTile and not AffectorItem.entityHasItem(player, "itemSlideImmunity") and Tile.getInfo(x, y).slippery then
+		local dx = x - player.position.x
+		local dy = y - player.position.y
+		if not Pathfinding.hasSnag(player, x + dx, y + dy) then
+			if hasNearbyMonsters(2, x, y, player) then
+				return true
+			end
+		end
+	end
 	return false
 end
 
@@ -488,5 +503,6 @@ return {
 	hasPathBlocker=hasPathBlocker,
 	hasLiquid=hasLiquid,
 	hasCourage=hasCourage,
-	isValidSpace=isValidSpace
+	isValidSpace=isValidSpace,
+	checkForTraps=checkForTraps
 }

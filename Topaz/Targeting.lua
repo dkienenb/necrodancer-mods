@@ -5,6 +5,7 @@ local Character = require "necro.game.character.Character"
 local CommonEnemy = require "necro.game.data.enemy.CommonEnemy"
 local CurrentLevel = require "necro.game.level.CurrentLevel"
 local Entities = require "system.game.Entities"
+local LowPercent = require "necro.game.item.LowPercent"
 local Map = require "necro.game.object.Map"
 local Marker = require "necro.game.tile.Marker"
 local Segment = require "necro.game.tile.Segment"
@@ -26,12 +27,13 @@ local FortissimoleScript = require("AutoNecroDancer.ScriptedBosses.Fortissimole"
 -- TODO use a data structure to sort by priority
 targets = Snapshot.levelVariable({})
 shopped = Snapshot.levelVariable(false)
+gotChest = Snapshot.levelVariable(false)
 
 -- TODO give excessively high prio to weapons when one is not held
 local PRIORITY = {
-	OVERRIDE=99,
+	OVERRIDE = 99,
 	MONSTER = 4,
-	LOOT = 4,
+	LOOT = LowPercent.isEnforced() and -1 or 4,
 	EXIT = 2,
 	WALL = 1
 }
@@ -60,8 +62,8 @@ end
 local function hasGold(x, y, player)
 	if player.goldHater then return false end
 	if hasExit(x, y, player) then return false end
-	-- FIXME very bad bandaid fix for z5 gorgons (for lag)
-	if Map.firstWithComponent(x, y, "crateLike") then return false end
+	-- FIXME bandaid fix for lagging on unreachable gold
+	if Safety.hasPathBlocker(x, y, player) then return false end
 	if Map.firstWithComponent(x, y, "itemCurrency") then return true end
 	local tileInfo = Tile.getInfo(x, y)
 	if tileInfo.digEntity == "ResourceHoardGoldSmall" then
@@ -72,7 +74,7 @@ end
 
 local function isReadyToExit()
 	-- TODO level chest, secret shops, level crates, locked shops, shrines, potion rooms
-	return shopped or CurrentLevel.isBoss()
+	return shopped and gotChest or CurrentLevel.isBoss() or LowPercent.isEnforced()
 end
 
 -- TODO get hash of current pos and only apply strats with a higher prio value
@@ -106,6 +108,9 @@ local function scanSpaceForTargets(x, y, player)
 					and monster.name ~= "Clone" then
 				if not monster.playableCharacter then
 					if not (monster.controllable and monster.controllable.playerID ~= 0) then
+						if Utils.stringStartsWith(monster.name, "Trapchest") then
+							gotChest = true
+						end
 						table.insert(targets, { entityID= monster.id, priority=PRIORITY.MONSTER})
 					end
 				end
@@ -113,6 +118,7 @@ local function scanSpaceForTargets(x, y, player)
 		end
 		-- TODO chests in shops with too much cost
 		for _, chest in Map.entitiesWithComponent(x, y, "chestLike") do
+			gotChest = true
 			table.insert(targets, { entityID= chest.id, priority=PRIORITY.LOOT})
 		end
 		for _, item in ipairs(ItemChoices.getTargetItems(x, y, player)) do
