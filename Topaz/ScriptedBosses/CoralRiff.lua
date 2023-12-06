@@ -5,11 +5,11 @@ local Entities = require "system.game.Entities"
 local Map = require "necro.game.object.Map"
 local Utilities = require "system.utils.Utilities"
 
-local Utils = require("AutoNecroDancer.Utils")
-local Safety = require("AutoNecroDancer.Safety")
-local Pathfinding = require("AutoNecroDancer.Pathfinding")
-local Targeting = require("AutoNecroDancer.Targeting")
-local PRIORITY = require("AutoNecroDancer.Targeting").PRIORITY
+local Utils = require("Topaz.Utils")
+local Safety = require("Topaz.Safety")
+local Pathfinding = require("Topaz.Pathfinding")
+local Targeting = require("Topaz.Targeting")
+local PRIORITY = require("Topaz.Targeting").PRIORITY
 
 local Snapshot = require "necro.game.system.Snapshot"
 

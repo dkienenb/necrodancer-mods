@@ -14,15 +14,15 @@ local Tile = require "necro.game.tile.Tile"
 local Utilities = require "system.utils.Utilities"
 local Vision = require "necro.game.vision.Vision"
 
-local Utils = require("AutoNecroDancer.Utils")
-local Pathfinding = require("AutoNecroDancer.Pathfinding")
-local Safety = require("AutoNecroDancer.Safety")
-local ItemChoices = require("AutoNecroDancer.ItemChoices")
+local Utils = require("Topaz.Utils")
+local Pathfinding = require("Topaz.Pathfinding")
+local Safety = require("Topaz.Safety")
+local ItemChoices = require("Topaz.ItemChoices")
 
-local LuteScript = require("AutoNecroDancer.ScriptedBosses.GoldenLute")
-local CoralRiffScript = require("AutoNecroDancer.ScriptedBosses.CoralRiff")
-local DeathMetalScript = require("AutoNecroDancer.ScriptedBosses.DeathMetal")
-local FortissimoleScript = require("AutoNecroDancer.ScriptedBosses.Fortissimole")
+local LuteScript = require("Topaz.ScriptedBosses.GoldenLute")
+local CoralRiffScript = require("Topaz.ScriptedBosses.CoralRiff")
+local DeathMetalScript = require("Topaz.ScriptedBosses.DeathMetal")
+local FortissimoleScript = require("Topaz.ScriptedBosses.Fortissimole")
 
 -- TODO use a data structure to sort by priority
 targets = Snapshot.levelVariable({})
@@ -72,9 +72,17 @@ local function hasGold(x, y, player)
 	return false
 end
 
+local function hasShopped()
+	return shopped
+end
+
+local function seenChest()
+	return gotChest
+end
+
 local function isReadyToExit()
 	-- TODO level chest, secret shops, level crates, locked shops, shrines, potion rooms
-	return shopped and gotChest or CurrentLevel.isBoss() or LowPercent.isEnforced()
+	return hasShopped() and seenChest() or CurrentLevel.isBoss() or LowPercent.isEnforced()
 end
 
 -- TODO get hash of current pos and only apply strats with a higher prio value
@@ -85,7 +93,7 @@ local function scanSpaceForTargets(x, y, player)
 		local digable, rising = Utils.canDig(player, x, y)
 		if digable and not rising and not tileInfo.isFloor then
 			table.insert(targets, {x=x,y=y,wall=true,priority=PRIORITY.WALL})
-		elseif not shopped and (tileInfo.name == "ShopWall" or tileInfo.name == "DarkShopWall") and Segment.contains(Segment.MAIN, x, y) then
+		elseif not hasShopped() and (tileInfo.name == "ShopWall" or tileInfo.name == "DarkShopWall") and Segment.contains(Segment.MAIN, x, y) then
 			local shopX, shopY = Marker.lookUpMedian(Marker.Type.SHOP)
 			if player.position.x == shopX and player.position.y == shopY + 1 then
 				shopped = true
@@ -93,7 +101,7 @@ local function scanSpaceForTargets(x, y, player)
 				-- TODO follow shop wall instead of targeting marker when not visible
 				table.insert(targets, {x=shopX, y=shopY+1, shop=true,priority=PRIORITY.LOOT})
 			end
-		elseif not shopped and (tileInfo.name == "ShopWallCracked" or tileInfo.name == "DarkShopWallCracked") then
+		elseif not hasShopped() and (tileInfo.name == "ShopWallCracked" or tileInfo.name == "DarkShopWallCracked") then
 			shopped = true
 		elseif hasExit(x, y, player) then
 			table.insert(targets, {x=x,y=y,exit=true,priority=PRIORITY.EXIT})
@@ -118,6 +126,7 @@ local function scanSpaceForTargets(x, y, player)
 		end
 		-- TODO chests in shops with too much cost
 		for _, chest in Map.entitiesWithComponent(x, y, "chestLike") do
+			-- TODO not shop chests
 			gotChest = true
 			table.insert(targets, { entityID= chest.id, priority=PRIORITY.LOOT})
 		end
@@ -162,7 +171,7 @@ local function checkIfTargetDead(target, player)
 		if tileInfo.digType == "MetalDoorOpen" then return true end
 	end
 	if target.shop then
-		if shopped then	return true	end
+		if hasShopped() then return true end
 	end
 	return false
 end
@@ -244,5 +253,7 @@ return {
 	getTargetCoords = getTargetCoords,
 	hasExit=hasExit,
 	getTarget=getTarget,
-	PRIORITY=PRIORITY
+	PRIORITY=PRIORITY,
+	hasShopped=hasShopped,
+	seenChest=seenChest
 }

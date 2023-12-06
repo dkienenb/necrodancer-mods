@@ -7,7 +7,7 @@ local ObjectEvents = require "necro.game.object.ObjectEvents"
 local Tile = require "necro.game.tile.Tile"
 local Utilities = require "system.utils.Utilities"
 
-local Pathfinding = require("AutoNecroDancer.Pathfinding")
+local Pathfinding = require("Topaz.Pathfinding")
 
 local function getDirections(entity)
 	-- TODO dragons breathing fire
@@ -175,14 +175,14 @@ function convertDotPathToSlashPath(dotPath)
 end
 
 local function allScriptsFromPackage(scriptPath)
-	local pathPrefix = "mods/AutoNecroDancer/scripts/"
+	local pathPrefix = "mods/Topaz/scripts/"
 	local pathSuffix = scriptPath
 	local path = pathPrefix .. pathSuffix
 	local listings = FileIO.listFiles(path, FileIO.List.RECURSIVE + FileIO.List.FILES + FileIO.List.FULL_PATH + FileIO.List.SORTED)
 	local mappings = {}
 	for _, listing in ipairs(listings) do
 		local basename = string.sub(getBasename(listing), 1, -5)
-		mappings[basename] = require("AutoNecroDancer." .. scriptPath .. "." .. basename)
+		mappings[basename] = require("Topaz." .. scriptPath .. "." .. basename)
 	end
 	return mappings
 end

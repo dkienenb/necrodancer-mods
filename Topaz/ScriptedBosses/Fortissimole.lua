@@ -3,8 +3,8 @@ local Direction = Action.Direction
 local Entities = require "system.game.Entities"
 local Map = require "necro.game.object.Map"
 
-local Utils = require("AutoNecroDancer.Utils")
-local PRIORITY = require("AutoNecroDancer.Targeting").PRIORITY
+local Utils = require("Topaz.Utils")
+local PRIORITY = require("Topaz.Targeting").PRIORITY
 
 local Snapshot = require "necro.game.system.Snapshot"
 

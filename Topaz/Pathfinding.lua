@@ -8,10 +8,10 @@ local Snapshot = require "necro.game.system.Snapshot"
 local Tile = require "necro.game.tile.Tile"
 local Utilities = require "system.utils.Utilities"
 
-local Data = require("AutoNecroDancer.Data")
-local Safety = require("AutoNecroDancer.Safety")
-local Targeting = require("AutoNecroDancer.Targeting")
-local Utils = require("AutoNecroDancer.Utils")
+local Data = require("Topaz.Data")
+local Safety = require("Topaz.Safety")
+local Targeting = require("Topaz.Targeting")
+local Utils = require("Topaz.Utils")
 
 lutePhase = Snapshot.levelVariable(0)
 freeze = Snapshot.levelVariable(false)

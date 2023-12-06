@@ -1,8 +1,8 @@
 local Action = require "necro.game.system.Action"
 local Entities = require "system.game.Entities"
 
-local Utils = require("AutoNecroDancer.Utils")
-local PRIORITY = require("AutoNecroDancer.Targeting").PRIORITY
+local Utils = require("Topaz.Utils")
+local PRIORITY = require("Topaz.Targeting").PRIORITY
 
 --[[
 	dm in center of board facing down with 7hp, player one above

@@ -5,9 +5,9 @@ local Map = require "necro.game.object.Map"
 local Snapshot = require "necro.game.system.Snapshot"
 local Utilities = require "system.utils.Utilities"
 
-local Utils = require("AutoNecroDancer.Utils")
-local Safety = require("AutoNecroDancer.Safety")
-local PRIORITY = require("AutoNecroDancer.Targeting").PRIORITY
+local Utils = require("Topaz.Utils")
+local Safety = require("Topaz.Safety")
+local PRIORITY = require("Topaz.Targeting").PRIORITY
 
 lutePhase = Snapshot.levelVariable(0)
 

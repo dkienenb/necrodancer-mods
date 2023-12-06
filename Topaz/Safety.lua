@@ -11,11 +11,11 @@ local Snapshot = require "necro.game.system.Snapshot"
 local Tile = require "necro.game.tile.Tile"
 local Utilities = require "system.utils.Utilities"
 
-local AutoNecroDancer = require("AutoNecroDancer.AutoNecroDancer")
-local Pathfinding = require("AutoNecroDancer.Pathfinding")
-local ItemChoices = require("AutoNecroDancer.ItemChoices")
-local Targeting = require("AutoNecroDancer.Targeting")
-local Utils = require("AutoNecroDancer.Utils")
+local Topaz = require("Topaz.Topaz")
+local Pathfinding = require("Topaz.Pathfinding")
+local ItemChoices = require("Topaz.ItemChoices")
+local Targeting = require("Topaz.Targeting")
+local Utils = require("Topaz.Utils")
 
 local isValidSpace
 
@@ -432,7 +432,7 @@ local function hasInsurmountableObstacle(x, y, player)
 	end
 	local ableToDig = Utils.canDig(player, x, y);
 	if not ableToDig then return true end
-	local target = AutoNecroDancer.getTarget()
+	local target = Topaz.getTarget()
 	if target and Targeting.hasExit(x, y, player) and (not target.exit) then return true end
 	for _, monster in Utils.iterateMonsters(x, y, player, true) do
 		if not canHurt(monster, player) then
