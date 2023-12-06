@@ -56,11 +56,12 @@ local function canHurt(monster, player, entityToPlayerDirection)
 			end
 		end
 	end
+	local tileInfo = Tile.getInfo(monster.position.x, monster.position.y)
+	if not tileInfo.isFloor then return false end
 	return true
 end
 
 local function canHurtWithoutRetaliation(monster, player, entityToPlayerDirection)
-	-- TODO enemies in walls
 	-- TODO enemies in water, exploding mushroom, warlocks
 	if not canHurt(monster, player, entityToPlayerDirection) then return false end
 	-- TODO extend this to exit path

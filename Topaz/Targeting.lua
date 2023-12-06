@@ -36,6 +36,7 @@ local PRIORITY = {
 	LOOT = LowPercent.isEnforced() and -1 or 4,
 	EXIT = 2,
 	WALL = 1
+	-- TODO target unknowns next to open floors before walls
 }
 
 local SCAN_HEIGHT_RADIUS = 50
