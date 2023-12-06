@@ -1,6 +1,7 @@
 local Action = require "necro.game.system.Action"
 local AffectorItem = require "necro.game.item.AffectorItem"
 local AI = require "necro.game.enemy.ai.AI"
+local CurrentLevel = require "necro.game.level.CurrentLevel"
 local Damage = require "necro.game.system.Damage"
 local Direction = Action.Direction
 local Entities = require "system.game.Entities"
@@ -52,12 +53,14 @@ local function canHurt(monster, player, entityToPlayerDirection)
 					if requiredDamage > damage then return false end
 				end
 			else
-				return false
+				if not Utils.stringStartsWith(monster.name, "Coralriff") then
+					return false
+				end
 			end
 		end
 	end
 	local tileInfo = Tile.getInfo(monster.position.x, monster.position.y)
-	if not tileInfo.isFloor then return false end
+	if not tileInfo.isFloor and not monster.name == "Spider" then return false end
 	return true
 end
 

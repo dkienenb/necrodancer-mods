@@ -32,6 +32,7 @@ local ACTION_ITEMS = {
 		ScrollEnchantWeapon=true,
 		ScrollFear=true,
 		ScrollGigantism=true,
+		-- TODO avoid need glass
 		ScrollNeed=true,
 		ScrollRiches=true,
 	},
@@ -41,7 +42,6 @@ local ACTION_ITEMS = {
 		ScrollFireball=true,
 		ScrollPulse=true,
 		ThrowingStars=true,
-		TomeEarth=true,
 		TomeFireball=true,
 		TomePulse=true,
 	},
@@ -81,8 +81,17 @@ local VALUES = {
 		ShovelStrength=2,
 	},
 	torch = {
-		Torch1=-2,
-		Torch2=-1,
+		Torch1=-3,
+		-- TODO -3 with map
+		TorchForesight=-2.5,
+		TorchGlass=-2.3,
+		Torch2=-2,
+		Torch3=-1,
+		TorchObsidian=0,
+		TorchInfernal=1,
+		-- TODO -3 with map
+		TorchWalls=2,
+		TorchStrength=3,
 	},
 	body = {
 		ArmorLeather=-4,

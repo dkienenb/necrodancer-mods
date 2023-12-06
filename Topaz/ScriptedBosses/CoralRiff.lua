@@ -94,8 +94,9 @@ local function moveNext(targets)
 end
 
 local function coralRiffOverride(player, targets)
-	if not Pathfinding.hasDiagonal(player) and player.playableCharacter and player.name ~= "Sync_Chaunter" then
-		for coralRiff in Entities.entitiesWithComponents({ "boss" }) do
+	for coralRiff in Entities.entitiesWithComponents({ "boss" }) do
+		table.insert(targets, {x=0, y=-9, override=true, priority=PRIORITY.WALL})
+		if not Pathfinding.hasDiagonal(player) and player.playableCharacter and player.name ~= "Sync_Chaunter" then
 			if not crCacheInit then
 				crTargetCache = {{x=0,y=-9}, {x=-4, y=-9}, {x=-3, y=-9}, {x=-4, y=-9}}
 				crCacheInit = true

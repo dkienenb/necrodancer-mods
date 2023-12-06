@@ -100,7 +100,7 @@ local function scanSpaceForTargets(x, y, player)
 				shopped = true
 			else
 				-- TODO follow shop wall instead of targeting marker when not visible
-				table.insert(targets, {x=shopX, y=shopY+1, shop=true,priority=PRIORITY.LOOT})
+				table.insert(targets, {x=shopX, y=shopY+1, shop=true, priority=PRIORITY.LOOT})
 			end
 		elseif not hasShopped() and (tileInfo.name == "ShopWallCracked" or tileInfo.name == "DarkShopWallCracked") then
 			shopped = true
