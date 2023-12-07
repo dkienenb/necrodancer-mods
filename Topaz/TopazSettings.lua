@@ -3,17 +3,17 @@ local Settings = require "necro.config.Settings"
 
 local TopazSettings = {}
 
---digToExplore = Settings.user.bool {
---	name = "Only dig to explore",
---	id = "DigToExplore",
---	default = false,
---	desc = "Only explore via digging",
---	tag = "topazPriority",
---}
---
---function TopazSettings.digToExplore()
---	return digToExplore
---end
+useOldExploreMethod = Settings.user.bool {
+	name = "Use Old Exploration Method",
+	id = "UseOldExploreMethod",
+	default = false,
+	desc = "Only explore via digging",
+	tag = "topazPriority",
+}
+
+function TopazSettings.useOldExploreMethod()
+	return useOldExploreMethod
+end
 
 -- TODO provide option to enable past a certain level, or after obtaining any of a list of items
 exitASAP = Settings.user.bool {

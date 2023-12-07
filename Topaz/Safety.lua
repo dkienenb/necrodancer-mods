@@ -462,6 +462,7 @@ local function checkForArmadillos(x, y, player)
 end
 
 local function hasPathBlocker(x, y, player)
+	-- TODO return false if we have no idea what's on it
 	local goldHater = player.goldHater
 	if goldHater and Map.hasComponent(x, y, "itemCurrency") then return true end
 	if LowPercent.isEnforced() then

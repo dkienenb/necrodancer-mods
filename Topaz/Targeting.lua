@@ -30,15 +30,18 @@ targets = Snapshot.levelVariable({})
 shopped = Snapshot.levelVariable(false)
 gotChest = Snapshot.levelVariable(false)
 
+local PRIORITY_LOOT_MONSTER_DEFAULT = 5
+
 -- TODO give excessively high prio to weapons when one is not held
 local function makePrioTable()
 	return {
 		OVERRIDE = 99,
-		MONSTER = TopazSettings.lootMonsterRelations() == TopazSettings.LOOT_MONSTER_RELATIONS_TYPE.LOOT_LOW and 4 or 3,
-		LOOT = LowPercent.isEnforced() and -1 or TopazSettings.lootMonsterRelations() == TopazSettings.LOOT_MONSTER_RELATIONS_TYPE.LOOT_HIGH and 4 or 3,
-		EXIT = TopazSettings.exitASAP() and 10 or 2,
+		MONSTER = TopazSettings.lootMonsterRelations() == TopazSettings.LOOT_MONSTER_RELATIONS_TYPE.LOOT_LOW and PRIORITY_LOOT_MONSTER_DEFAULT + 1 or PRIORITY_LOOT_MONSTER_DEFAULT,
+		LOOT = LowPercent.isEnforced() and -1 or TopazSettings.lootMonsterRelations() == TopazSettings.LOOT_MONSTER_RELATIONS_TYPE.LOOT_HIGH and PRIORITY_LOOT_MONSTER_DEFAULT + 1 or PRIORITY_LOOT_MONSTER_DEFAULT,
+		EXIT = TopazSettings.exitASAP() and 10 or 4,
+		EXPLORE_NEAR_FLOOR = 3,
+		EXPLORE_NEAR_WALL = 2,
 		WALL = 1
-		-- TODO target unknowns next to open floors before walls
 	}
 end
 
@@ -133,14 +136,15 @@ local function scanSpaceForTargets(x, y, player)
 						if chests[monster.name] then
 							gotChest = true
 						end
-						table.insert(targets, { entityID= monster.id, priority=PRIORITY.MONSTER})
+						table.insert(targets, { entityID=monster.id, priority=PRIORITY.MONSTER})
 					end
 				end
 			end
 		end
 		for _, chest in Map.entitiesWithComponent(x, y, "chestLike") do
-			-- TODO not shop chests
-			gotChest = true
+			if not chest.sale or chest.sale.priceTag == 0 then
+				gotChest = true
+			end
 			if ItemChoices.canPurchase(chest, player) then
 				table.insert(targets, { entityID= chest.id, priority=PRIORITY.LOOT})
 			end
