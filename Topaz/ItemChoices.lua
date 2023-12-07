@@ -112,16 +112,16 @@ local VALUES = {
 		RingCharisma=2.2,
 		RingLuck=2.3,
 		RingShielding=2.4,
-		-- Becoming before transmog 2.5
+		-- TODO Becoming before transmog 2.5
 		RingMana=2.6,
 
 		RingProtection=3.1,
 		RingMight=3.2,
 
 		RingWar=4.1,
-		-- Shadows with map 4.2
-		-- Mana with one spell 4.3
-		-- Become with quartz before transmog 4.4
+		-- TODO Shadows with map 4.2
+		-- TODO Mana with one spell 4.3
+		-- TODO Become with quartz before transmog 4.4
 
 		RingPeace=5.1,
 		RingRegeneration=5.2,

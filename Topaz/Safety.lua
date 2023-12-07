@@ -53,7 +53,8 @@ local function canHurt(monster, player, entityToPlayerDirection)
 					if requiredDamage > damage then return false end
 				end
 			else
-				if not Utils.stringStartsWith(monster.name, "Coralriff") then
+				local name = monster.name
+				if not Utils.stringStartsWith(name, "Coralriff") and name ~= "LuteDragon" then
 					return false
 				end
 			end
