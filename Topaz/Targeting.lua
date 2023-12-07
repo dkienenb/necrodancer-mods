@@ -130,11 +130,12 @@ local function scanSpaceForTargets(x, y, player)
 				end
 			end
 		end
-		-- TODO chests in shops with too much cost
 		for _, chest in Map.entitiesWithComponent(x, y, "chestLike") do
 			-- TODO not shop chests
 			gotChest = true
-			table.insert(targets, { entityID= chest.id, priority=PRIORITY.LOOT})
+			if ItemChoices.canPurchase(chest, player) then
+				table.insert(targets, { entityID= chest.id, priority=PRIORITY.LOOT})
+			end
 		end
 		for _, item in ipairs(ItemChoices.getTargetItems(x, y, player)) do
 			table.insert(targets, { entityID=item.id, item=true, priority=PRIORITY.LOOT})
