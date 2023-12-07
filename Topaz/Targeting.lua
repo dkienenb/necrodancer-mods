@@ -17,6 +17,7 @@ local Vision = require "necro.game.vision.Vision"
 local Utils = require("Topaz.Utils")
 local Pathfinding = require("Topaz.Pathfinding")
 local Safety = require("Topaz.Safety")
+local TopazSettings = require("Topaz.TopazSettings")
 local ItemChoices = require("Topaz.ItemChoices")
 
 local LuteScript = require("Topaz.ScriptedBosses.GoldenLute")
@@ -30,14 +31,21 @@ shopped = Snapshot.levelVariable(false)
 gotChest = Snapshot.levelVariable(false)
 
 -- TODO give excessively high prio to weapons when one is not held
-local PRIORITY = {
-	OVERRIDE = 99,
-	MONSTER = 4,
-	LOOT = LowPercent.isEnforced() and -1 or 4,
-	EXIT = 2,
-	WALL = 1
-	-- TODO target unknowns next to open floors before walls
-}
+local function makePrioTable()
+	return {
+		OVERRIDE = 99,
+		MONSTER = TopazSettings.lootMonsterRelations() == TopazSettings.LOOT_MONSTER_RELATIONS_TYPE.LOOT_LOW and 4 or 3,
+		LOOT = LowPercent.isEnforced() and -1 or TopazSettings.lootMonsterRelations() == TopazSettings.LOOT_MONSTER_RELATIONS_TYPE.LOOT_HIGH and 4 or 3,
+		EXIT = TopazSettings.exitASAP() and 10 or 2,
+		WALL = 1
+		-- TODO target unknowns next to open floors before walls
+	}
+end
+
+local PRIORITY = makePrioTable()
+event.taggedSettingChanged.add("updatePriorityTable", {filter="topazPriority"}, function(ev)
+	PRIORITY = makePrioTable()
+end)
 
 local SCAN_HEIGHT_RADIUS = 50
 local SCAN_WIDTH_RADIUS = 50
@@ -83,7 +91,7 @@ end
 
 local function isReadyToExit()
 	-- TODO level chest, secret shops, level crates, locked shops, shrines, potion rooms
-	return hasShopped() and seenChest() or CurrentLevel.isBoss() or LowPercent.isEnforced()
+	return hasShopped() and seenChest() or CurrentLevel.isBoss() or LowPercent.isEnforced() or TopazSettings.exitASAP()
 end
 
 -- TODO get hash of current pos and only apply strats with a higher prio value

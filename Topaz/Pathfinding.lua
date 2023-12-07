@@ -87,6 +87,7 @@ local function distanceBetween(player, target)
 	return getHeuristicFunction(hasDiagonal(player))(dxe, dye)
 end
 
+-- TODO cache every turn instead of every time we want to find a path
 local function doSomethingCached(cache, x, y, thing, ...)
 	local prior = cache:getNode(x, y);
 	if prior then
@@ -128,6 +129,7 @@ local function findPath(player, target, startingDirectionOptions, blockedCache)
 	local directionOffsets = convertDirectionsToOffsets(directionOptions)
 	local closedCache = Data.NodeCache:new()
 	local targetX, targetY = Targeting.getTargetCoords(target)
+	-- TODO use the cached version here
 	local possible = hasSnag(player, targetX, targetY) or not Safety.hasPathBlocker(targetX, targetY, player)
 	if not possible then return end
 	local choices = Data.MinHeap:new()

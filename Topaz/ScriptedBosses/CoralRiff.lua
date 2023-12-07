@@ -3,15 +3,13 @@ local CurrentLevel = require "necro.game.level.CurrentLevel"
 local Direction = Action.Direction
 local Entities = require "system.game.Entities"
 local Map = require "necro.game.object.Map"
+local Snapshot = require "necro.game.system.Snapshot"
 local Utilities = require "system.utils.Utilities"
 
 local Utils = require("Topaz.Utils")
 local Safety = require("Topaz.Safety")
 local Pathfinding = require("Topaz.Pathfinding")
-local Targeting = require("Topaz.Targeting")
 local PRIORITY = require("Topaz.Targeting").PRIORITY
-
-local Snapshot = require "necro.game.system.Snapshot"
 
 crMoveCache = Snapshot.levelVariable({})
 crTargetPos = Snapshot.levelVariable({})

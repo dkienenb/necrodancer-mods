@@ -128,6 +128,7 @@ local VALUES = {
 		RingFrost=5.3,
 		-- Mana with two spells 5.4
 		RingWonder=5.5
+		-- Mana with heal 5.6
 	},
 	shield = {
 		Sync_ShieldWooden=-3,
@@ -140,7 +141,7 @@ local VALUES = {
 		FeetBootsExplorers=1,
 		FeetBootsWinged=2,
 		FeetBootsLead=3,
-	}
+	},
 }
 
 local function canPurchase(item, player)
