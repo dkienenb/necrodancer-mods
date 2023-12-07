@@ -113,11 +113,16 @@ local function scanSpaceForTargets(x, y, player)
 		for _, monster in Utils.iterateMonsters(x, y, player, false) do
 			-- TODO properly pathfind to these
 			-- TODO target spaces 2 from standing armadillos
-			if (Pathfinding.hasDiagonal(player) or monster.name ~= "Spider" and not Utils.stringStartsWith(monster.name, "Armadillo") and monster.name ~= "Slime3" and monster.name ~= "Mole")
+			if (Pathfinding.hasDiagonal(player) or monster.name ~= "Spider" and monster.name ~= "Slime3" and monster.name ~= "Mole")
 					and monster.name ~= "Clone" then
 				if not monster.playableCharacter then
 					if not (monster.controllable and monster.controllable.playerID ~= 0) then
-						if Utils.stringStartsWith(monster.name, "Trapchest") then
+						local chests = {
+							Trapchest=true,
+							Trapchest2=true,
+							Trapchest3=true,
+						}
+						if chests[monster.name] then
 							gotChest = true
 						end
 						table.insert(targets, { entityID= monster.id, priority=PRIORITY.MONSTER})

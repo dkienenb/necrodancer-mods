@@ -1,4 +1,5 @@
 local Action = require "necro.game.system.Action"
+local AffectorItem = require "necro.game.item.AffectorItem"
 local AI = require "necro.game.enemy.ai.AI"
 local Attack = require "necro.game.character.Attack"
 local Direction = Action.Direction
@@ -45,6 +46,7 @@ local function getDirections(entity)
 end
 
 local function isDangerous(monster, player)
+	-- TODO evil shoppies
 	if monster.shopkeeper then return false end
 	if monster.crateLike then return false end
 	if monster.explosive then return false end
@@ -130,19 +132,28 @@ local function positionInDirection(entity, direction)
 end
 
 local function unsinkable(entity)
-	-- TODO immunity to water items (slippers, explorers, etc)
-	return not entity.sinkable
+	return not entity.sinkable or AffectorItem.entityHasItem(entity, "itemTileUnsinkImmunity")
 end
 
-local function untrappable(entity)
-	-- TODO trap damage immunity (itemIncomingDamageTypeImmunityEarly)
-	return not Attack.Flag.check(entity.attackable.currentFlags, Attack.Flag.TRAP)
+local function firewalker(entity)
+	return not entity.tileIdleDamageReceiver or AffectorItem.entityHasItem(entity, "itemTileIdleDamageImmunity")
+end
+
+local function unableToBeHurtByTraps(entity)
+	local item = AffectorItem.getItem(entity, "itemIncomingDamageTypeImmunityEarly")
+	local immune = item and item.itemIncomingDamageTypeImmunityEarly.immuneDamageTypes == 256
+	local invul = not Attack.Flag.check(entity.attackable.currentFlags, Attack.Flag.TRAP)
+	return invul or immune
+end
+
+local function ableToBeMovedByTraps(entity)
+	return not AffectorItem.entityHasItem(entity, "itemHeavy") and not AffectorItem.entityHasItem(entity, "itemKnockbackImmunity") and not unableToBeHurtByTraps(entity)
 end
 
 local function positionAfterTrap(entity, x, y, directionOffsets)
 	-- TODO wind gargoyles
 	if Pathfinding.hasSnag(entity, x, y) then return x, y end
-	if not untrappable(entity) then
+	if ableToBeMovedByTraps(entity) then
 		for _, trap in Map.entitiesWithComponent(x, y, "trap") do
 			-- TODO secret shops (entity.trapTravel)
 			if trap.trapMove then
@@ -196,6 +207,7 @@ return {
 	canEverHurt=canEverHurt,
 	positionAfterTrap=positionAfterTrap,
 	unsinkable=unsinkable,
-	untrappable=untrappable,
-	allScriptsFromPackage=allScriptsFromPackage
+	untrappable= unableToBeHurtByTraps,
+	allScriptsFromPackage=allScriptsFromPackage,
+	firewalker=firewalker
 }

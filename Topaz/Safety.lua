@@ -60,7 +60,7 @@ local function canHurt(monster, player, entityToPlayerDirection)
 		end
 	end
 	local tileInfo = Tile.getInfo(monster.position.x, monster.position.y)
-	if not tileInfo.isFloor and not monster.name == "Spider" then return false end
+	if not tileInfo.isFloor and monster.name ~= "Spider" then return false end
 	return true
 end
 
@@ -255,7 +255,7 @@ end
 
 local function hasAdditionalThreats(x, y, targetX, targetY, player)
 	-- TODO courage for additional threats
-	local threatComponents = {"castOnMoveResult", "actionDelay", "remappedMovement", "weaponCastOnAttack", "parryCounterAttack", "amplifiedMovement", "fortissimoleJump"}
+	local threatComponents = {"castOnMoveResult", "actionDelay", "remappedMovement", "weaponCastOnAttack", "parryCounterAttack", "amplifiedMovement", "fortissimoleJump", "provokeOnProximity"}
 	for _, component in ipairs(threatComponents) do
 		for entity in Entities.entitiesWithComponents { component } do
 			if not (entity.position.x == targetX and entity.position.y == targetY and (entity.parryCounterAttack or canHurtWithoutRetaliation(entity, player))) then
@@ -406,10 +406,11 @@ local function isDefensivePosition(playerX, playerY, targetX, targetY, player, s
 		return true
 	end
 	local courage = hasCourage(player, targetX, targetY)
+	-- TODO have to actually be able to kill a monster on the attacked tile
 	if courage then return true end
 	if not isDefensiveFromBombs(playerX, playerY) then return false end
 	local snag = Pathfinding.hasSnag(player, targetX, targetY)
-	if snag and player.tileIdleDamageReceiver and Tile.getInfo(playerX, playerY).idleDamage then
+	if snag and Tile.getInfo(playerX, playerY).idleDamage and not Utils.firewalker(player) then
 		return false
 	end
 	for dx = -1, 1 do
@@ -449,7 +450,7 @@ end
 local function checkForArmadillos(x, y, player)
 	for entity in Entities.entitiesWithComponents({"chargeRedirectOnHit"}) do
 		if Utils.stringStartsWith(entity.name, "Armadillo") then
-			if not entity.charge.active then
+			if not entity.charge.active and entity.stun.counter == 0 then
 				local dx, dy = math.abs(entity.position.x - x), math.abs(entity.position.y - y)
 				if dx == 1 and dy == 0 or dx == 0 and dy == 1 then
 					return true

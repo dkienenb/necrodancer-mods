@@ -130,7 +130,6 @@ local function findPath(player, target, startingDirectionOptions, blockedCache)
 	local targetX, targetY = Targeting.getTargetCoords(target)
 	local possible = hasSnag(player, targetX, targetY) or not Safety.hasPathBlocker(targetX, targetY, player)
 	if not possible then return end
-	Ping.perform(targetX, targetY, target.id)
 	local choices = Data.MinHeap:new()
 	local playerX, playerY = player.position.x, player.position.y
 	local cost = heuristicFunction(playerX - targetX, playerY - targetY)
@@ -177,6 +176,7 @@ local function findPath(player, target, startingDirectionOptions, blockedCache)
 			if snag then return snag end
 		end
 		local offset = found.path[1]
+		Ping.perform(targetX, targetY, target.id)
 		return Action.getDirection(offset.dx, offset.dy)
 	end
 end

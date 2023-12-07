@@ -102,12 +102,32 @@ local VALUES = {
 		ArmorHeavyplate=99,
 	},
 	ring = {
-		RingBecoming=-3,
-		RingShadows=-2,
-		RingProtection=-1,
-		RingCourage=-1,
-		RingLuck=-1,
-		RingRegeneration=1,
+		RingBecoming=0.1,
+		RingShadows=0.2,
+
+		RingPiercing=1.1,
+		RingPain=1.2,
+
+		RingGold=2.1,
+		RingCharisma=2.2,
+		RingLuck=2.3,
+		RingShielding=2.4,
+		-- Becoming before transmog 2.5
+		RingMana=2.6,
+
+		RingProtection=3.1,
+		RingMight=3.2,
+
+		RingWar=4.1,
+		-- Shadows with map 4.2
+		-- Mana with one spell 4.3
+		-- Become with quartz before transmog 4.4
+
+		RingPeace=5.1,
+		RingRegeneration=5.2,
+		RingFrost=5.3,
+		-- Mana with two spells 5.4
+		RingWonder=5.5
 	},
 	shield = {
 		Sync_ShieldWooden=-3,
@@ -124,6 +144,7 @@ local VALUES = {
 }
 
 local function canPurchase(item, player)
+	if player.shoplifter then return true end
 	local tagID = item.sale and item.sale.priceTag
 	local tag = Entities.getEntityByID(tagID)
 	local cost = tag and tag.priceTagCostCurrency and tag.priceTagCostCurrency.cost or 0
