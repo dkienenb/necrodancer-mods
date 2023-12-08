@@ -9,7 +9,7 @@ pool = newTable(4, 1)
 pool.c = 0
 pool[0] = 0
 
-function _M.fetch()
+function _M.fetch(numArray, numNonArray)
 	local len = pool[0]
 	if len > 0 then
 		local obj = pool[len]
@@ -17,7 +17,7 @@ function _M.fetch()
 		pool[0] = len - 1
 		return obj
 	end
-	return {}
+	return newTable(numArray, numNonArray)
 end
 
 function _M.release(table)

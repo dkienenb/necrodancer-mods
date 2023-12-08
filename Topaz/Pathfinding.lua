@@ -13,6 +13,8 @@ local Safety = require("Topaz.Safety")
 local Targeting = require("Topaz.Targeting")
 local Utils = require("Topaz.Utils")
 
+local TablePool = require("Topaz.libs.TablePool")
+
 lutePhase = Snapshot.levelVariable(0)
 freeze = Snapshot.levelVariable(false)
 
@@ -94,10 +96,13 @@ end
 -- TODO cache every turn instead of every time we want to find a path
 
 local function convertDirectionsToOffsets(directions)
-	local offsets = {}
+	local offsets = TablePool.fetch(#directions, 0)
 	for direction in pairs(directions) do
 		local dx, dy = Action.getMovementOffset(direction)
-		table.insert(offsets,{dx=dx,dy=dy})
+		local offset = TablePool.fetch(0, 2)
+		offset.dx = dx
+		offset.dy = dy
+		table.insert(offsets, offset)
 	end
 	return offsets
 end

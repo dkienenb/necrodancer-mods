@@ -1,53 +1,60 @@
 local CurrentLevel = require "necro.game.level.CurrentLevel"
-local clear = require("table.clear")
-local NodeCache = {}
+local TablePool = require("Topaz.libs.TablePool")
+local Utils = require("Topaz.Utils")
 
-function NodeCache:new()
-	local obj = {
-		hashMap = {},
-		levelNumber = 0
-	}
+local Data = TablePool.fetch(0, 2)
+
+Data.NodeCache = TablePool.fetch(0, 5)
+
+function Data.NodeCache:new()
+	local obj = TablePool.fetch(0, 2)
+	obj.hashMap = TablePool.fetch(0, 40)
+	obj.levelNumber = 0
 	setmetatable(obj, self)
 	self.__index = self
 	return obj
 end
 
-function NodeCache:hash(x, y)
+function Data.NodeCache:hash(x, y)
 	return x .. "_" .. y
 end
 
-function NodeCache:checkLevel()
+function Data.NodeCache:checkLevel()
 	local level = CurrentLevel.getNumber()
 	if level ~= self.levelNumber then
-		clear(self.hashMap)
+		Utils.tableClear(self.hashMap)
 		self.levelNumber = level
 	end
 end
 
-function NodeCache:insertNode(x, y, node)
+function Data.NodeCache:insertNode(x, y, node)
 	self:checkLevel()
 	local key = self:hash(x, y)
 	self.hashMap[key] = node
 end
 
-function NodeCache:getNode(x, y)
+function Data.NodeCache:getNode(x, y)
 	self:checkLevel()
 	local key = self:hash(x, y)
 	return self.hashMap[key]
 end
 
-local MinHeap = {}
+Data.MinHeap = TablePool.fetch(0, 3)
 
-function MinHeap:new()
-	local heap = {data = {}}
+function Data.MinHeap:new()
+	local heap = TablePool.fetch(0, 1)
+	heap.data = TablePool.fetch(15, 0)
 	setmetatable(heap, self)
 	self.__index = self
 	return heap
 end
 
-function MinHeap:push(node, cost)
+function Data.MinHeap:push(node, cost)
 	local heap = self.data
-	table.insert(heap, {node = node, cost = cost})
+	local heapNode = TablePool.fetch(0, 2)
+	heapNode.node = node
+	heapNode.cost = cost
+	table.insert(heap, heapNode)
 	local currentIndex = #heap
 	local parentIndex = math.floor(currentIndex / 2)
 
@@ -58,7 +65,7 @@ function MinHeap:push(node, cost)
 	end
 end
 
-function MinHeap:pop()
+function Data.MinHeap:pop()
 	local heap = self.data
 	if #heap == 0 then
 		return nil
@@ -94,7 +101,4 @@ function MinHeap:pop()
 	return minNode.node
 end
 
-return {
-	NodeCache = NodeCache,
-	MinHeap = MinHeap
-}
+return Data

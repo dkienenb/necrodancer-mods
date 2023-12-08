@@ -12,11 +12,24 @@ local Tile = require "necro.game.tile.Tile"
 local Utilities = require "system.utils.Utilities"
 
 local Pathfinding = require("Topaz.Pathfinding")
+local TablePool = require("Topaz.libs.TablePool")
+
+local libraryTableClear = require("table.clear")
 
 local Utils = {}
 
-function Utils.tAlloc()
-
+function Utils.tableClear(table)
+	for key, value in pairs(table) do
+		if type(key) == "table" then
+			Utils.tableClear(key)
+			TablePool.release(key)
+		end
+		if type(value) == "table" then
+			Utils.tableClear(value)
+			TablePool.release(value)
+		end
+	end
+	libraryTableClear(table)
 end
 
 function Utils.getDirections(entity)
