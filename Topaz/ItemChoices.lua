@@ -237,7 +237,7 @@ local function shouldTake(newItem, player)
 	Utilities.removeIf(conflicts, function(conflict)
 		return secondOneIsBetter(conflict, newItem, slotName, player)
 	end)
-	local notHeld = newItem.item.holder == 0
+	local notHeld = not newItem.item or newItem.item.holder == 0
 	local notGold = not newItem.itemCurrency
 	local noConflicts = #conflicts == 0
 	return notHeld and notGold and noConflicts and canPurchase(newItem, player)

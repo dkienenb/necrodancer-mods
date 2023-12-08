@@ -132,6 +132,7 @@ end
 local function scanSpaceForTargets(x, y, player)
 	-- TODO use map, walltorch, glasstorch, telepathy, monocle
 	if Vision.isVisible(x, y) then
+		visibilityCache:insertNode(x, y, true)
 		local tileInfo = Tile.getInfo(x, y)
 		local digable, rising = Utils.canDig(player, x, y)
 		if digable and not rising and not tileInfo.isFloor then
@@ -178,7 +179,7 @@ local function scanSpaceForTargets(x, y, player)
 				gotChest = true
 			end
 			if ItemChoices.canPurchase(chest, player) then
-				table.insert(targets, { entityID= chest.id, priority=PRIORITY.LOOT})
+				table.insert(targets, { entityID=chest.id, item=true, priority=PRIORITY.LOOT})
 			end
 		end
 		for _, item in ipairs(ItemChoices.getTargetItems(x, y, player)) do
