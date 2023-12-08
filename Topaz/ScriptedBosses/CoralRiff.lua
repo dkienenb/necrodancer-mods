@@ -93,7 +93,25 @@ end
 
 local function coralRiffOverride(player, targets)
 	for coralRiff in Entities.entitiesWithComponents({ "boss" }) do
-		table.insert(targets, {x=0, y=-9, override=true, priority=PRIORITY.WALL})
+		local accessible = false
+		for monster in Entities.entitiesWithComponents({"health"}) do
+			if Utils.stringStartsWith(monster.name, "Tentacle") or monster.boss then
+				local x, y = monster.position.x, monster.position.y
+				for dx = -1, 1 do
+					for dy = -1, 1 do
+						if not Safety.hasLiquid(x + dx, y + dy) and Utils.canDig(player, x + dx, y + dy) then
+							accessible = true
+							break
+						end
+					end
+					if accessible then break end
+				end
+			end
+			if accessible then break end
+		end
+		if not accessible then
+			table.insert(targets, {x=0, y=-9, override=true, priority=PRIORITY.OVERRIDE - 10})
+		end
 		if not Pathfinding.hasDiagonal(player) and player.playableCharacter and player.name ~= "Sync_Chaunter" then
 			if not crCacheInit then
 				crTargetCache = {{x=0,y=-9}, {x=-4, y=-9}, {x=-3, y=-9}, {x=-4, y=-9}}
