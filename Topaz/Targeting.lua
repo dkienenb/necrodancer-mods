@@ -1,4 +1,5 @@
 local Action = require "necro.game.system.Action"
+local AffectorItem = require "necro.game.item.AffectorItem"
 local Attack = require "necro.game.character.Attack"
 local Direction = Action.Direction
 local Character = require "necro.game.character.Character"
@@ -91,6 +92,9 @@ local function hasExit(x, y, player)
 end
 
 local function hasGold(x, y, player)
+	if AffectorItem.entityHasItem(player, "itemAutoCollectCurrencyOnMove") then
+		return false
+	end
 	if player.goldHater then return false end
 	if hasExit(x, y, player) then return false end
 	-- FIXME bandaid fix for lagging on unreachable gold
