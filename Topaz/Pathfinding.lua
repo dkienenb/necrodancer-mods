@@ -17,6 +17,7 @@ lutePhase = Snapshot.levelVariable(0)
 freeze = Snapshot.levelVariable(false)
 
 local function hasSnag(player, targetX, targetY)
+	-- TODO return false if we don't know
 	-- TODO monster on trapdoor
 	-- TODO different weapon types
 	local tileInfo = Tile.getInfo(targetX, targetY)
@@ -48,7 +49,10 @@ local function hasDiagonal(player)
 end
 
 local function movesEveryBeat(monster)
-	if monster.beatDelay and monster.beatDelay.interval > 1 and not monster.name == "Slime" then
+	if not Safety.aiAllowsMovement(monster) then
+		return false
+	end
+	if monster.beatDelay and monster.beatDelay.interval > 1 then
 		return false
 	end
 	return true
@@ -88,16 +92,6 @@ local function distanceBetween(player, target)
 end
 
 -- TODO cache every turn instead of every time we want to find a path
-local function doSomethingCached(cache, x, y, thing, ...)
-	local prior = cache:getNode(x, y);
-	if prior then
-		return prior.cachedValue
-	else
-		local value = thing(x, y, ...)
-		cache:insertNode(x, y, {cachedValue=value})
-		return value
-	end
-end
 
 local function convertDirectionsToOffsets(directions)
 	local offsets = {}
@@ -152,12 +146,12 @@ local function findPath(player, target, startingDirectionOptions, blockedCache)
 				local trapX, trapY = Utils.positionAfterTrap(player, newX, newY, offset)
 				if trapX ~= newX or trapY ~= newY and not arrived then
 					closedCache:insertNode(newX, newY, true)
-					if not doSomethingCached(blockedCache, newX, newY, Safety.hasPathBlocker, player) then
+					if not Utils.doSomethingCached(blockedCache, newX, newY, Safety.hasPathBlocker, player) then
 						newX, newY = trapX, trapY
 						arrived = arrived or (newX == targetX and newY == targetY)
 					end
 				end
-				if arrived or (not closedCache:getNode(newX, newY) and not doSomethingCached(blockedCache, newX, newY, Safety.hasPathBlocker, player)) then
+				if arrived or (not closedCache:getNode(newX, newY) and not Utils.doSomethingCached(blockedCache, newX, newY, Safety.hasPathBlocker, player)) then
 					local spaceCost = hasSnag(player, newX, newY) and 2 or 1
 					if Safety.hasLiquid(newX, newY) then
 						spaceCost = spaceCost + 1

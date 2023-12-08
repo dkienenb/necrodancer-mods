@@ -14,11 +14,12 @@ local Tile = require "necro.game.tile.Tile"
 local Utilities = require "system.utils.Utilities"
 local Vision = require "necro.game.vision.Vision"
 
-local Utils = require("Topaz.Utils")
+local Data = require("Topaz.Data")
+local ItemChoices = require("Topaz.ItemChoices")
 local Pathfinding = require("Topaz.Pathfinding")
 local Safety = require("Topaz.Safety")
 local TopazSettings = require("Topaz.TopazSettings")
-local ItemChoices = require("Topaz.ItemChoices")
+local Utils = require("Topaz.Utils")
 
 local LuteScript = require("Topaz.ScriptedBosses.GoldenLute")
 local CoralRiffScript = require("Topaz.ScriptedBosses.CoralRiff")
@@ -33,21 +34,26 @@ gotChest = Snapshot.levelVariable(false)
 local PRIORITY_LOOT_MONSTER_DEFAULT = 5
 
 -- TODO give excessively high prio to weapons when one is not held
-local function makePrioTable()
+local function makePriorityTable()
 	return {
 		OVERRIDE = 99,
 		MONSTER = TopazSettings.lootMonsterRelations() == TopazSettings.LOOT_MONSTER_RELATIONS_TYPE.LOOT_LOW and PRIORITY_LOOT_MONSTER_DEFAULT + 1 or PRIORITY_LOOT_MONSTER_DEFAULT,
 		LOOT = LowPercent.isEnforced() and -1 or TopazSettings.lootMonsterRelations() == TopazSettings.LOOT_MONSTER_RELATIONS_TYPE.LOOT_HIGH and PRIORITY_LOOT_MONSTER_DEFAULT + 1 or PRIORITY_LOOT_MONSTER_DEFAULT,
 		EXIT = TopazSettings.exitASAP() and 10 or 4,
-		EXPLORE_NEAR_FLOOR = 3,
-		EXPLORE_NEAR_WALL = 2,
+		EXPLORE_NEAR_FLOOR = not TopazSettings.useOldExploreMethod() and 3 or -1,
+		EXPLORE_NEAR_WALL = not TopazSettings.useOldExploreMethod() and 2 or -1,
 		WALL = 1
 	}
 end
 
-local PRIORITY = makePrioTable()
-event.taggedSettingChanged.add("updatePriorityTable", {filter="topazPriority"}, function(ev)
-	PRIORITY = makePrioTable()
+local visibilityCache = Data.NodeCache:new()
+event.runStateInit.add("resetVisibilityCache", {order="seenItems"}, function()
+	visibilityCache.levelNumber = -4
+end)
+
+local PRIORITY = makePriorityTable()
+event.taggedSettingChanged.add("updatePriorityTable", {filter="topazPriority"}, function()
+	PRIORITY = makePriorityTable()
 end)
 
 local SCAN_HEIGHT_RADIUS = 50
@@ -56,6 +62,19 @@ local SCAN_WIDTH_RADIUS = 50
 local function getTargetCoords(target)
 	local entity = target.entityID and Entities.getEntityByID(target.entityID) or {position={x=target.x, y=target.y}}
 	return entity.position.x, entity.position.y
+end
+
+local graveyardPool = {}
+local function removeTarget()
+
+end
+
+local function createTarget(x, y, priority, type, entityID)
+
+end
+
+local function createTable()
+
 end
 
 local function hasExit(x, y, player)
@@ -93,8 +112,20 @@ local function seenChest()
 end
 
 local function isReadyToExit()
-	-- TODO level chest, secret shops, level crates, locked shops, shrines, potion rooms
+	-- TODO secret shops, level crates, locked shops, shrines, potion rooms
 	return hasShopped() and seenChest() or CurrentLevel.isBoss() or LowPercent.isEnforced() or TopazSettings.exitASAP()
+end
+
+local function isSpaceVisible(x, y)
+	if visibilityCache:getNode(x, y) then
+		return true
+	else
+		if Vision.isVisible(x, y) then
+			visibilityCache:insertNode(x, y, true)
+			return true
+		end
+	end
+	return false
 end
 
 -- TODO get hash of current pos and only apply strats with a higher prio value
@@ -107,6 +138,7 @@ local function scanSpaceForTargets(x, y, player)
 			table.insert(targets, {x=x,y=y,wall=true,priority=PRIORITY.WALL})
 		elseif not hasShopped() and (tileInfo.name == "ShopWall" or tileInfo.name == "DarkShopWall") and Segment.contains(Segment.MAIN, x, y) then
 			local shopX, shopY = Marker.lookUpMedian(Marker.Type.SHOP)
+			-- TODO stop upon seeing shop items instead of standing in shop
 			if player.position.x == shopX and player.position.y == shopY + 1 then
 				shopped = true
 			else
@@ -152,6 +184,33 @@ local function scanSpaceForTargets(x, y, player)
 		for _, item in ipairs(ItemChoices.getTargetItems(x, y, player)) do
 			table.insert(targets, { entityID=item.id, item=true, priority=PRIORITY.LOOT})
 		end
+	elseif not isSpaceVisible(x, y) and not CurrentLevel.isBoss() then
+		local floor = false
+		local wall = false
+		for dx = -1, 1 do
+			for dy = -1, 1 do
+				if isSpaceVisible(x + dx, y + dy) then
+					local tileInfo = Tile.getInfo(x, y)
+					if tileInfo.isFloor then
+						floor = true
+						break
+					else
+						wall = true
+					end
+				end
+			end
+			if floor then
+				break
+			end
+		end
+		local create = floor or wall
+		if create then
+			local priority = PRIORITY.EXPLORE_NEAR_WALL
+			if floor then
+				priority = PRIORITY.EXPLORE_NEAR_FLOOR
+			end
+			table.insert(targets, {x=x, y=y, explore=true, priority=priority})
+		end
 	end
 end
 
@@ -191,6 +250,12 @@ local function checkIfTargetDead(target, player)
 	end
 	if target.shop then
 		if hasShopped() then return true end
+	end
+	if target.explore then
+		local x, y = getTargetCoords(target)
+		if isSpaceVisible(x, y) then
+			return true
+		end
 	end
 	return false
 end

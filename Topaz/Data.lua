@@ -1,8 +1,11 @@
+local CurrentLevel = require "necro.game.level.CurrentLevel"
+local clear = require("table.clear")
 local NodeCache = {}
 
 function NodeCache:new()
 	local obj = {
-		hashMap = {}
+		hashMap = {},
+		levelNumber = 0
 	}
 	setmetatable(obj, self)
 	self.__index = self
@@ -13,12 +16,22 @@ function NodeCache:hash(x, y)
 	return x .. "_" .. y
 end
 
+function NodeCache:checkLevel()
+	local level = CurrentLevel.getNumber()
+	if level ~= self.levelNumber then
+		clear(self.hashMap)
+		self.levelNumber = level
+	end
+end
+
 function NodeCache:insertNode(x, y, node)
+	self:checkLevel()
 	local key = self:hash(x, y)
 	self.hashMap[key] = node
 end
 
 function NodeCache:getNode(x, y)
+	self:checkLevel()
 	local key = self:hash(x, y)
 	return self.hashMap[key]
 end

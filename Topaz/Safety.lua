@@ -436,6 +436,16 @@ local function hasInsurmountableObstacle(x, y, player)
 			return true
 		end
 	end
+	for _, item in Map.entitiesWithComponent(x, y, "chestLike") do
+		if not ItemChoices.canPurchase(item, player) then
+			return true
+		end
+	end
+	if LowPercent.isEnforced() then
+		if Map.hasComponent(x, y, "itemNegateLowPercent") then
+			return true
+		end
+	end
 	local ableToDig = Utils.canDig(player, x, y);
 	if not ableToDig then return true end
 	local target = Topaz.getTarget()
@@ -465,11 +475,6 @@ local function hasPathBlocker(x, y, player)
 	-- TODO return false if we have no idea what's on it
 	local goldHater = player.goldHater
 	if goldHater and Map.hasComponent(x, y, "itemCurrency") then return true end
-	if LowPercent.isEnforced() then
-		if Map.hasComponent(x, y, "itemNegateLowPercent") then
-			return true
-		end
-	end
 	if checkForArmadillos(x, y, player) then return true end
 	if checkForTraps(x, y, player) then return true end
 	if hasInsurmountableObstacle(x, y, player) then return true end
@@ -511,5 +516,6 @@ return {
 	hasLiquid=hasLiquid,
 	hasCourage=hasCourage,
 	isValidSpace=isValidSpace,
-	checkForTraps=checkForTraps
+	checkForTraps=checkForTraps,
+	aiAllowsMovement=aiAllowsMovement
 }

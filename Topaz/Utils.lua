@@ -2,6 +2,7 @@ local Action = require "necro.game.system.Action"
 local AffectorItem = require "necro.game.item.AffectorItem"
 local AI = require "necro.game.enemy.ai.AI"
 local Attack = require "necro.game.character.Attack"
+local CurrentLevel = require "necro.game.level.CurrentLevel"
 local Direction = Action.Direction
 local Map = require "necro.game.object.Map"
 local ObjectEvents = require "necro.game.object.ObjectEvents"
@@ -198,6 +199,17 @@ local function allScriptsFromPackage(scriptPath)
 	return mappings
 end
 
+local function doSomethingCached(cache, x, y, thing, ...)
+	local prior = cache:getNode(x, y);
+	if prior then
+		return prior.cachedValue
+	else
+		local value = thing(x, y, ...)
+		cache:insertNode(x, y, {cachedValue=value})
+		return value
+	end
+end
+
 return {
 	stringStartsWith=stringStartsWith,
 	getDirections=getDirections,
@@ -209,5 +221,6 @@ return {
 	unsinkable=unsinkable,
 	untrappable= unableToBeHurtByTraps,
 	allScriptsFromPackage=allScriptsFromPackage,
-	firewalker=firewalker
+	firewalker=firewalker,
+	doSomethingCached=doSomethingCached
 }
