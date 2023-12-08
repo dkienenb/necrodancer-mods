@@ -4,8 +4,10 @@ local AI = require "necro.game.enemy.ai.AI"
 local Attack = require "necro.game.character.Attack"
 local CurrentLevel = require "necro.game.level.CurrentLevel"
 local Direction = Action.Direction
+local Entities = require "system.game.Entities"
 local Map = require "necro.game.object.Map"
 local ObjectEvents = require "necro.game.object.ObjectEvents"
+local SizeModifier = require "necro.game.character.SizeModifier"
 local Tile = require "necro.game.tile.Tile"
 local Utilities = require "system.utils.Utilities"
 
@@ -112,6 +114,11 @@ local function canDig(entity, x, y)
 	}
 	ObjectEvents.fire("computeDigStrength", entity, parameters)
 	local strength = parameters.strength
+	local dx, dy = math.abs(entity.position.x - x), math.abs(entity.position.y - y)
+	if SizeModifier.isTiny(entity) and (dx > 1 or dy > 1) and entity.inventory and entity.inventory.itemSlots and entity.inventory.itemSlots.shovel and entity.inventory.itemSlots.shovel[1] then
+		local shovel = Entities.getEntityByID(entity.inventory.itemSlots.shovel[1])
+		strength = shovel.shovel.strength
+	end
 	local isMetalDoor = tileInfo.isDoor and tileInfo.digEntity
 	local rising = isMetalDoor or tileInfo.digType and tileInfo.digType[strength] and tileInfo.digType[strength] == "RecededFloor"
 	return strength >= tileInfo.digResistance, rising
