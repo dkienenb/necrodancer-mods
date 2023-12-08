@@ -140,7 +140,7 @@ end
 
 local function checkForTraps(x, y, player)
 		for _, entity in Map.entitiesWithComponent(x, y, "trap") do
-			if not (Utils.untrappable(player)) then
+			if not (Utils.unableToBeHurtByTraps(player)) then
 				-- TODO automatic spike trap
 				if entity.trapInflictDamage then return true end
 				if entity.trapScatterInventory then return true end

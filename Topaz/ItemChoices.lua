@@ -185,6 +185,7 @@ local function getNumericalValue(item, slotName, player)
 		end
 	end
 	if slotName == "weapon" then
+		-- TODO value dmg
 		if player.name == "Sync_Chaunter" then
 			value = value - 500
 		end

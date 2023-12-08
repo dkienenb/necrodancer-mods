@@ -148,6 +148,7 @@ local function scanSpaceForTargets(x, y, player)
 		for _, monster in Utils.iterateMonsters(x, y, player, false) do
 			-- TODO properly pathfind to these
 			-- TODO target spaces 2 from standing armadillos
+			-- TODO avoid spiders on walls you cannot dig or that have no movement options on non diag chars
 			if (Pathfinding.hasDiagonal(player) or monster.name ~= "Spider" and monster.name ~= "Slime3" and monster.name ~= "Mole")
 					and monster.name ~= "Clone" then
 				if not monster.playableCharacter then
@@ -187,7 +188,9 @@ local function scanSpaceForTargets(x, y, player)
 						floor = true
 						break
 					else
-						wall = true
+						if Utils.canDig(player, x + dx, y + dy) then
+							wall = true
+						end
 					end
 				end
 			end

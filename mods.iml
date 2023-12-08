@@ -10,6 +10,7 @@
       <sourceFolder url="file://$MODULE_DIR$/HunterCharacter" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Topaz" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Topaz/ScriptedBosses" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Topaz/libs" isTestSource="false" />
     </content>
     <orderEntry type="jdk" jdkName="Lua" jdkType="Lua SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

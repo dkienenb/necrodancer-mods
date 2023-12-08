@@ -13,7 +13,13 @@ local Utilities = require "system.utils.Utilities"
 
 local Pathfinding = require("Topaz.Pathfinding")
 
-local function getDirections(entity)
+local Utils = {}
+
+function Utils.tAlloc()
+
+end
+
+function Utils.getDirections(entity)
 	-- TODO dragons breathing fire
 	if entity.freezable and (entity.freezable.remainingTurns > 0 or entity.freezable.permanent) then return {} end
 	if entity.remappedMovement then return {} end
@@ -48,7 +54,7 @@ local function getDirections(entity)
 	return filteredDirections
 end
 
-local function isDangerous(monster, player)
+function Utils.isDangerous(monster, player)
 	-- TODO evil shoppies
 	if monster.shopkeeper then return false end
 	if monster.crateLike then return false end
@@ -58,7 +64,7 @@ local function isDangerous(monster, player)
 	return true
 end
 
-local function canEverHurt(monster, player)
+function Utils.canEverHurt(monster, player)
 	if not monster.health then return false end
 	local hp = monster.health.health
 	if not hp then return false end
@@ -73,18 +79,18 @@ local function canEverHurt(monster, player)
 	return true
 end
 
-local function shouldKill(monster, player)
-	if not isDangerous(monster, player) then return false end
-	if not canEverHurt(monster, player) then return false end
+function Utils.shouldKill(monster, player)
+	if not Utils.isDangerous(monster, player) then return false end
+	if not Utils.canEverHurt(monster, player) then return false end
 	return true
 end
 
-local function iterateMonsters(x, y, player, includeUnhurtables)
+function Utils.iterateMonsters(x, y, player, includeUnhurtables)
 	local monsters = {}
 	for _, entity in Map.entitiesWithComponent(x, y, "health") do
-		local checkerFunction = isDangerous
+		local checkerFunction = Utils.isDangerous
 		if not includeUnhurtables then
-			checkerFunction = shouldKill
+			checkerFunction = Utils.shouldKill
 		end
 		if checkerFunction(entity, player) then
 			table.insert(monsters, entity)
@@ -93,7 +99,7 @@ local function iterateMonsters(x, y, player, includeUnhurtables)
 	return ipairs(monsters)
 end
 
-local function canDig(entity, x, y)
+function Utils.canDig(entity, x, y)
 	-- TODO zombies and other mons that can't dig, phasing players
 	local tileInfo = Tile.getInfo(x, y)
 	if tileInfo.isFloor then
@@ -124,44 +130,44 @@ local function canDig(entity, x, y)
 	return strength >= tileInfo.digResistance, rising
 end
 
-local function coordsInDirection(startX, startY, direction)
+function Utils.coordsInDirection(startX, startY, direction)
 	local dx, dy = Action.getMovementOffset(direction)
 	local targetX = startX + dx
 	local targetY = startY + dy
 	return targetX, targetY
 end
 
-local function positionInDirection(entity, direction)
+function Utils.positionInDirection(entity, direction)
 	local position = entity.position
 	local startX = position.x
 	local startY = position.y
-	local targetX, targetY = coordsInDirection(startX, startY, direction)
+	local targetX, targetY = Utils.coordsInDirection(startX, startY, direction)
 	return startX, startY, targetX, targetY
 end
 
-local function unsinkable(entity)
+function Utils.unsinkable(entity)
 	return not entity.sinkable or AffectorItem.entityHasItem(entity, "itemTileUnsinkImmunity")
 end
 
-local function firewalker(entity)
+function Utils.firewalker(entity)
 	return not entity.tileIdleDamageReceiver or AffectorItem.entityHasItem(entity, "itemTileIdleDamageImmunity")
 end
 
-local function unableToBeHurtByTraps(entity)
+function Utils.unableToBeHurtByTraps(entity)
 	local item = AffectorItem.getItem(entity, "itemIncomingDamageTypeImmunityEarly")
 	local immune = item and item.itemIncomingDamageTypeImmunityEarly.immuneDamageTypes == 256
 	local invul = not Attack.Flag.check(entity.attackable.currentFlags, Attack.Flag.TRAP)
 	return invul or immune
 end
 
-local function ableToBeMovedByTraps(entity)
-	return not AffectorItem.entityHasItem(entity, "itemHeavy") and not AffectorItem.entityHasItem(entity, "itemKnockbackImmunity") and not unableToBeHurtByTraps(entity)
+function Utils.ableToBeMovedByTraps(entity)
+	return not AffectorItem.entityHasItem(entity, "itemHeavy") and not AffectorItem.entityHasItem(entity, "itemKnockbackImmunity") and not Utils.unableToBeHurtByTraps(entity)
 end
 
-local function positionAfterTrap(entity, x, y, directionOffsets)
+function Utils.positionAfterTrap(entity, x, y, directionOffsets)
 	-- TODO wind gargoyles
 	if Pathfinding.hasSnag(entity, x, y) then return x, y end
-	if ableToBeMovedByTraps(entity) then
+	if Utils.ableToBeMovedByTraps(entity) then
 		for _, trap in Map.entitiesWithComponent(x, y, "trap") do
 			-- TODO secret shops (entity.trapTravel)
 			if trap.trapMove then
@@ -181,32 +187,11 @@ local function positionAfterTrap(entity, x, y, directionOffsets)
 	return x, y
 end
 
-local function stringStartsWith(str, start)
+function Utils.stringStartsWith(str, start)
 	return str:sub(1, #start) == start
 end
 
-local function getBasename(path)
-	return string.gsub(path, "(.*/)(.*)", "%2")
-end
-
-function convertDotPathToSlashPath(dotPath)
-	return string.gsub(dotPath, "%.", "/")
-end
-
-local function allScriptsFromPackage(scriptPath)
-	local pathPrefix = "mods/Topaz/scripts/"
-	local pathSuffix = scriptPath
-	local path = pathPrefix .. pathSuffix
-	local listings = FileIO.listFiles(path, FileIO.List.RECURSIVE + FileIO.List.FILES + FileIO.List.FULL_PATH + FileIO.List.SORTED)
-	local mappings = {}
-	for _, listing in ipairs(listings) do
-		local basename = string.sub(getBasename(listing), 1, -5)
-		mappings[basename] = require("Topaz." .. scriptPath .. "." .. basename)
-	end
-	return mappings
-end
-
-local function doSomethingCached(cache, x, y, thing, ...)
+function Utils.doSomethingCached(cache, x, y, thing, ...)
 	local prior = cache:getNode(x, y);
 	if prior then
 		return prior.cachedValue
@@ -217,17 +202,4 @@ local function doSomethingCached(cache, x, y, thing, ...)
 	end
 end
 
-return {
-	stringStartsWith=stringStartsWith,
-	getDirections=getDirections,
-	canDig = canDig,
-	iterateMonsters = iterateMonsters,
-	positionInDirection=positionInDirection,
-	canEverHurt=canEverHurt,
-	positionAfterTrap=positionAfterTrap,
-	unsinkable=unsinkable,
-	untrappable= unableToBeHurtByTraps,
-	allScriptsFromPackage=allScriptsFromPackage,
-	firewalker=firewalker,
-	doSomethingCached=doSomethingCached
-}
+return Utils
