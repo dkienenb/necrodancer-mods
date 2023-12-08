@@ -32,6 +32,20 @@ function Utils.tableClear(table)
 	libraryTableClear(table)
 end
 
+function Utils.arrayCopy(array)
+	local count = #array
+	local result = TablePool.fetch(0, 0)
+	for i = 1, count do
+		result[i] = array[i]
+	end
+	return result
+end
+
+function Utils.addToCopyOfArray(array, element)
+	local newArray = Utils.arrayCopy(array)
+	table.insert(newArray, element)
+end
+
 function Utils.getDirections(entity)
 	-- TODO dragons breathing fire
 	if entity.freezable and (entity.freezable.remainingTurns > 0 or entity.freezable.permanent) then return {} end

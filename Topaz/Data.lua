@@ -4,7 +4,7 @@ local Utils = require("Topaz.Utils")
 
 local Data = TablePool.fetch(0, 2)
 
-Data.NodeCache = TablePool.fetch(0, 5)
+Data.NodeCache = TablePool.fetch(0, 6)
 
 function Data.NodeCache:new()
 	local obj = TablePool.fetch(0, 2)
@@ -19,10 +19,14 @@ function Data.NodeCache:hash(x, y)
 	return x .. "_" .. y
 end
 
+function Data.NodeCache:wipe()
+	Utils.tableClear(self.hashMap)
+end
+
 function Data.NodeCache:checkLevel()
 	local level = CurrentLevel.getNumber()
 	if level ~= self.levelNumber then
-		Utils.tableClear(self.hashMap)
+		self:wipe()
 		self.levelNumber = level
 	end
 end
@@ -39,14 +43,14 @@ function Data.NodeCache:getNode(x, y)
 	return self.hashMap[key]
 end
 
-Data.MinHeap = TablePool.fetch(0, 3)
+Data.MinHeap = TablePool.fetch(0, 4)
 
 function Data.MinHeap:new()
-	local heap = TablePool.fetch(0, 1)
-	heap.data = TablePool.fetch(15, 0)
-	setmetatable(heap, self)
+	local obj = TablePool.fetch(0, 1)
+	obj.data = TablePool.fetch(15, 0)
+	setmetatable(obj, self)
 	self.__index = self
-	return heap
+	return obj
 end
 
 function Data.MinHeap:push(node, cost)
@@ -97,8 +101,11 @@ function Data.MinHeap:pop()
 			end
 		end
 	end
-
 	return minNode.node
+end
+
+function Data.MinHeap:wipe()
+	Utils.tableClear(self.data)
 end
 
 return Data

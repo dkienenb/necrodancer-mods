@@ -135,7 +135,13 @@ local function findPath(player, target, startingDirectionOptions, blockedCache)
 	local playerX, playerY = player.position.x, player.position.y
 	local cost = heuristicFunction(playerX - targetX, playerY - targetY)
 	local startingDirectionOffsets = convertDirectionsToOffsets(startingDirectionOptions)
-	choices:push({ x=playerX, y=playerY, distance=0, directionOffsets=startingDirectionOffsets, path={}}, cost)
+	local initialNode = TablePool.fetch(0, 5)
+	initialNode.x = playerX
+	initialNode.y = playerY
+	initialNode.distance = 0
+	initialNode.directionOffsets = startingDirectionOffsets
+	initialNode.path = TablePool.fetch(0, 0)
+	choices:push(initialNode, cost)
 	local found = false
 	while not found do
 		local node = choices:pop()
@@ -164,12 +170,18 @@ local function findPath(player, target, startingDirectionOptions, blockedCache)
 					local newDistance = spaceCost + node.distance
 					local newPath = Utilities.arrayCopy(node.path)
 					table.insert(newPath, offset)
-					local newNode = {x=newX, y=newY, distance=newDistance, directionOffsets=directionOffsets, path=newPath}
+					local newNode = TablePool.fetch(0, 5)
+					newNode.x = newX
+					newNode.y = newY
+					newNode.distance = newDistance
+					newNode.directionOffsets = directionOffsets
+					newNode.path = newPath
 					choices:push(newNode, newDistance + heuristicFunction(newX - targetX, newY - targetY))
 					if arrived then found = newNode end
 				end
 			end
 		end
+		TablePool.release(node)
 	end
 	if found then
 		if hasParityIssue(player, target, found.path) then
@@ -180,6 +192,8 @@ local function findPath(player, target, startingDirectionOptions, blockedCache)
 		Ping.perform(targetX, targetY, target.id)
 		return Action.getDirection(offset.dx, offset.dy)
 	end
+	choices:wipe()
+	closedCache:wipe()
 end
 
 return {

@@ -9,7 +9,6 @@
       <change beforePath="$PROJECT_DIR$/Topaz/Data.lua" beforeDir="false" afterPath="$PROJECT_DIR$/Topaz/Data.lua" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Topaz/Pathfinding.lua" beforeDir="false" afterPath="$PROJECT_DIR$/Topaz/Pathfinding.lua" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Topaz/Utils.lua" beforeDir="false" afterPath="$PROJECT_DIR$/Topaz/Utils.lua" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Topaz/libs/tablepool.lua" beforeDir="false" afterPath="$PROJECT_DIR$/Topaz/libs/TablePool.lua" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -135,7 +134,7 @@
       <workItem from="1700077993071" duration="37632000" />
       <workItem from="1700185860091" duration="16772000" />
       <workItem from="1701731906324" duration="8634000" />
-      <workItem from="1701882077888" duration="65790000" />
+      <workItem from="1701882077888" duration="69000000" />
     </task>
     <task id="LOCAL-00001" summary="Fix floor drops on monk containing gold&#10;Fix floor drops overriding each other">
       <created>1668460419967</created>
@@ -347,7 +346,14 @@
       <option name="project" value="LOCAL" />
       <updated>1702058096865</updated>
     </task>
-    <option name="localTasksCounter" value="31" />
+    <task id="LOCAL-00031" summary="table pool-ify data">
+      <created>1702061692645</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1702061692645</updated>
+    </task>
+    <option name="localTasksCounter" value="32" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -355,7 +361,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="Add icon to hunter mod" />
     <MESSAGE value="Fix bug on ] causing some keys to be unobtainable&#10;Loop music in secret area&#10;Move ] to own file" />
     <MESSAGE value="refactor of level sequence part 1" />
     <MESSAGE value="push changes" />
@@ -380,6 +385,7 @@
     <MESSAGE value="commit untracked files" />
     <MESSAGE value="optimize old explore strat" />
     <MESSAGE value="refactor utils, add table pool library" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor utils, add table pool library" />
+    <MESSAGE value="table pool-ify data" />
+    <option name="LAST_COMMIT_MESSAGE" value="table pool-ify data" />
   </component>
 </project>
