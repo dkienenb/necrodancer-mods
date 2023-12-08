@@ -1,0 +1,20 @@
+{
+	"namespace": "Topaz",
+	"displayName": "Topaz",
+	"version": "2.0.5",
+	"synchronyVersion": "3.7.4",
+	"description": "Mod that plays the game for you, with varying degrees of success. Optimized for Diamond.",
+	"author": "dkienenb",
+	"dependencies": {},
+	"api": {"scriptPath":""},
+	"icon": "TopazIcon.png",
+	"banner": "TopazBanner.png",
+	"tags": [],
+	"name": "Topaz_io_3550799",
+	"changelog": "Another QoL ordering update to remove lag on CR\nMinor exploring bugfix, to mark nodes as seen as we see them instead of when we need to explore\nFixed pathfinding issue related to digging calculations of distant walls while standing on goo",
+	"homepageURL": "https://mod.io/g/crypt/m/topaz",
+	"modioID": "3550799",
+	"modioUserID": 14309121,
+	"pendingVersion": "2.0.6",
+	"visibility": 0
+}
