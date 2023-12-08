@@ -15,10 +15,9 @@ local Utils = require("Topaz.Utils")
 
 local TablePool = require("Topaz.libs.TablePool")
 
-lutePhase = Snapshot.levelVariable(0)
-freeze = Snapshot.levelVariable(false)
+local Pathfinding = TablePool.fetch(0, 10)
 
-local function hasSnag(player, targetX, targetY)
+function Pathfinding.hasSnag(player, targetX, targetY)
 	-- TODO return false if we don't know
 	-- TODO monster on trapdoor
 	-- TODO different weapon types
@@ -36,21 +35,21 @@ local function hasSnag(player, targetX, targetY)
 	end
 end
 
-local function chebyshevDistance(dx, dy)
+function Pathfinding.chebyshevDistance(dx, dy)
 	return math.max(math.abs(dx), math.abs(dy))
 end
 
-local function getHeuristicFunction(hasDiag)
-	if hasDiag then return chebyshevDistance end
+function Pathfinding.getHeuristicFunction(hasDiag)
+	if hasDiag then return Pathfinding.chebyshevDistance end
 	return Utilities.distanceL1
 end
 
-local function hasDiagonal(player)
+function Pathfinding.hasDiagonal(player)
 	local directionOptions = Utils.getDirections(player)
 	return directionOptions[Direction.UP_LEFT]
 end
 
-local function movesEveryBeat(monster)
+function Pathfinding.movesEveryBeat(monster)
 	if not Safety.aiAllowsMovement(monster) then
 		return false
 	end
@@ -60,19 +59,19 @@ local function movesEveryBeat(monster)
 	return true
 end
 
-local function hasParityIssue(player, target, path)
+function Pathfinding.hasParityIssue(player, target, path)
 	-- TODO moles
 	if not target.entityID then
 		return false
 	end
 	local monster = Entities.getEntityByID(target.entityID)
-	if hasDiagonal(player) then
+	if Pathfinding.hasDiagonal(player) then
 		return false
 	end
 	if #path ~= 2 and #path ~= 4 then
 		return false
 	end
-	if not movesEveryBeat(monster) then
+	if not Pathfinding.movesEveryBeat(monster) then
 		return false
 	end
 	if AffectorItem.entityHasItem(monster, "weaponShove") then
@@ -84,18 +83,18 @@ local function hasParityIssue(player, target, path)
 	return true
 end
 
-local function distanceBetween(player, target)
+function Pathfinding.distanceBetween(player, target)
 	local playerX = player.position.x
 	local playerY = player.position.y
 	local entityX, entityY = Targeting.getTargetCoords(target)
 	local dxe = playerX - entityX
 	local dye = playerY - entityY
-	return getHeuristicFunction(hasDiagonal(player))(dxe, dye)
+	return Pathfinding.getHeuristicFunction(Pathfinding.hasDiagonal(player))(dxe, dye)
 end
 
 -- TODO cache every turn instead of every time we want to find a path
 
-local function convertDirectionsToOffsets(directions)
+function Pathfinding.convertDirectionsToOffsets(directions)
 	local offsets = TablePool.fetch(#directions, 0)
 	for direction in pairs(directions) do
 		local dx, dy = Action.getMovementOffset(direction)
@@ -107,10 +106,10 @@ local function convertDirectionsToOffsets(directions)
 	return offsets
 end
 
-local function findSnag(player, directions)
+function Pathfinding.findSnag(player, directions)
 	for direction in pairs(directions) do
 		local _, _, x, y = Utils.positionInDirection(player, direction)
-		if hasSnag(player, x, y) then
+		if Pathfinding.hasSnag(player, x, y) then
 			return direction
 		end
 	end
@@ -118,23 +117,23 @@ end
 
 -- TODO pathfind to immobile snaggys near coals
 
-local function findPath(player, target, startingDirectionOptions, blockedCache)
+function Pathfinding.findPath(player, target, startingDirectionOptions, blockedCache)
 	if target.overrideAction then
 		return target.overrideAction
 	end
 	local directionOptions = Utils.getDirections(player)
-	local hasDiag = hasDiagonal(player)
-	local heuristicFunction = getHeuristicFunction(hasDiag)
-	local directionOffsets = convertDirectionsToOffsets(directionOptions)
+	local hasDiag = Pathfinding.hasDiagonal(player)
+	local heuristicFunction = Pathfinding.getHeuristicFunction(hasDiag)
+	local directionOffsets = Pathfinding.convertDirectionsToOffsets(directionOptions)
 	local closedCache = Data.NodeCache:new()
 	local targetX, targetY = Targeting.getTargetCoords(target)
 	-- TODO use the cached version here
-	local possible = hasSnag(player, targetX, targetY) or not Safety.hasPathBlocker(targetX, targetY, player)
+	local possible = Pathfinding.hasSnag(player, targetX, targetY) or not Safety.hasPathBlocker(targetX, targetY, player)
 	if not possible then return end
 	local choices = Data.MinHeap:new()
 	local playerX, playerY = player.position.x, player.position.y
 	local cost = heuristicFunction(playerX - targetX, playerY - targetY)
-	local startingDirectionOffsets = convertDirectionsToOffsets(startingDirectionOptions)
+	local startingDirectionOffsets = Pathfinding.convertDirectionsToOffsets(startingDirectionOptions)
 	local initialNode = TablePool.fetch(0, 5)
 	initialNode.x = playerX
 	initialNode.y = playerY
@@ -163,7 +162,7 @@ local function findPath(player, target, startingDirectionOptions, blockedCache)
 					end
 				end
 				if arrived or (not closedCache:getNode(newX, newY) and not Utils.doSomethingCached(blockedCache, newX, newY, Safety.hasPathBlocker, player)) then
-					local spaceCost = hasSnag(player, newX, newY) and 2 or 1
+					local spaceCost = Pathfinding.hasSnag(player, newX, newY) and 2 or 1
 					if Safety.hasLiquid(newX, newY) then
 						spaceCost = spaceCost + 1
 					end
@@ -184,8 +183,8 @@ local function findPath(player, target, startingDirectionOptions, blockedCache)
 		TablePool.release(node)
 	end
 	if found then
-		if hasParityIssue(player, target, found.path) then
-			local snag = findSnag(player, startingDirectionOptions)
+		if Pathfinding.hasParityIssue(player, target, found.path) then
+			local snag = Pathfinding.findSnag(player, startingDirectionOptions)
 			if snag then return snag end
 		end
 		local offset = found.path[1]
@@ -196,9 +195,4 @@ local function findPath(player, target, startingDirectionOptions, blockedCache)
 	closedCache:wipe()
 end
 
-return {
-	distanceBetween=distanceBetween,
-	findPath=findPath,
-	hasSnag=hasSnag,
-	hasDiagonal=hasDiagonal
-}
+return Pathfinding

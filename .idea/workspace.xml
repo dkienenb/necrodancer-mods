@@ -6,9 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="f4ab3b59-2257-41b7-b99e-81dbb4d2557c" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Topaz/Data.lua" beforeDir="false" afterPath="$PROJECT_DIR$/Topaz/Data.lua" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Topaz/Pathfinding.lua" beforeDir="false" afterPath="$PROJECT_DIR$/Topaz/Pathfinding.lua" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Topaz/Utils.lua" beforeDir="false" afterPath="$PROJECT_DIR$/Topaz/Utils.lua" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -134,7 +132,7 @@
       <workItem from="1700077993071" duration="37632000" />
       <workItem from="1700185860091" duration="16772000" />
       <workItem from="1701731906324" duration="8634000" />
-      <workItem from="1701882077888" duration="69000000" />
+      <workItem from="1701882077888" duration="69508000" />
     </task>
     <task id="LOCAL-00001" summary="Fix floor drops on monk containing gold&#10;Fix floor drops overriding each other">
       <created>1668460419967</created>
@@ -353,7 +351,14 @@
       <option name="project" value="LOCAL" />
       <updated>1702061692645</updated>
     </task>
-    <option name="localTasksCounter" value="32" />
+    <task id="LOCAL-00032" summary="table pool pathfinding">
+      <created>1702066553746</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1702066553746</updated>
+    </task>
+    <option name="localTasksCounter" value="33" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -361,7 +366,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="Fix bug on ] causing some keys to be unobtainable&#10;Loop music in secret area&#10;Move ] to own file" />
     <MESSAGE value="refactor of level sequence part 1" />
     <MESSAGE value="push changes" />
     <MESSAGE value="auto nd init" />
@@ -386,6 +390,7 @@
     <MESSAGE value="optimize old explore strat" />
     <MESSAGE value="refactor utils, add table pool library" />
     <MESSAGE value="table pool-ify data" />
-    <option name="LAST_COMMIT_MESSAGE" value="table pool-ify data" />
+    <MESSAGE value="table pool pathfinding" />
+    <option name="LAST_COMMIT_MESSAGE" value="table pool pathfinding" />
   </component>
 </project>
