@@ -41,8 +41,8 @@ local function makePriorityTable()
 		MONSTER = TopazSettings.lootMonsterRelations() == TopazSettings.LOOT_MONSTER_RELATIONS_TYPE.LOOT_LOW and PRIORITY_LOOT_MONSTER_DEFAULT + 1 or PRIORITY_LOOT_MONSTER_DEFAULT,
 		LOOT = LowPercent.isEnforced() and -1 or TopazSettings.lootMonsterRelations() == TopazSettings.LOOT_MONSTER_RELATIONS_TYPE.LOOT_HIGH and PRIORITY_LOOT_MONSTER_DEFAULT + 1 or PRIORITY_LOOT_MONSTER_DEFAULT,
 		EXIT = TopazSettings.exitASAP() and 10 or 4,
-		EXPLORE_NEAR_FLOOR = not TopazSettings.useOldExploreMethod() and 3 or -1,
-		EXPLORE_NEAR_WALL = not TopazSettings.useOldExploreMethod() and 2 or -1,
+		EXPLORE_NEAR_FLOOR = 3,
+		EXPLORE_NEAR_WALL = 2,
 		WALL = 1
 	}
 end
@@ -63,19 +63,6 @@ local SCAN_WIDTH_RADIUS = 50
 local function getTargetCoords(target)
 	local entity = target.entityID and Entities.getEntityByID(target.entityID) or {position={x=target.x, y=target.y}}
 	return entity.position.x, entity.position.y
-end
-
-local graveyardPool = {}
-local function removeTarget()
-
-end
-
-local function createTarget(x, y, priority, type, entityID)
-
-end
-
-local function createTable()
-
 end
 
 local function hasExit(x, y, player)
@@ -189,7 +176,7 @@ local function scanSpaceForTargets(x, y, player)
 		for _, item in ipairs(ItemChoices.getTargetItems(x, y, player)) do
 			table.insert(targets, { entityID=item.id, item=true, priority=PRIORITY.LOOT})
 		end
-	elseif not isSpaceVisible(x, y) and not CurrentLevel.isBoss() then
+	elseif not TopazSettings.useOldExploreMethod() and not isSpaceVisible(x, y) and not CurrentLevel.isBoss() then
 		local floor = false
 		local wall = false
 		for dx = -1, 1 do
@@ -320,6 +307,7 @@ local function getTarget(player)
 	local selectedPriority
 	local ready = isReadyToExit()
 	for _, next in ipairs(targets) do
+		-- TODO target filtering method (hasPathBlocker gold and standing armdillos, as well as this not exit if not ready code)
 		if not next.unreachable and (not next.exit or ready) then
 			selectedPriority = selected and selected.priority or 0
 			local nextPriority = next.priority
