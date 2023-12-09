@@ -16,7 +16,7 @@ local TablePool = require("Topaz.libs.TablePool")
 
 local libraryTableClear = require("table.clear")
 
-local Utils = {}
+local Utils = TablePool.fetch(0, 18)
 
 function Utils.tableClear(table)
 	for key, value in pairs(table) do
@@ -48,14 +48,29 @@ end
 
 function Utils.getDirections(entity)
 	-- TODO dragons breathing fire
-	if entity.freezable and (entity.freezable.remainingTurns > 0 or entity.freezable.permanent) then return {} end
-	if entity.remappedMovement then return {} end
+	if entity.freezable and (entity.freezable.remainingTurns > 0 or entity.freezable.permanent) then return TablePool.fetch(0, 0) end
+	if entity.remappedMovement then return TablePool.fetch(0, 0) end
 	if entity.ai and entity.ai.id == AI.Type.PAWN then
-		return {[Direction.DOWN_LEFT]=true, [Direction.DOWN_RIGHT]=true}
+		local dirs = TablePool.fetch(2, 0)
+		dirs[Direction.DOWN_LEFT]=true
+		dirs[Direction.DOWN_RIGHT]=true
+		return dirs
 	end
-	local allDirections = {Direction.RIGHT, Direction.UP_RIGHT, Direction.UP, Direction.UP_LEFT, Direction.LEFT, Direction.DOWN_LEFT, Direction.DOWN, Direction.DOWN_RIGHT}
+	local allDirections = TablePool.fetch(8, 0)
+	allDirections[1] = Direction.RIGHT
+	allDirections[2] = Direction.UP_RIGHT
+	allDirections[3] = Direction.UP
+	allDirections[4] = Direction.UP_LEFT
+	allDirections[5] = Direction.LEFT
+	allDirections[6] = Direction.DOWN_LEFT
+	allDirections[7] = Direction.DOWN
+	allDirections[8] = Direction.DOWN_RIGHT
 	local actionFilter = entity.actionFilter
-	if not actionFilter then return Utilities.listToSet(allDirections) end
+	if not actionFilter then
+		local directions = Utilities.listToSet(allDirections)
+		TablePool.release(allDirections)
+		return directions
+	end
 	local ignoreActions = actionFilter.ignoreActions
 	Utilities.removeIf(allDirections, function(direction)
 		return ignoreActions[direction]
@@ -78,6 +93,7 @@ function Utils.getDirections(entity)
 		end)
 	end
 	local filteredDirections = Utilities.listToSet(allDirections)
+	TablePool.release(allDirections)
 	return filteredDirections
 end
 
@@ -113,7 +129,7 @@ function Utils.shouldKill(monster, player)
 end
 
 function Utils.iterateMonsters(x, y, player, includeUnhurtables)
-	local monsters = {}
+	local monsters = TablePool.fetch(0, 0)
 	for _, entity in Map.entitiesWithComponent(x, y, "health") do
 		local checkerFunction = Utils.isDangerous
 		if not includeUnhurtables then
@@ -138,15 +154,15 @@ function Utils.canDig(entity, x, y)
 	if Map.hasComponent(x, y, "Sync_digRetaliation" ) then
 		return false
 	end
-	local parameters = {
-		x = x,
-		y = y,
-		resistance = -2,
-		tileInfo = tileInfo,
-		flags = {}
-	}
+	local parameters = TablePool.fetch(0, 5)
+	parameters.x = x
+	parameters.y = y
+	parameters.resistance = -2
+	parameters.tileInfo = tileInfo
+	parameters.flags = TablePool.fetch(0, 0)
 	ObjectEvents.fire("computeDigStrength", entity, parameters)
 	local strength = parameters.strength
+	TablePool.release(parameters)
 	local dx, dy = math.abs(entity.position.x - x), math.abs(entity.position.y - y)
 	if SizeModifier.isTiny(entity) and (dx > 1 or dy > 1) and entity.inventory and entity.inventory.itemSlots and entity.inventory.itemSlots.shovel and entity.inventory.itemSlots.shovel[1] then
 		local shovel = Entities.getEntityByID(entity.inventory.itemSlots.shovel[1])
@@ -224,7 +240,9 @@ function Utils.doSomethingCached(cache, x, y, thing, ...)
 		return prior.cachedValue
 	else
 		local value = thing(x, y, ...)
-		cache:insertNode(x, y, {cachedValue=value})
+		local node = TablePool.fetch(0, 1)
+		node.cachedValue = value
+		cache:insertNode(x, y, node)
 		return value
 	end
 end
