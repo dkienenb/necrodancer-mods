@@ -20,9 +20,9 @@ local Utils = require("Topaz.Utils")
 
 local TablePool = require("Topaz.libs.TablePool")
 
-local isValidSpace
+local Safety = TablePool.fetch(0, 19)
 
-local function canHurt(monster, player, entityToPlayerDirection)
+function Safety.canHurt(monster, player, entityToPlayerDirection)
 	-- TODO crates, blood shoppies, elec zombies on wire with snag behind them
 	if not Utils.canEverHurt(monster, player) then return false end
 	if monster.captiveAudience and monster.captiveAudience.active then
@@ -67,18 +67,9 @@ local function canHurt(monster, player, entityToPlayerDirection)
 	return true
 end
 
-local function canHurtWithoutRetaliation(monster, player, entityToPlayerDirection)
+function Safety.canHurtWithoutRetaliation(monster, player, entityToPlayerDirection)
 	-- TODO enemies in water, exploding mushroom, warlocks
-	if not canHurt(monster, player, entityToPlayerDirection) then return false end
-	-- TODO extend this to exit path
-	if player.goldHater then
-		if Targeting.hasExit(monster.position.x, monster.position.y, player) then
-			return false
-		end
-		if #ItemChoices.getTargetItems(monster.position.x, monster.position.y, player) ~= 0 then
-			return false
-		end
-	end
+	if not Safety.canHurt(monster, player, entityToPlayerDirection) then return false end
 	local inventory = player.inventory
 	if inventory then
 		local weaponEntityID = inventory.itemSlots.weapon and inventory.itemSlots.weapon[1]
@@ -110,7 +101,7 @@ local function canHurtWithoutRetaliation(monster, player, entityToPlayerDirectio
 	if AffectorItem.entityHasItem(monster, "weaponShove") then
 		local playerX, playerY, newX, newY = Utils.positionInDirection(player, entityToPlayerDirection)
 		if not Pathfinding.hasSnag(player, newX, newY) then
-			if isValidSpace(newX, newY, playerX, playerY, player) then
+			if Safety.isValidSpace(newX, newY, playerX, playerY, player) then
 				return true
 			end
 		end
@@ -118,7 +109,7 @@ local function canHurtWithoutRetaliation(monster, player, entityToPlayerDirectio
 	return false
 end
 
-local function monsterHasLifeSave(monster)
+function Safety.monsterHasLifeSave(monster)
 	if monster.name == "Ghast" or monster.name == "Ghoul" then
 		if monster.shield.active then
 			return true
@@ -127,12 +118,18 @@ local function monsterHasLifeSave(monster)
 	return false
 end
 
-local function hasCourage(player, targetX, targetY)
+function Safety.canKill(monster, player)
+	local hp = monster.health.health
+	return
+		hp <= Damage.getBaseDamage(player)
+				and not Safety.monsterHasLifeSave(monster)
+				and Safety.canHurt(monster, player, Action.getDirection(monster.position.x - player.position.x, monster.position.y - player.position.y))
+end
+
+function Safety.hasCourage(player, targetX, targetY)
 	if AffectorItem.entityHasItem(player, "Sync_itemPossessOnKill") or AffectorItem.entityHasItem(player, "itemDashOnKill") then
 		for _, monster in Utils.iterateMonsters(targetX, targetY, player, false) do
-			local hp = monster.health.health
-			if hp <= Damage.getBaseDamage(player) and not monsterHasLifeSave(monster) and
-			canHurt(monster, player, Action.getDirection(targetX - player.position.x, targetY - player.position.y)) then
+			if Safety.canKill(monster, player) then
 				return true
 			end
 		end
@@ -140,7 +137,7 @@ local function hasCourage(player, targetX, targetY)
 	return false
 end
 
-local function checkForTraps(x, y, player)
+function Safety.checkForTraps(x, y, player)
 		for _, entity in Map.entitiesWithComponent(x, y, "trap") do
 			if not (Utils.unableToBeHurtByTraps(player)) then
 				-- TODO automatic spike trap
@@ -150,11 +147,12 @@ local function checkForTraps(x, y, player)
 			end
 			-- TODO let player walk into secret shops later
 			if entity.trapTravel then return true end
+			-- TODO ban dice traps on low%
 		end
 	return false
 end
 
-local function aiAllowsMovement(monster)
+function Safety.aiAllowsMovement(monster)
 	if monster.actionDelay and monster.actionDelay.currentAction ~= 0 then
 		local type = monster.name
 		if type == "Dragon2" or type == "Dragon3" or type == "DeathmetalPhase4" or type == "LuteHead" then
@@ -170,9 +168,9 @@ local function aiAllowsMovement(monster)
 	return true
 end
 
-local function posesAdditionalThreat(monster, x, y, player)
+function Safety.posesAdditionalThreat(monster, x, y, player)
 	--TODO dead ringer, ogreclubs
-	local allowedToMove = aiAllowsMovement(monster)
+	local allowedToMove = Safety.aiAllowsMovement(monster)
 	local monsterX, monsterY = monster.position.x, monster.position.y
 	if monster.remappedMovement then
 		local allDirections = {Direction.RIGHT, Direction.UP_RIGHT, Direction.UP, Direction.UP_LEFT, Direction.LEFT, Direction.DOWN_LEFT, Direction.DOWN, Direction.DOWN_RIGHT}
@@ -256,13 +254,13 @@ local function posesAdditionalThreat(monster, x, y, player)
 	return false
 end
 
-local function hasAdditionalThreats(x, y, targetX, targetY, player)
+function Safety.hasAdditionalThreats(x, y, targetX, targetY, player)
 	-- TODO courage for additional threats
 	local threatComponents = {"castOnMoveResult", "actionDelay", "remappedMovement", "weaponCastOnAttack", "parryCounterAttack", "amplifiedMovement", "fortissimoleJump", "provokeOnProximity"}
 	for _, component in ipairs(threatComponents) do
 		for entity in Entities.entitiesWithComponents { component } do
-			if not (entity.position.x == targetX and entity.position.y == targetY and (entity.parryCounterAttack or canHurtWithoutRetaliation(entity, player))) then
-				if posesAdditionalThreat(entity, x, y, player) then
+			if not (entity.position.x == targetX and entity.position.y == targetY and (entity.parryCounterAttack or Safety.canHurtWithoutRetaliation(entity, player))) then
+				if Safety.posesAdditionalThreat(entity, x, y, player) then
 					return true
 				end
 			end
@@ -271,7 +269,7 @@ local function hasAdditionalThreats(x, y, targetX, targetY, player)
 	return false
 end
 
-local function protectedFrom(entity, player, targetX, targetY)
+function Safety.protectedFrom(entity, player, targetX, targetY)
 	if entity.name == "LuteHead" then
 		if entity.luteHead.flee then
 			return true
@@ -309,19 +307,71 @@ local function protectedFrom(entity, player, targetX, targetY)
 	-- TODO clones: okay yeah this one is hard
 end
 
-local function checkForAttackers(checkedX, checkedY, playerX, playerY, player, targetX, targetY)
+function Safety.canKillAccountingForGold(monster, player)
+	if player.goldHater and Safety.canKill(monster, player) then
+		local x, y = monster.position.x, monster.position.y
+		if Targeting.hasExit(x, y, player) then
+			return false
+		end
+		if not LowPercent.isEnforced() and #ItemChoices.getTargetItems(x, y, player) ~= 0 then
+			return false
+		end
+		if Utils.isChasingMonster(monster.name) then
+			dbg("init - ", monster.name)
+			local blockerX, blockerY
+			local alreadyBlocked
+			local flag
+			Utils.forEachPosition(x, y, 1, function(newX, newY)
+				if Safety.hasPathBlocker(newX, newY, player, true) then
+					if (newX ~= 0 or newY ~= 0) then
+						if not blockerX then
+							dbg("tripped blocker 1")
+							blockerX, blockerY = newX, newY
+						else
+							dbg("tripped flag")
+							flag = true
+						end
+					else
+						alreadyBlocked = true
+					end
+				end
+			end)
+			if alreadyBlocked then dbg("already blocked") return true end
+			if flag then dbg("flag 1 - near 2 blockers") return false end
+			if blockerX then
+				local flag2
+				Utils.forEachPosition(blockerX, blockerY, 1, function(newX, newY)
+					if (newX ~= 0 or newY ~= 0) and Safety.hasPathBlocker(newX, newY, player, true) then
+						if not flag2 then
+							dbg("tripped blocker 2")
+							flag2 = 1
+						else
+							dbg("tripped flag 2")
+							flag2 = 2
+						end
+					end
+				end)
+				if flag2 == 2 then dbg("flag 2 - 1 blocker near 2 blockers") return false end
+			end
+			dbg("passthrough")
+		end
+	end
+	return true
+end
+
+function Safety.checkForAttackers(checkedX, checkedY, playerX, playerY, player, targetX, targetY)
 	local dxp = playerX - checkedX
 	local dyp = playerY - checkedY
 	local badDirection = Action.getDirection(dxp, dyp)
 	local dxt = targetX - checkedX
 	local dyt = targetY - checkedY
 	local attackMonster = dxt == 0 and dyt == 0
-	for _, entity in Utils.iterateMonsters(checkedX, checkedY, player, true) do
-		local safeAttack = attackMonster and canHurtWithoutRetaliation(entity, player, badDirection)
-		local frozenMonster = not aiAllowsMovement(entity)
-		local protection = protectedFrom(entity, player, targetX, targetY)
+	for _, monster in Utils.iterateMonsters(checkedX, checkedY, player, true) do
+		local safeAttack = attackMonster and Safety.canHurtWithoutRetaliation(monster, player, badDirection)
+		local frozenMonster = not Safety.aiAllowsMovement(monster)
+		local protection = Safety.protectedFrom(monster, player, targetX, targetY)
 		if not (safeAttack or frozenMonster or protection) then
-			local directions = Utils.getDirections(entity)
+			local directions = Utils.getDirections(monster)
 			for direction in pairs(directions) do
 				if direction == badDirection then
 					return true
@@ -337,7 +387,7 @@ local function checkForAttackers(checkedX, checkedY, playerX, playerY, player, t
 				if not (dx == 0 and dy == 0) then
 					for _, entity in Utils.iterateMonsters(newX, newY, player, true) do
 						local directions = Utils.getDirections(entity)
-						if aiAllowsMovement(entity) and not protectedFrom(entity, player, targetX, targetY) and directions[Action.move(dx, dy)] then
+						if Safety.aiAllowsMovement(entity) and not Safety.protectedFrom(entity, player, targetX, targetY) and directions[Action.move(dx, dy)] then
 							local threatX, threatY = Utils.positionAfterTrap(entity, checkedX, checkedY, {dx=dx, dy=dy})
 							if threatX == playerX and threatY == playerY then
 								return true
@@ -352,7 +402,7 @@ local function checkForAttackers(checkedX, checkedY, playerX, playerY, player, t
 	return false
 end
 
-local function isDefensiveFromBombs(x, y, player)
+function Safety.isDefensiveFromBombs(x, y, player)
 	-- TODO blast helm, check bombs for if safe bombs (bomb charm/spell)
 	for dx = -1, 1 do
 		for dy = -1, 1 do
@@ -376,12 +426,12 @@ local function isDefensiveFromBombs(x, y, player)
 	return true
 end
 
-local function hasLiquid(x, y)
+function Safety.hasLiquid(x, y)
 	local tileInfo = Tile.getInfo(x, y)
 	return tileInfo.sink
 end
 
-local function invulnerable(player)
+function Safety.invulnerable(player)
 	if not player.playableCharacter then
 		--return true
 	end
@@ -391,7 +441,7 @@ local function invulnerable(player)
 	return false
 end
 
-local function hasNearbyMonsters(radius, x, y, player)
+function Safety.hasNearbyMonsters(radius, x, y, player)
 	for dx = -radius, radius do
 		for dy = -radius, radius do
 			for _, monster in Utils.iterateMonsters(x + dx, y + dy, player, true) do
@@ -406,33 +456,33 @@ local function hasNearbyMonsters(radius, x, y, player)
 	return false
 end
 
-local function isDefensivePosition(playerX, playerY, targetX, targetY, player, startX, startY)
+function Safety.isDefensivePosition(playerX, playerY, targetX, targetY, player, startX, startY)
 	-- TODO open exit stairs always defensive
-	if invulnerable(player) then
+	if Safety.invulnerable(player) then
 		return true
 	end
-	local courage = hasCourage(player, targetX, targetY)
+	local courage = Safety.hasCourage(player, targetX, targetY)
 	-- TODO have to actually be able to kill a monster on the attacked tile
 	if courage then return true end
-	if not isDefensiveFromBombs(playerX, playerY) then return false end
+	if not Safety.isDefensiveFromBombs(playerX, playerY) then return false end
 	local snag = Pathfinding.hasSnag(player, targetX, targetY)
 	if snag and Tile.getInfo(playerX, playerY).idleDamage and not Utils.firewalker(player) then
 		return false
 	end
 	for dx = -1, 1 do
 		for dy = -1, 1 do
-			if checkForAttackers(playerX + dx, playerY + dy, playerX, playerY, player, targetX, targetY) then
+			if Safety.checkForAttackers(playerX + dx, playerY + dy, playerX, playerY, player, targetX, targetY) then
 				return false
 			end
 		end
 	end
-	if hasAdditionalThreats(playerX, playerY, targetX, targetY, player) then
+	if Safety.hasAdditionalThreats(playerX, playerY, targetX, targetY, player) then
 		return false
 	end
 	return true
 end
 
-local function hasInsurmountableObstacle(x, y, player)
+function Safety.hasInsurmountableObstacle(x, y, player, ignoreGold)
 	if Map.hasComponent(x, y, "crateLike") then return true end
 	if Map.hasComponent(x, y, "shopkeeper") then return true end
 	if Map.hasComponent(x, y, "shrine") then return true end
@@ -451,19 +501,26 @@ local function hasInsurmountableObstacle(x, y, player)
 			return true
 		end
 	end
+	if not ignoreGold then
+		for _, monster in Utils.iterateMonsters(x, y, player, false) do
+			if not Safety.canKillAccountingForGold(monster, player) then
+				return true
+			end
+		end
+	end
 	local ableToDig = Utils.canDig(player, x, y);
 	if not ableToDig then return true end
 	local targetExit = Topaz.isTargetExit()
-	if Targeting.hasExit(x, y, player) and (not targetExit) then return true end
+	if Targeting.hasExit(x, y, player) and (not targetExit) and not Pathfinding.hasSnag(player, x, y) then return true end
 	for _, monster in Utils.iterateMonsters(x, y, player, true) do
-		if not canHurt(monster, player) then
+		if not Safety.canHurt(monster, player) then
 			return true
 		end
 	end
 	return false
 end
 
-local function checkForArmadillos(x, y, player)
+function Safety.checkForArmadillos(x, y, player)
 	for entity in Entities.entitiesWithComponents({"chargeRedirectOnHit"}) do
 		if Utils.stringStartsWith(entity.name, "Armadillo") then
 			if not entity.charge.active and entity.stun.counter == 0 then
@@ -476,21 +533,21 @@ local function checkForArmadillos(x, y, player)
 	end
 end
 
-local function hasPathBlocker(x, y, player)
+function Safety.hasPathBlocker(x, y, player, ignoreGold)
 	-- TODO return false if we have no idea what's on it
 	local goldHater = player.goldHater
 	if goldHater and Map.hasComponent(x, y, "itemCurrency") then return true end
-	if checkForArmadillos(x, y, player) then return true end
-	if checkForTraps(x, y, player) then return true end
-	if hasInsurmountableObstacle(x, y, player) then return true end
+	if Safety.checkForArmadillos(x, y, player) then return true end
+	if Safety.checkForTraps(x, y, player) then return true end
+	if Safety.hasInsurmountableObstacle(x, y, player, ignoreGold) then return true end
 	local snag = Pathfinding.hasSnag(player, x, y)
 	-- todo courage into floor hazards
-	if not snag and hasLiquid(x, y) and not Utils.unsinkable(player) and hasNearbyMonsters(2, x, y, player) then return true end
+	if not snag and Safety.hasLiquid(x, y) and not Utils.unsinkable(player) and Safety.hasNearbyMonsters(2, x, y, player) then return true end
 	if not snag and player.slideOnSlipperyTile and not AffectorItem.entityHasItem(player, "itemSlideImmunity") and Tile.getInfo(x, y).slippery then
 		local dx = x - player.position.x
 		local dy = y - player.position.y
 		if not Pathfinding.hasSnag(player, x + dx, y + dy) then
-			if hasNearbyMonsters(2, x, y, player) then
+			if Safety.hasNearbyMonsters(2, x, y, player) then
 				return true
 			end
 		end
@@ -498,29 +555,21 @@ local function hasPathBlocker(x, y, player)
 	return false
 end
 
-isValidSpace = function (targetX, targetY, startX, startY, player)
-	if hasInsurmountableObstacle(targetX, targetY, player) then return false end
+function Safety.isValidSpace(targetX, targetY, startX, startY, player)
+	if Safety.hasInsurmountableObstacle(targetX, targetY, player) then return false end
 	local playerX, playerY = targetX, targetY
 	if Pathfinding.hasSnag(player, targetX, targetY) then
 		playerX, playerY = startX, startY
 	end
-	if hasPathBlocker(playerX, playerY, player) then return false end
+	if Safety.hasPathBlocker(playerX, playerY, player) then return false end
 	-- TODO don't walk into dead ends (spots with one or zero safe spots near them)
-	local defensivePosition = isDefensivePosition(playerX, playerY, targetX, targetY, player, startX, startY)
+	local defensivePosition = Safety.isDefensivePosition(playerX, playerY, targetX, targetY, player, startX, startY)
 	return defensivePosition
 end
 
-local function isValidDirection(direction, player)
+function Safety.isValidDirection(direction, player)
 	local startX, startY, targetX, targetY = Utils.positionInDirection(player, direction)
-	return isValidSpace(targetX, targetY, startX, startY, player)
+	return Safety.isValidSpace(targetX, targetY, startX, startY, player)
 end
 
-return {
-	isValidDirection=isValidDirection,
-	hasPathBlocker=hasPathBlocker,
-	hasLiquid=hasLiquid,
-	hasCourage=hasCourage,
-	isValidSpace=isValidSpace,
-	checkForTraps=checkForTraps,
-	aiAllowsMovement=aiAllowsMovement
-}
+return Safety

@@ -220,6 +220,7 @@ local function secondOneIsBetter(item1, item2, item1SlotName, player)
 end
 
 local function shouldTake(newItem, player)
+	-- TODO low percent
 	local slot = newItem.itemSlot
 	local conflicts = {}
 	local slotName

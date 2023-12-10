@@ -128,7 +128,7 @@ function Pathfinding.findPath(player, target, startingDirectionOptions, blockedC
 	local closedCache = Data.NodeCache:new()
 	local targetX, targetY = Targeting.getTargetCoords(target)
 	-- TODO use the cached version here
-	local possible = Pathfinding.hasSnag(player, targetX, targetY) or not Safety.hasPathBlocker(targetX, targetY, player)
+	local possible = not Safety.hasInsurmountableObstacle(targetX, targetY, player) and Pathfinding.hasSnag(player, targetX, targetY) or not Safety.hasPathBlocker(targetX, targetY, player)
 	if not possible then return end
 	local choices = Data.MinHeap:new()
 	local playerX, playerY = player.position.x, player.position.y

@@ -46,8 +46,9 @@ local Targeting = TablePool.fetch(0, 14)
 
 -- TODO give excessively high prio to weapons when one is not held
 function Targeting.makePriorityTable()
-	local priorityTable = TablePool.fetch(0, 7)
+	local priorityTable = TablePool.fetch(0, 8)
 	priorityTable.OVERRIDE = 99
+	priorityTable.MONSTER_CHASING = PRIORITY_LOOT_MONSTER_DEFAULT + 1
 	priorityTable.MONSTER = TopazSettings.lootMonsterRelations() == TopazSettings.LOOT_MONSTER_RELATIONS_TYPE.LOOT_LOW and PRIORITY_LOOT_MONSTER_DEFAULT + 1 or PRIORITY_LOOT_MONSTER_DEFAULT
 	priorityTable.LOOT = LowPercent.isEnforced() and -1 or TopazSettings.lootMonsterRelations() == TopazSettings.LOOT_MONSTER_RELATIONS_TYPE.LOOT_HIGH and PRIORITY_LOOT_MONSTER_DEFAULT + 1 or PRIORITY_LOOT_MONSTER_DEFAULT
 	priorityTable.EXIT = TopazSettings.exitASAP() and 10 or 4
@@ -178,7 +179,7 @@ function Targeting.scanSpaceForTargets(x, y, player)
 		local digable, rising = Utils.canDig(player, x, y)
 		if digable and not rising and not tileInfo.isFloor then
 			Targeting.addTarget(x, y, "wall")
-		elseif not Targeting.hasShopped() and (tileInfo.name == "ShopWall" or tileInfo.name == "DarkShopWall") and Segment.contains(Segment.MAIN, x, y) then
+		elseif not LowPercent.isEnforced() and not Targeting.hasShopped() and (tileInfo.name == "ShopWall" or tileInfo.name == "DarkShopWall") and Segment.contains(Segment.MAIN, x, y) then
 			local shopX, shopY = Marker.lookUpMedian(Marker.Type.SHOP)
 			-- TODO stop upon seeing shop items instead of standing in shop
 			if player.position.x == shopX and player.position.y == shopY + 1 then
@@ -192,7 +193,7 @@ function Targeting.scanSpaceForTargets(x, y, player)
 		elseif Targeting.hasExit(x, y, player) then
 			Targeting.addTarget(x, y, "exit")
 		end
-		if Targeting.hasGold(x, y, player) then
+		if not LowPercent.isEnforced() and Targeting.hasGold(x, y, player) then
 			Targeting.addTarget(x, y, "gold")
 		end
 		for _, monster in Utils.iterateMonsters(x, y, player, false) do
@@ -211,21 +212,27 @@ function Targeting.scanSpaceForTargets(x, y, player)
 							gotChest = true
 						end
 						TablePool.release(chests)
-						Targeting.addTarget(nil, nil, "monster", nil, monster.id)
+						local priority
+						if LowPercent.isEnforced() and Utils.isChasingMonster(monster.name) then
+							priority = "MONSTER_CHASING"
+						end
+						Targeting.addTarget(nil, nil, "monster", priority, monster.id)
 					end
 				end
 			end
 		end
-		for _, chest in Map.entitiesWithComponent(x, y, "chestLike") do
-			if not chest.sale or chest.sale.priceTag == 0 then
-				gotChest = true
+		if not LowPercent.isEnforced() then
+			for _, chest in Map.entitiesWithComponent(x, y, "chestLike") do
+				if not chest.sale or chest.sale.priceTag == 0 then
+					gotChest = true
+				end
+				if ItemChoices.canPurchase(chest, player) then
+					Targeting.addTarget(nil, nil, "item", nil, chest.id)
+				end
 			end
-			if ItemChoices.canPurchase(chest, player) then
-				Targeting.addTarget(nil, nil, "item", nil, chest.id)
+			for _, item in ipairs(ItemChoices.getTargetItems(x, y, player)) do
+				Targeting.addTarget(nil, nil, "item", nil, item.id)
 			end
-		end
-		for _, item in ipairs(ItemChoices.getTargetItems(x, y, player)) do
-			Targeting.addTarget(nil, nil, "item", nil, item.id)
 		end
 	elseif not TopazSettings.useOldExploreMethod() and not Targeting.isSpaceVisible(x, y) and not CurrentLevel.isBoss() then
 		local floor = false

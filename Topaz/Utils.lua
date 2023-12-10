@@ -128,6 +128,30 @@ function Utils.shouldKill(monster, player)
 	return true
 end
 
+local nonChasingMonsters = {
+	Slime=true,
+	Slime2=true,
+	Slime3=true,
+	Slime4=true,
+	Slime5=true,
+	Slime6=true,
+	Bat=true,
+	Bat2=true,
+	Bat3=true,
+	Bat4=true,
+	BatMiniboss=true,
+	BatMiniboss2=true,
+	Cauldron=true,
+	Cauldron2=true,
+	MushroomLight=true,
+	Mushroom=true,
+	Mushroom2=true
+}
+
+function Utils.isChasingMonster(name)
+	return not nonChasingMonsters[name]
+end
+
 function Utils.iterateMonsters(x, y, player, includeUnhurtables)
 	local monsters = TablePool.fetch(0, 0)
 	for _, entity in Map.entitiesWithComponent(x, y, "health") do
@@ -178,6 +202,14 @@ function Utils.coordsInDirection(startX, startY, direction)
 	local targetX = startX + dx
 	local targetY = startY + dy
 	return targetX, targetY
+end
+
+function Utils.forEachPosition(startX, startY, radius, action)
+	for dx = -radius, radius do
+		for dy = -radius, radius do
+			action(startX + dx, startY + dy)
+		end
+	end
 end
 
 function Utils.positionInDirection(entity, direction)

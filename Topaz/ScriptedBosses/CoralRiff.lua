@@ -72,6 +72,14 @@ local cornerBounds = {
 	}
 }
 
+local derailedLR = {
+	{x=1, y=-9},
+	{x=2, y=-9},
+	{x=3, y=-9},
+	{x=3, y=-8},
+	{x=3, y=-7}
+}
+
 local tentacleTypes = {
 	Tentacle = "drums",
 	Tentacle2 = "horns",
@@ -151,9 +159,10 @@ local function coralRiffOverride(player)
 					if crTargetPos and targetX and targetY and not newPopup then
 						Targeting.addTarget(targetX, targetY, "override")
 					else
+						-- TODO treat all depths as 1 with more dmg
+						local depth = CurrentLevel.getDepth()
 						if newPopup then
-							-- TODO treat all depths as 1 with more dmg
-							if CurrentLevel.getDepth() <= 3 then
+							if depth <= 3 then
 								if newPopup == "drums" then
 									crMoveCache = {u, d, r, l, r, r}
 								elseif newPopup == "keys" then
@@ -185,8 +194,6 @@ local function coralRiffOverride(player)
 							end
 						else
 							if not crCorner then
-								-- TODO treat all depths as 1 with more dmg
-								local depth = CurrentLevel.getDepth()
 								if Map.hasComponent(playerX + 1, playerY - 1, "health") then
 									crMoveCache = Utilities.shallowCopy(boxes[depth])
 									crCorner = corners[depth].box
@@ -201,7 +208,11 @@ local function coralRiffOverride(player)
 									Targeting.addTarget(nil, nil, "override", nil, coralRiff.id)
 								else
 									local offsets = cornerBounds[crCorner]
-									-- TODO redirect corer if CR is in a bad spot (cr3, cr4)
+									if depth == 4 then
+										if (coralRiff.position.x == 5 and crCorner == "lowerRight") then
+											offsets = derailedLR
+										end
+									end
 									for index, offset in ipairs(offsets) do
 										local x = offset.x
 										local y = offset.y
