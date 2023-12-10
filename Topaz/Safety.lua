@@ -18,6 +18,8 @@ local ItemChoices = require("Topaz.ItemChoices")
 local Targeting = require("Topaz.Targeting")
 local Utils = require("Topaz.Utils")
 
+local TablePool = require("Topaz.libs.TablePool")
+
 local isValidSpace
 
 local function canHurt(monster, player, entityToPlayerDirection)
@@ -325,6 +327,7 @@ local function checkForAttackers(checkedX, checkedY, playerX, playerY, player, t
 					return true
 				end
 			end
+			TablePool.release(directions)
 		end
 	end
 	if Map.hasComponent(checkedX, checkedY, "trapMove") then
@@ -333,12 +336,14 @@ local function checkForAttackers(checkedX, checkedY, playerX, playerY, player, t
 				local newX, newY = checkedX + dx, checkedY + dy
 				if not (dx == 0 and dy == 0) then
 					for _, entity in Utils.iterateMonsters(newX, newY, player, true) do
-						if aiAllowsMovement(entity) and not protectedFrom(entity, player, targetX, targetY) and Utils.getDirections(entity)[Action.move(dx, dy)] then
+						local directions = Utils.getDirections(entity)
+						if aiAllowsMovement(entity) and not protectedFrom(entity, player, targetX, targetY) and directions[Action.move(dx, dy)] then
 							local threatX, threatY = Utils.positionAfterTrap(entity, checkedX, checkedY, {dx=dx, dy=dy})
 							if threatX == playerX and threatY == playerY then
 								return true
 							end
 						end
+						TablePool.release(directions)
 					end
 				end
 			end

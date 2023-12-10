@@ -72,7 +72,7 @@ local function getNextDirection(player)
 					return nextDirection
 				else
 					-- TODO for targets that are unreachable five turns in a row ignore for a while
-					target.unreachable = true
+					target.unreachable = 5
 				end
 			else
 				break

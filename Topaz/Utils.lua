@@ -32,6 +32,14 @@ function Utils.tableClear(table)
 	libraryTableClear(table)
 end
 
+function Utils.WipeIfArg(array, func, arg)
+	for _, v in ipairs(array) do
+		if type(v) == "table" and func(v, arg) then
+			Utils.tableClear(array)
+		end
+	end
+end
+
 function Utils.arrayCopy(array)
 	local count = #array
 	local result = TablePool.fetch(0, 0)
@@ -44,6 +52,12 @@ end
 function Utils.addToCopyOfArray(array, element)
 	local newArray = Utils.arrayCopy(array)
 	table.insert(newArray, element)
+end
+
+local function log(table, key)
+	dbg("Set value at index ", key, " with value ", table[key])
+	dbg("Calling invalid value to trace stack")
+	yargs()
 end
 
 function Utils.getDirections(entity)

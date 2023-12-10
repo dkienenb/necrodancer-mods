@@ -188,7 +188,7 @@ function Pathfinding.findPath(player, target, startingDirectionOptions, blockedC
 			if snag then return snag end
 		end
 		local offset = found.path[1]
-		Ping.perform(targetX, targetY, target.id)
+		Ping.perform(targetX, targetY, target.entityID)
 		return Action.getDirection(offset.dx, offset.dy)
 	end
 	choices:wipe()

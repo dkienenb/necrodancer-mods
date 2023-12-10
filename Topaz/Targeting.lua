@@ -30,9 +30,15 @@ local DeathMetalScript = require("Topaz.ScriptedBosses.DeathMetal")
 local FortissimoleScript = require("Topaz.ScriptedBosses.Fortissimole")
 
 -- TODO use a data structure to sort by priority
-targets = Snapshot.levelVariable(TablePool.fetch(40, 0))
+targets = TablePool.fetch(40, 0)
 shopped = Snapshot.levelVariable(false)
 gotChest = Snapshot.levelVariable(false)
+
+local clearTargetsArgs = TablePool.fetch(0, 1)
+clearTargetsArgs.order = "spawnPlayers"
+event.levelLoad.add("clearTargets", clearTargetsArgs, function()
+	Utils.tableClear(targets)
+end)
 
 local PRIORITY_LOOT_MONSTER_DEFAULT = 5
 
@@ -133,8 +139,33 @@ function Targeting.isSpaceVisible(x, y)
 	return false
 end
 
-function Targeting.addTarget()
+local function deepCompare(t1, t2)
+	if type(t1) ~= "table" or type(t2) ~= "table" then
+		return t1 == t2
+	end
+	return Utilities.deepEquals(t1, t2)
+end
 
+local deepEqualsMetatable = {
+	__eq = function(t1, t2)
+		return deepCompare(t1, t2)
+	end
+}
+
+function Targeting.addTarget(x, y, tag, priority, entityID)
+	local target = TablePool.fetch(0, 4)
+	target.x = x
+	target.y = y
+	if type(priority) == "string" then
+		priority = Targeting.PRIORITY[priority]
+	end
+	target.priority = priority
+	if tag then
+		target[tag] = true
+	end
+	target.entityID = entityID
+	setmetatable(target, deepEqualsMetatable)
+	table.insert(targets, target)
 end
 
 -- TODO get hash of current pos and only apply strats with a higher prio value
@@ -145,7 +176,7 @@ function Targeting.scanSpaceForTargets(x, y, player)
 		local tileInfo = Tile.getInfo(x, y)
 		local digable, rising = Utils.canDig(player, x, y)
 		if digable and not rising and not tileInfo.isFloor then
-			table.insert(targets, {x=x,y=y,wall=true,priority=Targeting.PRIORITY.WALL})
+			Targeting.addTarget(x, y, "wall", "WALL")
 		elseif not Targeting.hasShopped() and (tileInfo.name == "ShopWall" or tileInfo.name == "DarkShopWall") and Segment.contains(Segment.MAIN, x, y) then
 			local shopX, shopY = Marker.lookUpMedian(Marker.Type.SHOP)
 			-- TODO stop upon seeing shop items instead of standing in shop
@@ -153,15 +184,15 @@ function Targeting.scanSpaceForTargets(x, y, player)
 				shopped = true
 			else
 				-- TODO follow shop wall instead of targeting marker when not visible
-				table.insert(targets, {x=shopX, y=shopY+1, shop=true, priority=Targeting.PRIORITY.LOOT})
+				Targeting.addTarget(shopX, shopY + 1, "shop", "LOOT")
 			end
 		elseif not Targeting.hasShopped() and (tileInfo.name == "ShopWallCracked" or tileInfo.name == "DarkShopWallCracked") then
 			shopped = true
 		elseif Targeting.hasExit(x, y, player) then
-			table.insert(targets, {x=x,y=y,exit=true,priority=Targeting.PRIORITY.EXIT})
+			Targeting.addTarget(x, y, "exit", "EXIT")
 		end
 		if Targeting.hasGold(x, y, player) then
-			table.insert(targets, {x=x,y=y,gold=true,priority=Targeting.PRIORITY.LOOT })
+			Targeting.addTarget(x, y, "gold", "LOOT")
 		end
 		for _, monster in Utils.iterateMonsters(x, y, player, false) do
 			-- TODO properly pathfind to these
@@ -171,15 +202,15 @@ function Targeting.scanSpaceForTargets(x, y, player)
 					and monster.name ~= "Clone" then
 				if not monster.playableCharacter then
 					if not (monster.controllable and monster.controllable.playerID ~= 0) then
-						local chests = {
-							Trapchest=true,
-							Trapchest2=true,
-							Trapchest3=true,
-						}
+						local chests = TablePool.fetch(0, 3)
+						chests.Trapchest=true
+						chests.Trapchest2=true
+						chests.Trapchest3=true
 						if chests[monster.name] then
 							gotChest = true
 						end
-						table.insert(targets, { entityID=monster.id, priority=Targeting.PRIORITY.MONSTER})
+						TablePool.release(chests)
+						Targeting.addTarget(nil, nil, nil, "MONSTER", monster.id)
 					end
 				end
 			end
@@ -189,11 +220,11 @@ function Targeting.scanSpaceForTargets(x, y, player)
 				gotChest = true
 			end
 			if ItemChoices.canPurchase(chest, player) then
-				table.insert(targets, { entityID=chest.id, item=true, priority=Targeting.PRIORITY.LOOT})
+				Targeting.addTarget(nil, nil, "item", "LOOT", chest.id)
 			end
 		end
 		for _, item in ipairs(ItemChoices.getTargetItems(x, y, player)) do
-			table.insert(targets, { entityID=item.id, item=true, priority=Targeting.PRIORITY.LOOT})
+			Targeting.addTarget(nil, nil, "item", "LOOT", item.id)
 		end
 	elseif not TopazSettings.useOldExploreMethod() and not Targeting.isSpaceVisible(x, y) and not CurrentLevel.isBoss() then
 		local floor = false
@@ -222,7 +253,7 @@ function Targeting.scanSpaceForTargets(x, y, player)
 			if floor then
 				priority = Targeting.PRIORITY.EXPLORE_NEAR_FLOOR
 			end
-			table.insert(targets, {x=x, y=y, explore=true, priority=priority})
+			Targeting.addTarget(x, y, "explore", priority)
 		end
 	end
 end
@@ -275,10 +306,15 @@ end
 
 function Targeting.cleanDeadTargets(player)
 	-- TODO use table pool free in custom utils functions
+	Utils.WipeIfArg(targets, Targeting.checkIfTargetDead, player)
 	Utilities.removeDuplicates(targets)
-	Utilities.removeIfArg(targets, Targeting.checkIfTargetDead, player)
 	for _, target in ipairs(targets) do
-		target.unreachable = nil
+		if target.unreachable then
+			target.unreachable = target.unreachable - 1
+			if target.unreachable < 1 then
+				target.unreachable = nil
+			end
+		end
 	end
 end
 
@@ -311,20 +347,23 @@ function Targeting.scanForTargets(player, cowardStrats)
 	end
 	if CurrentLevel.isBoss() then
 		local has = false
-		for _ in Entities.entitiesWithComponents({"boss"}) do
+		local args = TablePool.fetch(1, 0)
+		args[1] = "boss"
+		for _ in Entities.entitiesWithComponents(args) do
 			has = true
 			break
 		end
 		if not has then
-			table.insert(targets, {x=0, y=playerY - 1, override=true, priority=Targeting.PRIORITY.WALL})
+			Targeting.addTarget(0, playerY-1, "override", "WALL")
 		end
 	elseif cowardStrats then
-		table.insert(targets, {x=0, y=0, override=true, priority=Targeting.PRIORITY.WALL})
+		Targeting.addTarget(0, 0, "override", "WALL")
 	end
 	Targeting.targetingOverride(player)
 end
 
 function Targeting.getTarget(player)
+	dbg(targets)
 	local selected
 	local selectedPriority
 	local ready = Targeting.isReadyToExit()
@@ -333,13 +372,15 @@ function Targeting.getTarget(player)
 		if not next.unreachable and (not next.exit or ready) then
 			selectedPriority = selected and selected.priority or 0
 			local nextPriority = next.priority
-			if nextPriority > selectedPriority then
-				selected = next
-			elseif nextPriority == selectedPriority then
-				local distanceNext = Pathfinding.distanceBetween(player, next)
-				local distanceSelected = Pathfinding.distanceBetween(player, selected)
-				if distanceSelected >= distanceNext then
+			if next.priority then
+				if nextPriority > selectedPriority then
 					selected = next
+				elseif nextPriority == selectedPriority then
+					local distanceNext = Pathfinding.distanceBetween(player, next)
+					local distanceSelected = Pathfinding.distanceBetween(player, selected)
+					if distanceSelected >= distanceNext then
+						selected = next
+					end
 				end
 			end
 		end
