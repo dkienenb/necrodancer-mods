@@ -1,7 +1,7 @@
 {
 	"namespace": "Topaz",
 	"displayName": "Topaz",
-	"version": "2.0.6",
+	"version": "2.0.7",
 	"synchronyVersion": "3.7.4",
 	"description": "Mod that plays the game for you, with varying degrees of success. Optimized for Diamond.",
 	"author": "dkienenb",
@@ -11,7 +11,7 @@
 	"banner": "TopazBanner.png",
 	"tags": [],
 	"name": "Topaz_io_3550799",
-	"changelog": "Uses table pools and clears duplicate targets now, resulting in a performance up.\nFixed a derail on CR4.",
+	"changelog": "",
 	"homepageURL": "https://mod.io/g/crypt/m/topaz",
 	"modioID": "3550799",
 	"modioUserID": 14309121,

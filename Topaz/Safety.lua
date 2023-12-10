@@ -308,7 +308,7 @@ function Safety.protectedFrom(entity, player, targetX, targetY)
 end
 
 function Safety.canKillAccountingForGold(monster, player)
-	if player.goldHater and Safety.canKill(monster, player) then
+	if player.goldHater and Safety.canKill(monster, player) and not CurrentLevel.isBoss() then
 		local x, y = monster.position.x, monster.position.y
 		if Targeting.hasExit(x, y, player) then
 			return false

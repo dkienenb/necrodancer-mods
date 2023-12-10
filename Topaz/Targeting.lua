@@ -65,6 +65,7 @@ event.taggedSettingChanged.add("updatePriorityTable", updatePriorityTableArgs, f
 	Targeting.PRIORITY = Targeting.makePriorityTable()
 end)
 
+
 local visibilityCache = Data.NodeCache:new()
 local resetVisibilityCacheArgs = TablePool.fetch(0, 1)
 resetVisibilityCacheArgs.order = "seenItems"
@@ -315,16 +316,20 @@ end
 
 function Targeting.cleanDeadTargets(player)
 	local i = #targets
+	local hashes = TablePool.fetch(i, 0)
 	while i > 0 do
 		local target = targets[i]
-		if Targeting.checkIfTargetDead(target, player) then
-			-- TODO remove duplicates here too
+		local x, y = Targeting.getTargetCoords(target)
+		local hash = x .. "_" .. y .. "_" .. (target.tag or "none")
+		if hashes[hash] or Targeting.checkIfTargetDead(target, player) then
 			table.remove(targets, i)
 		else
 			target.unreachable = nil
+			hashes[hash] = true
 		end
 		i = i - 1
 	end
+	TablePool.release(hashes)
 end
 
 function Targeting.targetingOverride(player)

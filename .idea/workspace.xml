@@ -6,11 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="f4ab3b59-2257-41b7-b99e-81dbb4d2557c" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Topaz/ItemChoices.lua" beforeDir="false" afterPath="$PROJECT_DIR$/Topaz/ItemChoices.lua" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Topaz/Pathfinding.lua" beforeDir="false" afterPath="$PROJECT_DIR$/Topaz/Pathfinding.lua" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Topaz/Safety.lua" beforeDir="false" afterPath="$PROJECT_DIR$/Topaz/Safety.lua" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Topaz/ScriptedBosses/CoralRiff.lua" beforeDir="false" afterPath="$PROJECT_DIR$/Topaz/ScriptedBosses/CoralRiff.lua" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Topaz/ScriptedBosses/KingConga.lua" beforeDir="false" afterPath="$PROJECT_DIR$/Topaz/ScriptedBosses/KingConga.lua" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Topaz/Targeting.lua" beforeDir="false" afterPath="$PROJECT_DIR$/Topaz/Targeting.lua" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Topaz/Utils.lua" beforeDir="false" afterPath="$PROJECT_DIR$/Topaz/Utils.lua" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Topaz/mod.json" beforeDir="false" afterPath="$PROJECT_DIR$/Topaz/mod.json" afterDir="false" />
@@ -386,7 +382,14 @@
       <option name="project" value="LOCAL" />
       <updated>1702198465099</updated>
     </task>
-    <option name="localTasksCounter" value="36" />
+    <task id="LOCAL-00036" summary="make coda/monk much less likely to block themselves with gold">
+      <created>1702245544516</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1702245544516</updated>
+    </task>
+    <option name="localTasksCounter" value="37" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -405,7 +408,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="cr update" />
     <MESSAGE value="higher percent than before update" />
     <MESSAGE value="some changes. also I want to name it topaz" />
     <MESSAGE value="rename to topaz" />
@@ -430,6 +432,7 @@
     <MESSAGE value="table pool (might need to release more tables in future) for utils" />
     <MESSAGE value="tablepoolify targeting, finally" />
     <MESSAGE value="tablepoolify targeting, finally&#10;some notes on bosses" />
-    <option name="LAST_COMMIT_MESSAGE" value="tablepoolify targeting, finally&#10;some notes on bosses" />
+    <MESSAGE value="make coda/monk much less likely to block themselves with gold" />
+    <option name="LAST_COMMIT_MESSAGE" value="make coda/monk much less likely to block themselves with gold" />
   </component>
 </project>

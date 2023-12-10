@@ -143,9 +143,13 @@ local nonChasingMonsters = {
 	BatMiniboss2=true,
 	Cauldron=true,
 	Cauldron2=true,
-	MushroomLight=true,
 	Mushroom=true,
-	Mushroom2=true
+	Mushroom2=true,
+	MushroomLight=true,
+	Skeleton2Headless=true,
+	Skeleton3Headless=true,
+	Zombie=true,
+	ZombieElectric=true,
 }
 
 function Utils.isChasingMonster(name)
