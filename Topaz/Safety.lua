@@ -453,8 +453,8 @@ local function hasInsurmountableObstacle(x, y, player)
 	end
 	local ableToDig = Utils.canDig(player, x, y);
 	if not ableToDig then return true end
-	local target = Topaz.getTarget()
-	if target and Targeting.hasExit(x, y, player) and (not target.exit) then return true end
+	local targetExit = Topaz.isTargetExit()
+	if Targeting.hasExit(x, y, player) and (not targetExit) then return true end
 	for _, monster in Utils.iterateMonsters(x, y, player, true) do
 		if not canHurt(monster, player) then
 			return true

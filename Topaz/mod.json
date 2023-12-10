@@ -11,10 +11,10 @@
 	"banner": "TopazBanner.png",
 	"tags": [],
 	"name": "Topaz_io_3550799",
-	"changelog": "",
+	"changelog": "Uses table pools and clears duplicate targets now, resulting in a performance up.",
 	"homepageURL": "https://mod.io/g/crypt/m/topaz",
 	"modioID": "3550799",
 	"modioUserID": 14309121,
-	"pendingVersion": "2.0.6",
+	"pendingVersion": "2.0.7",
 	"visibility": 0
 }

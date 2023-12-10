@@ -9,9 +9,12 @@ local PRIORITY = require("Topaz.Targeting").PRIORITY
 local Snapshot = require "necro.game.system.Snapshot"
 
 -- TODO make scripted boss base class
-crPhase = Snapshot.levelVariable(0)
+fmPhase = Snapshot.levelVariable(0)
 fmKillCycleIndex = Snapshot.levelVariable(1)
 
+--[[
+https://discord.com/channels/83287148966449152/83287148966449152/1117744544738463804 fm3
+--]]
 local killCycle = {Direction.DOWN, Direction.UP, Direction.DOWN, Direction.DOWN, Direction.UP, Direction.RIGHT, Direction.RIGHT, Direction.LEFT, Direction.LEFT, Direction.DOWN}
 
 local function fortissimoleOverride(player, targets)
@@ -26,9 +29,9 @@ local function fortissimoleOverride(player, targets)
 						table.insert(extras, monster)
 					end
 				end
-				if crPhase == 0 then
+				if fmPhase == 0 then
 					if #extras == 0 then
-						crPhase = 1
+						fmPhase = 1
 					else
 						for _, monster in ipairs(extras) do
 							-- TODO ensure all gold spawns at y -11 or higher for monk/coda
@@ -36,62 +39,62 @@ local function fortissimoleOverride(player, targets)
 						end
 					end
 				end
-				if crPhase == 1 then
+				if fmPhase == 1 then
 					if playerX == -4 and playerY == -14 then
-						crPhase = 2
+						fmPhase = 2
 					else
 						table.insert(targets, { x = -4, y = -14, override = true, priority = PRIORITY.OVERRIDE })
 					end
 				end
-				if crPhase == 2 then
+				if fmPhase == 2 then
 					local leftSkeleton = Map.firstWithComponent(-3, -14, "health")
 					if not leftSkeleton then
-						crPhase = 3
+						fmPhase = 3
 					else
 						-- TODO ensure no spawns that could hit player
 						table.insert(targets, { overrideAction = Action.Direction.RIGHT, override = true, priority = PRIORITY.OVERRIDE })
 					end
 				end
-				if crPhase == 3 then
+				if fmPhase == 3 then
 					if playerX == 4 and playerY == -14 then
-						crPhase = 4
+						fmPhase = 4
 					else
 						table.insert(targets, { x = 4, y = -14, override = true, priority = PRIORITY.OVERRIDE })
 					end
 				end
-				if crPhase == 4 then
+				if fmPhase == 4 then
 					local rightSkeleton = Map.firstWithComponent(3, -14, "health")
 					if not rightSkeleton then
-						crPhase = 5
+						fmPhase = 5
 					else
 						-- TODO ensure no spawns that could hit player
 						table.insert(targets, { overrideAction = Action.Direction.LEFT, override = true, priority = PRIORITY.OVERRIDE })
 					end
 				end
-				if crPhase == 5 and Map.firstWithComponent(-3, -14, "fortissimoleBurrowing") then
+				if fmPhase == 5 and Map.firstWithComponent(-3, -14, "fortissimoleBurrowing") then
 					if #extras == 0 then
-						crPhase = 6
+						fmPhase = 6
 					else
 						for _, monster in ipairs(extras) do
 							table.insert(targets, { entityID = monster.id, override = true, priority = PRIORITY.OVERRIDE })
 						end
 					end
 				end
-				if crPhase == 6 then
+				if fmPhase == 6 then
 					if playerX == 6 and playerY == -16 then
-						crPhase = 7
+						fmPhase = 7
 					else
 						table.insert(targets, { x = 6, y = -16, override = true, priority = PRIORITY.OVERRIDE })
 					end
 				end
-				if crPhase == 7 then
+				if fmPhase == 7 then
 					if playerX == -6 then
-						crPhase = 8
+						fmPhase = 8
 					else
 						table.insert(targets, { overrideAction = Action.Direction.LEFT, override = true, priority = PRIORITY.OVERRIDE })
 					end
 				end
-				if crPhase == 8 then
+				if fmPhase == 8 then
 					local action = killCycle[fmKillCycleIndex]
 					dbg(action)
 					table.insert(targets, { overrideAction = action, override = true, priority = PRIORITY.OVERRIDE })

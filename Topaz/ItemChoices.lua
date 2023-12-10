@@ -240,7 +240,7 @@ local function shouldTake(newItem, player)
 	end)
 	local notHeld = not newItem.item or newItem.item.holder == 0
 	local notGold = not newItem.itemCurrency
-	local noConflicts = #conflicts == 0
+	local noConflicts = next(conflicts) == nil
 	return notHeld and notGold and noConflicts and canPurchase(newItem, player)
 end
 

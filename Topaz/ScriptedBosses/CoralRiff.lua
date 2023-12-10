@@ -9,7 +9,7 @@ local Utilities = require "system.utils.Utilities"
 local Utils = require("Topaz.Utils")
 local Safety = require("Topaz.Safety")
 local Pathfinding = require("Topaz.Pathfinding")
-local PRIORITY = require("Topaz.Targeting").PRIORITY
+local Targeting = require("Topaz.Targeting")
 
 crMoveCache = Snapshot.levelVariable({})
 crTargetPos = Snapshot.levelVariable({})
@@ -83,15 +83,15 @@ local tentacleTypes = {
 	Tentacle8 = "keys"
 }
 
-local function moveNext(targets)
+local function moveNext()
 	if #crMoveCache == 0 then
 		return
 	end
 	local next = table.remove(crMoveCache, 1)
-	table.insert(targets, {overrideAction=next, override=true, priority=PRIORITY.OVERRIDE})
+	Targeting.addTarget(nil, nil, "override", nil, nil, next)
 end
 
-local function coralRiffOverride(player, targets)
+local function coralRiffOverride(player)
 	for coralRiff in Entities.entitiesWithComponents({ "boss" }) do
 		local accessible = false
 		for monster in Entities.entitiesWithComponents({"health"}) do
@@ -110,7 +110,7 @@ local function coralRiffOverride(player, targets)
 			if accessible then break end
 		end
 		if not accessible then
-			table.insert(targets, {x=0, y=-9, override=true, priority=PRIORITY.OVERRIDE - 10})
+			Targeting.addTarget(0, -9, "override", Targeting.PRIORITY.OVERRIDE - 10)
 		end
 		if not Pathfinding.hasDiagonal(player) and player.playableCharacter and player.name ~= "Sync_Chaunter" then
 			if not crCacheInit then
@@ -149,9 +149,10 @@ local function coralRiffOverride(player, targets)
 					targetX = crTargetPos.x
 					targetY = crTargetPos.y
 					if crTargetPos and targetX and targetY and not newPopup then
-						table.insert(targets, {x=targetX, y=targetY, override=true, priority=PRIORITY.OVERRIDE})
+						Targeting.addTarget(targetX, targetY, "override")
 					else
 						if newPopup then
+							-- TODO treat all depths as 1 with more dmg
 							if CurrentLevel.getDepth() <= 3 then
 								if newPopup == "drums" then
 									crMoveCache = {u, d, r, l, r, r}
@@ -184,6 +185,7 @@ local function coralRiffOverride(player, targets)
 							end
 						else
 							if not crCorner then
+								-- TODO treat all depths as 1 with more dmg
 								local depth = CurrentLevel.getDepth()
 								if Map.hasComponent(playerX + 1, playerY - 1, "health") then
 									crMoveCache = Utilities.shallowCopy(boxes[depth])
@@ -193,43 +195,37 @@ local function coralRiffOverride(player, targets)
 									crCorner = corners[depth].star
 								end
 							else
-								local canHit = false
 								local dx = math.abs(playerX - coralRiff.position.x)
 								local dy = math.abs(playerY - coralRiff.position.y)
 								if (dx == 1 and dy == 0) or (dx == 0 and dy == 1) then
-									table.insert(targets, {entityID=coralRiff.id,override=true,priority=PRIORITY.OVERRIDE})
+									Targeting.addTarget(nil, nil, "override", nil, coralRiff.id)
 								else
 									local offsets = cornerBounds[crCorner]
+									-- TODO redirect corer if CR is in a bad spot (cr3, cr4)
 									for index, offset in ipairs(offsets) do
 										local x = offset.x
 										local y = offset.y
 										if Safety.hasLiquid(x, y) then
-											table.insert(targets, {x=x,y=y,override=true,priority=PRIORITY.OVERRIDE})
+											Targeting.addTarget(x, y, "override")
 										end
 										if index == 3 and not (x == playerX and y == playerY) and Safety.isValidSpace(x, y, playerX, playerY, player) then
-											table.insert(targets, {x=x,y=y,override=true,priority=PRIORITY.OVERRIDE - 1})
+											Targeting.addTarget(x, y, "override", Targeting.PRIORITY.OVERRIDE - 1)
 										end
 										if dx >= dy and index < 3 and not (x == playerX and y == playerY) and Safety.isValidSpace(x, y, playerX, playerY, player) then
-											table.insert(targets, {x=x,y=y,override=true,priority=PRIORITY.OVERRIDE - 2})
+											Targeting.addTarget(x, y, "override", Targeting.PRIORITY.OVERRIDE - 2)
 										end
 										if dy > dx and index > 3 and not (x == playerX and y == playerY) and Safety.isValidSpace(x, y, playerX, playerY, player) then
-											table.insert(targets, {x=x,y=y,override=true,priority=PRIORITY.OVERRIDE - 2})
+											Targeting.addTarget(x, y, "override", Targeting.PRIORITY.OVERRIDE - 2)
 										end
 									end
 								end
 							end
 						end
-						moveNext(targets)
+						moveNext()
 					end
 				else
-					moveNext(targets)
+					moveNext()
 				end
-				--[[
-					defend corner: dry all water in 3x3 area around corner excluding 2x2 area around corner
-					if mons can hit safe then hit mons
-					else prio corner, then prio dir with higher dx/dy from CR
-
-				--]]
 			end
 		end
 	end

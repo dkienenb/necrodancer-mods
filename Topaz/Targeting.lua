@@ -139,32 +139,33 @@ function Targeting.isSpaceVisible(x, y)
 	return false
 end
 
-local function deepCompare(t1, t2)
-	if type(t1) ~= "table" or type(t2) ~= "table" then
-		return t1 == t2
-	end
-	return Utilities.deepEquals(t1, t2)
-end
-
-local deepEqualsMetatable = {
-	__eq = function(t1, t2)
-		return deepCompare(t1, t2)
-	end
+local TAGGED_PRIORITY = {
+	wall = Targeting.PRIORITY.WALL,
+	shop = Targeting.PRIORITY.LOOT,
+	gold = Targeting.PRIORITY.LOOT,
+	item = Targeting.PRIORITY.LOOT,
+	monster = Targeting.PRIORITY.MONSTER,
+	override = Targeting.PRIORITY.OVERRIDE,
+	exit = Targeting.PRIORITY.EXIT,
 }
 
-function Targeting.addTarget(x, y, tag, priority, entityID)
+function Targeting.determinePriority(tag)
+	return TAGGED_PRIORITY[tag]
+end
+
+function Targeting.addTarget(x, y, tag, priority, entityID, overrideAction)
 	local target = TablePool.fetch(0, 4)
 	target.x = x
 	target.y = y
-	if type(priority) == "string" then
+	if priority == nil then
+		priority = Targeting.determinePriority(tag)
+	elseif type(priority) == "string" then
 		priority = Targeting.PRIORITY[priority]
 	end
 	target.priority = priority
-	if tag then
-		target[tag] = true
-	end
+	target.tag = tag
 	target.entityID = entityID
-	setmetatable(target, deepEqualsMetatable)
+	target.overrideAction = overrideAction
 	table.insert(targets, target)
 end
 
@@ -176,7 +177,7 @@ function Targeting.scanSpaceForTargets(x, y, player)
 		local tileInfo = Tile.getInfo(x, y)
 		local digable, rising = Utils.canDig(player, x, y)
 		if digable and not rising and not tileInfo.isFloor then
-			Targeting.addTarget(x, y, "wall", "WALL")
+			Targeting.addTarget(x, y, "wall")
 		elseif not Targeting.hasShopped() and (tileInfo.name == "ShopWall" or tileInfo.name == "DarkShopWall") and Segment.contains(Segment.MAIN, x, y) then
 			local shopX, shopY = Marker.lookUpMedian(Marker.Type.SHOP)
 			-- TODO stop upon seeing shop items instead of standing in shop
@@ -184,15 +185,15 @@ function Targeting.scanSpaceForTargets(x, y, player)
 				shopped = true
 			else
 				-- TODO follow shop wall instead of targeting marker when not visible
-				Targeting.addTarget(shopX, shopY + 1, "shop", "LOOT")
+				Targeting.addTarget(shopX, shopY + 1, "shop")
 			end
 		elseif not Targeting.hasShopped() and (tileInfo.name == "ShopWallCracked" or tileInfo.name == "DarkShopWallCracked") then
 			shopped = true
 		elseif Targeting.hasExit(x, y, player) then
-			Targeting.addTarget(x, y, "exit", "EXIT")
+			Targeting.addTarget(x, y, "exit")
 		end
 		if Targeting.hasGold(x, y, player) then
-			Targeting.addTarget(x, y, "gold", "LOOT")
+			Targeting.addTarget(x, y, "gold")
 		end
 		for _, monster in Utils.iterateMonsters(x, y, player, false) do
 			-- TODO properly pathfind to these
@@ -210,7 +211,7 @@ function Targeting.scanSpaceForTargets(x, y, player)
 							gotChest = true
 						end
 						TablePool.release(chests)
-						Targeting.addTarget(nil, nil, nil, "MONSTER", monster.id)
+						Targeting.addTarget(nil, nil, "monster", nil, monster.id)
 					end
 				end
 			end
@@ -220,11 +221,11 @@ function Targeting.scanSpaceForTargets(x, y, player)
 				gotChest = true
 			end
 			if ItemChoices.canPurchase(chest, player) then
-				Targeting.addTarget(nil, nil, "item", "LOOT", chest.id)
+				Targeting.addTarget(nil, nil, "item", nil, chest.id)
 			end
 		end
 		for _, item in ipairs(ItemChoices.getTargetItems(x, y, player)) do
-			Targeting.addTarget(nil, nil, "item", "LOOT", item.id)
+			Targeting.addTarget(nil, nil, "item", nil, item.id)
 		end
 	elseif not TopazSettings.useOldExploreMethod() and not Targeting.isSpaceVisible(x, y) and not CurrentLevel.isBoss() then
 		local floor = false
@@ -259,7 +260,8 @@ function Targeting.scanSpaceForTargets(x, y, player)
 end
 
 function Targeting.checkIfTargetDead(target, player)
-	if target.override then return true end
+	-- TODO use functional switch case
+	if target.tag == "override" then return true end
 	if target.entityID then
 		local monster = Entities.getEntityByID(target.entityID)
 		if not monster then
@@ -271,19 +273,19 @@ function Targeting.checkIfTargetDead(target, player)
 		if monster.controllable and monster.controllable.playerID ~= 0 then
 			return true
 		end
-		if target.item and not ItemChoices.shouldTake(monster, player) then
+		if target.tag == "item" and not ItemChoices.shouldTake(monster, player) then
 			return true
 		end
 	end
-	if target.gold then
+	if target.tag == "gold" then
 		local x, y = Targeting.getTargetCoords(target)
 		if not Targeting.hasGold(x, y, player) then return true end
 	end
-	if target.exit then
+	if target.tag == "exit" then
 		local x, y = Targeting.getTargetCoords(target)
 		if not Targeting.hasExit(x, y, player) then return true end
 	end
-	if target.wall then
+	if target.tag == "wall" then
 		local x, y = Targeting.getTargetCoords(target)
 		if not Utils.canDig(player, x, y) then
 			return true
@@ -292,10 +294,10 @@ function Targeting.checkIfTargetDead(target, player)
 		if tileInfo.isFloor then return true end
 		if tileInfo.digType == "MetalDoorOpen" then return true end
 	end
-	if target.shop then
+	if target.tag == "shop" then
 		if Targeting.hasShopped() then return true end
 	end
-	if target.explore then
+	if target.tag == "explore" then
 		local x, y = Targeting.getTargetCoords(target)
 		if Targeting.isSpaceVisible(x, y) then
 			return true
@@ -305,16 +307,16 @@ function Targeting.checkIfTargetDead(target, player)
 end
 
 function Targeting.cleanDeadTargets(player)
-	-- TODO use table pool free in custom utils functions
-	Utils.WipeIfArg(targets, Targeting.checkIfTargetDead, player)
-	Utilities.removeDuplicates(targets)
-	for _, target in ipairs(targets) do
-		if target.unreachable then
-			target.unreachable = target.unreachable - 1
-			if target.unreachable < 1 then
-				target.unreachable = nil
-			end
+	local i = #targets
+	while i > 0 do
+		local target = targets[i]
+		if Targeting.checkIfTargetDead(target, player) then
+			-- TODO remove duplicates here too
+			table.remove(targets, i)
+		else
+			target.unreachable = nil
 		end
+		i = i - 1
 	end
 end
 
@@ -325,9 +327,10 @@ function Targeting.targetingOverride(player)
 	--]]
 	-- TODO ensure proper script per player items is followed
 	DeathMetalScript.deathMetalOverride(player, targets)
-	FortissimoleScript.fortissimoleOverride(player, targets)
-	LuteScript.luteOverride(player, targets)
-	CoralRiffScript.coralRiffOverride(player, targets)
+	-- TODO Fix FM script
+	-- FortissimoleScript.fortissimoleOverride(player)
+	LuteScript.luteOverride(player)
+	CoralRiffScript.coralRiffOverride(player)
 end
 
 function Targeting.scanForTargets(player, cowardStrats)
@@ -363,7 +366,6 @@ function Targeting.scanForTargets(player, cowardStrats)
 end
 
 function Targeting.getTarget(player)
-	dbg(targets)
 	local selected
 	local selectedPriority
 	local ready = Targeting.isReadyToExit()

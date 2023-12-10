@@ -7,7 +7,7 @@ local Utilities = require "system.utils.Utilities"
 
 local Utils = require("Topaz.Utils")
 local Safety = require("Topaz.Safety")
-local PRIORITY = require("Topaz.Targeting").PRIORITY
+local Targeting = require("Topaz.Targeting")
 
 lutePhase = Snapshot.levelVariable(0)
 
@@ -26,7 +26,7 @@ local function middleLuteX(luteX, luteY)
 	return headX
 end
 
-local function luteOverride(player, targets)
+local function luteOverride(player)
 	local playerX, playerY = player.position.x, player.position.y
 	for _, lute in ipairs(Entities.getEntitiesByType("LuteHead")) do
 		local luteX, luteY = lute.position.x, lute.position.y
@@ -34,21 +34,21 @@ local function luteOverride(player, targets)
 			if playerY == -12 then
 				lutePhase = 1
 			else
-				table.insert(targets, {x=0,y=-12,override=true,priority=PRIORITY.OVERRIDE})
+				Targeting.addTarget(0, -12, "override")
 			end
 		end
 		if lutePhase == 1 then
 			if playerY == -7 then
 				lutePhase = 2
 			else
-				table.insert(targets, {x=0,y=-7,override=true,priority=PRIORITY.OVERRIDE})
+				Targeting.addTarget(0, -7, "override")
 			end
 		end
 		if lutePhase == 2 then
 			if playerY == -10 then
 				lutePhase = 3
 			else
-				table.insert(targets, {x=0,y=-10,override=true,priority=PRIORITY.OVERRIDE})
+				Targeting.addTarget(0, -10, "override")
 			end
 		end
 		if lutePhase == 3 then
@@ -56,15 +56,15 @@ local function luteOverride(player, targets)
 				if not Map.firstWithComponent(1, -9, "enemyPoolZone3") then
 					if not Map.firstWithComponent(1, -10, "enemyPoolZone3") then
 						if playerY ~= -7 then
-							table.insert(targets, {x=0,y=-7,tile=true,override=true,priority=PRIORITY.OVERRIDE})
+							Targeting.addTarget(0, -7, "override")
 						else
-							table.insert(targets, {x=0,y=-8,tile=true,override=true,priority=PRIORITY.OVERRIDE})
+							Targeting.addTarget(0, -8, "override")
 						end
 					else
-						table.insert(targets, {override=true,overrideAction=Action.Direction.RIGHT,priority=PRIORITY.OVERRIDE})
+						Targeting.addTarget(nil, nil, "override", nil, nil, Action.Direction.RIGHT)
 					end
 				else
-					table.insert(targets, {override=true,overrideAction=Action.Special.THROW,priority=PRIORITY.OVERRIDE})
+					Targeting.addTarget(nil, nil, "override", nil, nil, Action.Special.THROW)
 				end
 			else
 				if not Map.firstWithComponent(5, -10, "weaponThrowable") then
@@ -81,25 +81,25 @@ local function luteOverride(player, targets)
 			else
 				local unsafe = not Safety.isValidDirection(Direction.UP, player)
 				if unsafe or ((not nextToLuteBody) and (luteY == playerY - 1) and (luteX == 0)) then
-					table.insert(targets, {x=0, y=playerY+1, tile=true, override=true, priority=PRIORITY.OVERRIDE})
+					Targeting.addTarget(0, playerY + 1, "override")
 				else
-					table.insert(targets, {x=0, y=playerY-1, tile=true, override=true, priority=PRIORITY.OVERRIDE})
+					Targeting.addTarget(0, playerY - 1, "override")
 				end
 			end
 		end
 		if lutePhase == 5 or lutePhase == 7 or lutePhase == 9 or lutePhase == 15 or lutePhase == 17 then
-			table.insert(targets, {entityID=lute.id, override=true, priority=PRIORITY.OVERRIDE})
+			Targeting.addTarget(nil, nil, "override", nil, lute.id)
 			lutePhase = lutePhase + 1
 		elseif lutePhase == 6 or lutePhase == 16 then
 			local luteBody = Map.firstWithComponent(luteX, luteY - 1, "luteBody")
 			if luteBody.beatDelay.counter == 0 then
-				table.insert(targets, {x=0, y=playerY+1, tile=true, override=true, priority=PRIORITY.OVERRIDE})
+				Targeting.addTarget(0, playerY + 1, "override")
 			else
-				table.insert(targets, {x=0, y=playerY-1, tile=true, override=true, priority=PRIORITY.OVERRIDE})
+				Targeting.addTarget(0, playerY - 1, "override")
 				lutePhase = lutePhase + 1
 			end
 		elseif lutePhase == 8 then
-			table.insert(targets, {x=0, y=playerY-1, tile=true, override=true, priority=PRIORITY.OVERRIDE})
+			Targeting.addTarget(0, playerY - 1, "override")
 			if playerY == -14 then
 				lutePhase = 9
 			end
@@ -108,16 +108,16 @@ local function luteOverride(player, targets)
 				lutePhase = 11
 			else
 				if playerY ~= -8 then
-					table.insert(targets, {x=0,y=-8,tile=true,override=true,priority=PRIORITY.OVERRIDE})
+					Targeting.addTarget(0, -8, "override")
 				else
-					table.insert(targets, {x=0,y=-9,tile=true,override=true,priority=PRIORITY.OVERRIDE})
+					Targeting.addTarget(0, -9, "override")
 				end
 			end
 		elseif lutePhase == 18 then
 			if playerX == luteX then
 				lutePhase = 19
 			else
-				table.insert(targets, {x=luteX,y=playerY,tile=true,override=true,priority=PRIORITY.OVERRIDE})
+				Targeting.addTarget(luteX, playerY, "override")
 			end
 		end
 		if lutePhase == 11 then
@@ -127,9 +127,9 @@ local function luteOverride(player, targets)
 			else
 				for _, dragon in ipairs(greenDragons) do
 					if playerY < -9 then
-						table.insert(targets, {x=0, y=-7, tile=true, override=true, priority=PRIORITY.OVERRIDE})
+						Targeting.addTarget(0, -7, "override")
 					else
-						table.insert(targets, {entityID=dragon.id, override=true, priority=PRIORITY.OVERRIDE})
+						Targeting.addTarget(nil, nil, "override", nil, dragon.id)
 					end
 				end
 			end
@@ -141,9 +141,9 @@ local function luteOverride(player, targets)
 			else
 				for _, dragon in ipairs(redDragons) do
 					if playerY < -9 then
-						table.insert(targets, {x=0, y=-7, tile=true, override=true, priority=PRIORITY.OVERRIDE})
+						Targeting.addTarget(0, -7, "override")
 					else
-						table.insert(targets, {entityID=dragon.id, override=true, priority=PRIORITY.OVERRIDE})
+						Targeting.addTarget(nil, nil, "override", nil, dragon.id)
 					end
 				end
 			end
@@ -152,7 +152,7 @@ local function luteOverride(player, targets)
 			if playerX == 0 and playerY == -7 then
 				lutePhase = 13.5
 			else
-				table.insert(targets, {x=0,y=-7,tile=true,override=true,priority=PRIORITY.OVERRIDE})
+				Targeting.addTarget(0, -7, "override")
 			end
 		end
 		if lutePhase == 3.5 or lutePhase == 13.5 then
@@ -186,16 +186,16 @@ local function luteOverride(player, targets)
 					end
 				end
 			end
-			table.insert(targets, {x=x,y=y,tile=true,override=true,priority=PRIORITY.OVERRIDE})
+			Targeting.addTarget(x, y, "override")
 			if wallPig.actionDelay.currentAction ~= 0 and wallPig.actionDelay.delay == 0 and bodyX == 0 and playerX == 0 then
 				lutePhase = lutePhase + 0.5
 			end
 		end
 		if lutePhase == 19 then
-			table.insert(targets, {override=true,overrideAction=Action.Special.THROW,priority=PRIORITY.OVERRIDE})
+			Targeting.addTarget(nil, nil, "override", nil, nil, Action.Special.THROW)
 			lutePhase = 20
 		elseif lutePhase == 20 then
-			table.insert(targets, {override=true,overrideAction=Action.Direction.UP,priority=PRIORITY.OVERRIDE})
+			Targeting.addTarget(nil, nil, "override", nil, nil, Action.Direction.UP)
 			lutePhase = 21
 		end
 	end

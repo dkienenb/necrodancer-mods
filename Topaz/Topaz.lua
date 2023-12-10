@@ -17,7 +17,7 @@ local Safety = require("Topaz.Safety")
 local Targeting = require("Topaz.Targeting")
 local Utils = require("Topaz.Utils")
 
-local target = Snapshot.levelVariable({})
+local targetExit = Snapshot.levelVariable(false)
 
 local function isSliding(entity)
 	return entity.slide and entity.slide.direction ~= Direction.NONE
@@ -27,7 +27,7 @@ event.entitySchemaLoadNamedEntity.add("debug", {key="FeetBootsLead"}, function (
 	--dbg(ev.entity)
 end)
 
-local function goTowards(player, currentDirectionOptions, blockedCache)
+local function goTowards(player, target, currentDirectionOptions, blockedCache)
 	return Pathfinding.findPath(player, target, Utilities.listToSet(currentDirectionOptions), blockedCache)
 end
 
@@ -40,7 +40,7 @@ local function getNextDirection(player)
 		return Action.Special.ITEM_2
 	end
 	local actionSlot = player.inventory.itemSlots.action
-	local hasActionItem = actionSlot and #actionSlot ~= 0
+	local hasActionItem = actionSlot and actionSlot[1] ~= nil
 	local actionItem = hasActionItem and Entities.getEntityByID(actionSlot[1])
 	local playerX, playerY = player.position.x, player.position.y
 	if actionItem and ItemChoices.isUseAtOnceItem(actionItem, player) and Safety.isValidSpace(playerX, playerY, playerX, playerY, player) then
@@ -56,15 +56,17 @@ local function getNextDirection(player)
 		end
 	end
 	-- one choice not targetting override
-	if #filteredChoices == 1 and (not CurrentLevel.isBoss() or not player.playableCharacter) then
+	local count = #filteredChoices
+	if count == 1 and (not CurrentLevel.isBoss() or not player.playableCharacter) then
 		return filteredChoices[1]
 	end
-	if #filteredChoices ~= 0 or CurrentLevel.isBoss() then
+	if count ~= 0 or CurrentLevel.isBoss() then
 		local blockedCache = Data.NodeCache:new()
 		while true do
-			target = Targeting.getTarget(player)
+			local target = Targeting.getTarget(player)
 			if target then
-				local nextDirection = goTowards(player, filteredChoices, blockedCache)
+				targetExit = target.tag == "exit"
+				local nextDirection = goTowards(player, target, filteredChoices, blockedCache)
 				if nextDirection then
 					if player.confusable and player.confusable.remainingTurns > 0 then
 						return Action.rotateDirection(nextDirection, Action.Rotation.MIRROR)
@@ -72,7 +74,7 @@ local function getNextDirection(player)
 					return nextDirection
 				else
 					-- TODO for targets that are unreachable five turns in a row ignore for a while
-					target.unreachable = 5
+					target.unreachable = true
 				end
 			else
 				break
@@ -99,8 +101,8 @@ local function getNextDirection(player)
 	end
 end
 
-local function getTarget()
-	return target
+local function isTargetExit()
+	return targetExit
 end
 
 event.objectCheckAbility.add("automate", {order = "ignoreRhythm", sequence = 5}, function (ev)
@@ -115,5 +117,5 @@ event.objectCheckAbility.add("automate", {order = "ignoreRhythm", sequence = 5},
 end)
 
 return {
-	getTarget=getTarget
+	isTargetExit=isTargetExit
 }
