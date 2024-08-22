@@ -102,7 +102,6 @@ function Utils.isDangerous(monster, player)
 	if monster.shopkeeper then return false end
 	if monster.crateLike then return false end
 	if monster.explosive then return false end
-	if monster.captiveAudience and monster.captiveAudience.active then return false end
 	if monster.controllable and monster.controllable.playerID ~= 0 then return false end
 	return true
 end
@@ -143,6 +142,8 @@ local nonChasingMonsters = {
 	BatMiniboss2=true,
 	Cauldron=true,
 	Cauldron2=true,
+	Evileye=true,
+	Evileye2=true,
 	Mushroom=true,
 	Mushroom2=true,
 	MushroomLight=true,
@@ -152,8 +153,8 @@ local nonChasingMonsters = {
 	ZombieElectric=true,
 }
 
-function Utils.isChasingMonster(name)
-	return not nonChasingMonsters[name]
+function Utils.isChasingMonster(monster)
+	return not nonChasingMonsters[monster.name] and monster.aggro and monster.aggro.active
 end
 
 function Utils.iterateMonsters(x, y, player, includeUnhurtables)

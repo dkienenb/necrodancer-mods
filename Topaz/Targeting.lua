@@ -33,6 +33,7 @@ local FortissimoleScript = require("Topaz.ScriptedBosses.Fortissimole")
 targets = TablePool.fetch(40, 0)
 shopped = Snapshot.levelVariable(false)
 gotChest = Snapshot.levelVariable(false)
+lastSeenShrine = Snapshot.runVariable(0)
 
 local clearTargetsArgs = TablePool.fetch(0, 1)
 clearTargetsArgs.order = "spawnPlayers"
@@ -40,21 +41,36 @@ event.levelLoad.add("clearTargets", clearTargetsArgs, function()
 	Utils.tableClear(targets)
 end)
 
-local PRIORITY_LOOT_MONSTER_DEFAULT = 5
-
 local Targeting = TablePool.fetch(0, 14)
 
+local FARM_AMOUNT = TopazSettings.FARM_AMOUNT
+
+local switchExitPriority = TablePool.fetch(0, 7)
+switchExitPriority[FARM_AMOUNT.THE_NUCLEAR_OPTION] = "WALL"
+switchExitPriority[FARM_AMOUNT.VERY_FULL_CLEAR] = "EXPLORE_NEAR_WALL"
+switchExitPriority[FARM_AMOUNT.FULL_CLEAR] = "EXPLORE_NEAR_FLOOR"
+switchExitPriority[FARM_AMOUNT.ALL_LOOT] = "LOOT"
+switchExitPriority[FARM_AMOUNT.ALL_ITEMS_SEARCH] = "LOOT"
+switchExitPriority[FARM_AMOUNT.ALL_ITEMS] = "LOOT"
+switchExitPriority[FARM_AMOUNT.SOME_ITEMS] = "OVERRIDE"
+switchExitPriority[FARM_AMOUNT.IGNORE_LOOT] = "OVERRIDE"
+
+local PRIORITY_LOOT_MONSTER_DEFAULT = 5
 -- TODO give excessively high prio to weapons when one is not held
 function Targeting.makePriorityTable()
-	local priorityTable = TablePool.fetch(0, 8)
+	local priorityTable = TablePool.fetch(0, 9)
 	priorityTable.OVERRIDE = 99
-	priorityTable.MONSTER_CHASING = PRIORITY_LOOT_MONSTER_DEFAULT + 1
+	priorityTable.MONSTER_CHASING_LOW_PERCENT = PRIORITY_LOOT_MONSTER_DEFAULT + 10
+	priorityTable.LOW_PERCENT_COMBAT_STRATS = priorityTable.MONSTER_CHASING_LOW_PERCENT + 1
 	priorityTable.MONSTER = TopazSettings.lootMonsterRelations() == TopazSettings.LOOT_MONSTER_RELATIONS_TYPE.LOOT_LOW and PRIORITY_LOOT_MONSTER_DEFAULT + 1 or PRIORITY_LOOT_MONSTER_DEFAULT
 	priorityTable.LOOT = LowPercent.isEnforced() and -1 or TopazSettings.lootMonsterRelations() == TopazSettings.LOOT_MONSTER_RELATIONS_TYPE.LOOT_HIGH and PRIORITY_LOOT_MONSTER_DEFAULT + 1 or PRIORITY_LOOT_MONSTER_DEFAULT
-	priorityTable.EXIT = TopazSettings.exitASAP() and 10 or 4
+	priorityTable.GOLD = priorityTable.LOOT
+	priorityTable.LOW_PERCENT_EXPLORE_STRATS = 4
 	priorityTable.EXPLORE_NEAR_FLOOR = 3
 	priorityTable.EXPLORE_NEAR_WALL = 2
 	priorityTable.WALL = 1
+	local farmAmount = TopazSettings.farmAmount() or TopazSettings.defaultFarmAmount()
+	priorityTable.EXIT = LowPercent.isEnforced() and priorityTable.MONSTER_CHASING_LOW_PERCENT or priorityTable[switchExitPriority[farmAmount]] - 0.5
 	return priorityTable
 end
 
@@ -65,12 +81,17 @@ event.taggedSettingChanged.add("updatePriorityTable", updatePriorityTableArgs, f
 	Targeting.PRIORITY = Targeting.makePriorityTable()
 end)
 
+event.levelLoad.add("updatePriorityTable", {order = "training", sequence = 10}, function()
+	Targeting.PRIORITY = Targeting.makePriorityTable()
+end)
 
 local visibilityCache = Data.NodeCache:new()
+local wireCache = Data.NodeCache:new()
 local resetVisibilityCacheArgs = TablePool.fetch(0, 1)
 resetVisibilityCacheArgs.order = "seenItems"
 event.runStateInit.add("resetVisibilityCache", resetVisibilityCacheArgs, function()
 	visibilityCache.levelNumber = -4
+	wireCache.levelNumber = -4
 end)
 
 local SCAN_HEIGHT_RADIUS = 50
@@ -104,11 +125,15 @@ function Targeting.hasGold(x, y, player)
 	if AffectorItem.entityHasItem(player, "itemAutoCollectCurrencyOnMove") then
 		return false
 	end
+	if TopazSettings.farmAmount() >= FARM_AMOUNT.ALL_ITEMS_SEARCH or player.goldCounter.amount >= TopazSettings.goldReserves() then
+		return false
+	end
 	if player.goldHater then return false end
 	if Targeting.hasExit(x, y, player) then return false end
 	-- FIXME bandaid fix for lagging on unreachable gold
 	if Safety.hasPathBlocker(x, y, player) then return false end
-	if Map.firstWithComponent(x, y, "itemCurrency") then return true end
+	if Map.hasComponent(x, y, "itemCurrency") then return true end
+	if Map.hasComponent(x, y, "Sync_trapDice") then return true end
 	local tileInfo = Tile.getInfo(x, y)
 	if tileInfo.digEntity == "ResourceHoardGoldSmall" then
 		return true
@@ -124,9 +149,30 @@ function Targeting.seenChest()
 	return gotChest
 end
 
+function Targeting.seenShrine()
+	return CurrentLevel.getDepth() == lastSeenShrine
+end
+
+function Targeting.hasTargetWithProperty(property, value)
+	for _, target in ipairs(targets) do
+		if target[property] == value then
+			return true
+		end
+	end
+	return false
+end
+
 function Targeting.isReadyToExit()
 	-- TODO secret shops, level crates, locked shops, shrines, potion rooms
-	return Targeting.hasShopped() and Targeting.seenChest() or CurrentLevel.isBoss() or LowPercent.isEnforced() or TopazSettings.exitASAP()
+	local shopped = Targeting.hasShopped()
+	local gotChest = Targeting.seenChest()
+	local shrine = Targeting.seenShrine() or CurrentLevel.getDepth() == 1 and CurrentLevel.getFloor() == 1
+	local ignoreShrine = TopazSettings.farmAmount () <= FARM_AMOUNT.ALL_ITEMS_SEARCH
+	local explored = not Targeting.hasTargetWithProperty("priority", Targeting.PRIORITY.EXPLORE_NEAR_FLOOR)
+	local boss = CurrentLevel.isBoss()
+	local low = LowPercent.isEnforced()
+	local forcedExit = TopazSettings.farmAmount() >= FARM_AMOUNT.SOME_ITEMS
+	return (shopped and gotChest and (shrine or explored or ignoreShrine)) or boss or low or forcedExit
 end
 
 function Targeting.isSpaceVisible(x, y)
@@ -144,7 +190,7 @@ end
 local TAGGED_PRIORITY = {
 	wall = Targeting.PRIORITY.WALL,
 	shop = Targeting.PRIORITY.LOOT,
-	gold = Targeting.PRIORITY.LOOT,
+	gold = Targeting.PRIORITY.GOLD,
 	item = Targeting.PRIORITY.LOOT,
 	monster = Targeting.PRIORITY.MONSTER,
 	override = Targeting.PRIORITY.OVERRIDE,
@@ -173,14 +219,17 @@ end
 
 -- TODO get hash of current pos and only apply strats with a higher prio value
 function Targeting.scanSpaceForTargets(x, y, player)
-	-- TODO use map, walltorch, glasstorch, telepathy, monocle
+	-- TODO use map, walltorch, glasstorch, telepathy, monocle, compass
 	if Vision.isVisible(x, y) then
 		visibilityCache:insertNode(x, y, true)
 		local tileInfo = Tile.getInfo(x, y)
+		if tileInfo.wire then
+			wireCache:insertNode(x, y, true)
+		end
 		local digable, rising = Utils.canDig(player, x, y)
 		if digable and not rising and not tileInfo.isFloor then
 			Targeting.addTarget(x, y, "wall")
-		elseif not LowPercent.isEnforced() and not Targeting.hasShopped() and (tileInfo.name == "ShopWall" or tileInfo.name == "DarkShopWall") and Segment.contains(Segment.MAIN, x, y) then
+		elseif not LowPercent.isEnforced() and TopazSettings.farmAmount() ~= FARM_AMOUNT.IGNORE_LOOT and not Targeting.hasShopped() and (tileInfo.name == "ShopWall" or tileInfo.name == "DarkShopWall") and Segment.contains(Segment.MAIN, x, y) then
 			local shopX, shopY = Marker.lookUpMedian(Marker.Type.SHOP)
 			-- TODO stop upon seeing shop items instead of standing in shop
 			if player.position.x == shopX and player.position.y == shopY + 1 then
@@ -197,9 +246,10 @@ function Targeting.scanSpaceForTargets(x, y, player)
 		if not LowPercent.isEnforced() and Targeting.hasGold(x, y, player) then
 			Targeting.addTarget(x, y, "gold")
 		end
+		local lowPercentCombat = false
 		for _, monster in Utils.iterateMonsters(x, y, player, false) do
 			-- TODO properly pathfind to these
-			-- TODO target spaces 2 from standing armadillos
+			-- TODO target spaces 2 from standing armadillos, 3 from 2 hp beholders
 			-- TODO avoid spiders on walls you cannot dig or that have no movement options on non diag chars
 			if (Pathfinding.hasDiagonal(player) or monster.name ~= "Spider" and monster.name ~= "Slime3" and monster.name ~= "Mole")
 					and monster.name ~= "Clone" then
@@ -214,37 +264,84 @@ function Targeting.scanSpaceForTargets(x, y, player)
 						end
 						TablePool.release(chests)
 						local priority
-						if LowPercent.isEnforced() and Utils.isChasingMonster(monster.name) then
-							priority = "MONSTER_CHASING"
+						if LowPercent.isEnforced() and Utils.isChasingMonster(monster) then
+							priority = "MONSTER_CHASING_LOW_PERCENT"
+							lowPercentCombat = true
 						end
-						Targeting.addTarget(nil, nil, "monster", priority, monster.id)
+						if monster.amplifiedMovement and monster.health.health < 1 and monster.actionDelay.currentAction == 0 and
+								not Utils.distanceL1(player.position.x - monster.position.x, player.position.y - monster.position.y) == 1
+						then
+							local distance = 3
+							-- TODO walls blocking evil eye
+							Targeting.addTarget(monster.position.x + distance, monster.position.y, "monster", priority)
+							Targeting.addTarget(monster.position.x - distance, monster.position.y, "monster", priority)
+							Targeting.addTarget(monster.position.x, monster.position.y + distance, "monster", priority)
+							Targeting.addTarget(monster.position.x, monster.position.y - distance, "monster", priority)
+						else
+							Targeting.addTarget(nil, nil, "monster", priority, monster.id)
+						end
+					end
+				end
+			end
+		end
+		if lowPercentCombat then
+			if CurrentLevel.getZone() == 5 then
+				if player.wired.level < 1 then
+					for key, node in pairs(wireCache.hashMap) do
+						if node == true then
+							local x, y = key:match("([^_]+)_([^_]+)")
+
+							x = tonumber(x)
+							y = tonumber(y)
+
+							Targeting.addTarget(x, y, "override", "LOW_PERCENT_COMBAT_STRATS")
+						end
 					end
 				end
 			end
 		end
 		if not LowPercent.isEnforced() then
-			for _, chest in Map.entitiesWithComponent(x, y, "chestLike") do
-				if not chest.sale or chest.sale.priceTag == 0 then
-					gotChest = true
-				end
-				if ItemChoices.canPurchase(chest, player) then
-					Targeting.addTarget(nil, nil, "item", nil, chest.id)
+			local farmAmount = TopazSettings.farmAmount()
+			if farmAmount <= FARM_AMOUNT.ALL_ITEMS_SEARCH then
+				for _, shrine in Map.entitiesWithComponent(x, y, "shrine") do
+					lastSeenShrine = CurrentLevel.getDepth()
 				end
 			end
-			for _, item in ipairs(ItemChoices.getTargetItems(x, y, player)) do
-				Targeting.addTarget(nil, nil, "item", nil, item.id)
+			if farmAmount ~= FARM_AMOUNT.IGNORE_LOOT then
+				for _, chest in Map.entitiesWithComponent(x, y, "chestLike") do
+					if not chest.sale or chest.sale.priceTag == 0 then
+						gotChest = true
+					end
+					if ItemChoices.canPurchase(chest, player) then
+						Targeting.addTarget(nil, nil, "item", nil, chest.id)
+					end
+				end
+				for _, item in ipairs(ItemChoices.getTargetItems(x, y, player)) do
+					Targeting.addTarget(nil, nil, "item", nil, item.id)
+				end
 			end
 		end
 	elseif not TopazSettings.useOldExploreMethod() and not Targeting.isSpaceVisible(x, y) and not CurrentLevel.isBoss() then
 		local floor = false
 		local wall = false
+		local lowStrats = false
 		for dx = -1, 1 do
 			for dy = -1, 1 do
 				if Targeting.isSpaceVisible(x + dx, y + dy) then
 					local tileInfo = Tile.getInfo(x, y)
+					if LowPercent.isEnforced() then
+						if CurrentLevel.getZone() == 5 then
+							if tileInfo.wire and (dx == 0 or dy == 0) then
+								lowStrats = true
+								break
+							end
+						end
+					end
 					if tileInfo.isFloor then
 						floor = true
-						break
+						if not LowPercent.isEnforced() then
+							break
+						end
 					else
 						if Utils.canDig(player, x + dx, y + dy) then
 							wall = true
@@ -261,6 +358,9 @@ function Targeting.scanSpaceForTargets(x, y, player)
 			local priority = Targeting.PRIORITY.EXPLORE_NEAR_WALL
 			if floor then
 				priority = Targeting.PRIORITY.EXPLORE_NEAR_FLOOR
+			end
+			if lowStrats then
+				priority = Targeting.PRIORITY.LOW_PERCENT_EXPLORE_STRATS
 			end
 			Targeting.addTarget(x, y, "explore", priority)
 		end
@@ -320,8 +420,11 @@ function Targeting.cleanDeadTargets(player)
 	while i > 0 do
 		local target = targets[i]
 		local x, y = Targeting.getTargetCoords(target)
-		local hash = x .. "_" .. y .. "_" .. (target.tag or "none")
-		if hashes[hash] or Targeting.checkIfTargetDead(target, player) then
+		local hash
+		if x and y then
+			hash = x .. "_" .. y .. "_" .. (target.tag or "none")
+		end
+		if not hash or hashes[hash] or Targeting.checkIfTargetDead(target, player) then
 			table.remove(targets, i)
 		else
 			target.unreachable = nil
@@ -383,7 +486,7 @@ function Targeting.getTarget(player)
 	local ready = Targeting.isReadyToExit()
 	for _, next in ipairs(targets) do
 		-- TODO target filtering method (hasPathBlocker gold and standing armdillos, as well as this not exit if not ready code)
-		if not next.unreachable and (not next.exit or ready) then
+		if not next.unreachable and (next.tag ~= "exit" or ready) then
 			selectedPriority = selected and selected.priority or 0
 			local nextPriority = next.priority
 			if next.priority then

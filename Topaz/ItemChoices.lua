@@ -13,7 +13,6 @@ local ACTION_ITEMS = {
 		HolyWater=true,
 		ScrollFreezeEnemies=true,
 		ScrollShield=true,
-		Sync_ScrollBerzerk=true,
 		TomeFreeze=true,
 		TomeShield=true,
 		TomeEarth=true,
@@ -33,7 +32,7 @@ local ACTION_ITEMS = {
 		ScrollFear=true,
 		ScrollGigantism=true,
 		-- TODO avoid need glass
-		ScrollNeed=true,
+		--ScrollNeed=true,
 		ScrollRiches=true,
 	},
 	crateOpener = {
@@ -41,6 +40,7 @@ local ACTION_ITEMS = {
 		BombGrenade3=true,
 		ScrollFireball=true,
 		ScrollPulse=true,
+		Sync_ScrollBerzerk=true,
 		ThrowingStars=true,
 		TomeFireball=true,
 		TomePulse=true,

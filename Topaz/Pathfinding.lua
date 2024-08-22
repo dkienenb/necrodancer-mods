@@ -18,7 +18,6 @@ local TablePool = require("Topaz.libs.TablePool")
 local Pathfinding = TablePool.fetch(0, 10)
 
 function Pathfinding.hasSnag(player, targetX, targetY)
-	-- TODO return false if we don't know
 	-- TODO monster on trapdoor
 	-- TODO different weapon types
 	local tileInfo = Tile.getInfo(targetX, targetY)
@@ -33,6 +32,7 @@ function Pathfinding.hasSnag(player, targetX, targetY)
 			end
 		end
 	end
+	return false
 end
 
 function Pathfinding.chebyshevDistance(dx, dy)
@@ -65,6 +65,9 @@ function Pathfinding.hasParityIssue(player, target, path)
 		return false
 	end
 	local monster = Entities.getEntityByID(target.entityID)
+	if monster.name == "ZombieElectric" then
+		return false
+	end
 	if Pathfinding.hasDiagonal(player) then
 		return false
 	end

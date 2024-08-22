@@ -20,14 +20,13 @@ local Utils = require("Topaz.Utils")
 
 local TablePool = require("Topaz.libs.TablePool")
 
+local TopazSettings = require("Topaz.TopazSettings")
+
 local Safety = TablePool.fetch(0, 19)
 
 function Safety.canHurt(monster, player, entityToPlayerDirection)
 	-- TODO crates, blood shoppies, elec zombies on wire with snag behind them
 	if not Utils.canEverHurt(monster, player) then return false end
-	if monster.captiveAudience and monster.captiveAudience.active then
-		return false
-	end
 	if monster.stasis and monster.stasis.active and monster.stasisAttackableFlags and monster.stasisAttackableFlags.remove then
 		return false
 	end
@@ -147,7 +146,12 @@ function Safety.checkForTraps(x, y, player)
 			end
 			-- TODO let player walk into secret shops later
 			if entity.trapTravel then return true end
-			-- TODO ban dice traps on low%
+			if entity.trapCast and entity.trapCast.spell and entity.trapCast.spell == "SpellcastBombTrap" and TopazSettings.avoidBombTraps() then
+				return true
+			end
+			if (LowPercent.isEnforced() or TopazSettings.avoidDiceTraps()) and entity.Sync_trapDice then
+				return true
+			end
 		end
 	return false
 end
@@ -229,7 +233,7 @@ function Safety.posesAdditionalThreat(monster, x, y, player)
 	end
 	if monster.name == "LuteHead" then
 		local body = Map.firstWithComponent(monsterX, monsterY - 1, "luteBody")
-		if monsterY < -10 and not body.luteBody.forceUp and aiAllowsMovement(body) and monsterX == x and monsterY + 1 == y then
+		if monsterY < -10 and not body.luteBody.forceUp and Safety.aiAllowsMovement(body) and monsterX == x and monsterY + 1 == y then
 			return true
 		end
 	end
@@ -303,6 +307,7 @@ function Safety.protectedFrom(entity, player, targetX, targetY)
 		end
 		if not startingDanger and entity.stasis.active then return true end
 	end
+	-- TODO chess king before everything killed
 	return false
 	-- TODO clones: okay yeah this one is hard
 end
@@ -534,7 +539,9 @@ function Safety.checkForArmadillos(x, y, player)
 end
 
 function Safety.hasPathBlocker(x, y, player, ignoreGold)
-	-- TODO return false if we have no idea what's on it
+	if not Targeting.isSpaceVisible(x, y) then
+		return false
+	end
 	local goldHater = player.goldHater
 	if goldHater and Map.hasComponent(x, y, "itemCurrency") then return true end
 	if Safety.checkForArmadillos(x, y, player) then return true end

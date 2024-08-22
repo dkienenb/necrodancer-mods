@@ -4,7 +4,7 @@ local Entities = require "system.game.Entities"
 local Map = require "necro.game.object.Map"
 
 local Utils = require("Topaz.Utils")
-local PRIORITY = require("Topaz.Targeting").PRIORITY
+local Targeting = require("Topaz.Targeting")
 
 local Snapshot = require "necro.game.system.Snapshot"
 
@@ -35,7 +35,7 @@ local function fortissimoleOverride(player, targets)
 					else
 						for _, monster in ipairs(extras) do
 							-- TODO ensure all gold spawns at y -11 or higher for monk/coda
-							table.insert(targets, { entityID = monster.id, override = true, priority = PRIORITY.OVERRIDE })
+							Targeting.addTarget(nil, nil, "override", nil, monster.id)
 						end
 					end
 				end
@@ -43,7 +43,7 @@ local function fortissimoleOverride(player, targets)
 					if playerX == -4 and playerY == -14 then
 						fmPhase = 2
 					else
-						table.insert(targets, { x = -4, y = -14, override = true, priority = PRIORITY.OVERRIDE })
+						Targeting.addTarget(-4, -14, "override")
 					end
 				end
 				if fmPhase == 2 then
@@ -59,7 +59,7 @@ local function fortissimoleOverride(player, targets)
 					if playerX == 4 and playerY == -14 then
 						fmPhase = 4
 					else
-						table.insert(targets, { x = 4, y = -14, override = true, priority = PRIORITY.OVERRIDE })
+						Targeting.addTarget(4, -14, "override")
 					end
 				end
 				if fmPhase == 4 then
@@ -76,7 +76,7 @@ local function fortissimoleOverride(player, targets)
 						fmPhase = 6
 					else
 						for _, monster in ipairs(extras) do
-							table.insert(targets, { entityID = monster.id, override = true, priority = PRIORITY.OVERRIDE })
+							Targeting.addTarget(nil, nil, "override", nil, monster.id)
 						end
 					end
 				end
@@ -84,7 +84,7 @@ local function fortissimoleOverride(player, targets)
 					if playerX == 6 and playerY == -16 then
 						fmPhase = 7
 					else
-						table.insert(targets, { x = 6, y = -16, override = true, priority = PRIORITY.OVERRIDE })
+						Targeting.addTarget(6, -16, "override")
 					end
 				end
 				if fmPhase == 7 then
